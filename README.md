@@ -26,12 +26,12 @@ This service is built using Spring Boot and handles:
 
 com.replime
 │
-├── config
-├── controller
-├── service
-├── repository
-├── entity
-├── dto
+├── configs
+├── controllers
+├── services
+├── repos
+├── entities
+├── dtos
 ├── exception
 ├── security
 
