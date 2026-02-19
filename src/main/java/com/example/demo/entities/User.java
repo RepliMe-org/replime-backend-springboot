@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -34,7 +35,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
-    private String providerId;
+    private String providerId; // only for OAuth users
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -76,3 +77,4 @@ public class User implements UserDetails {
         return true;
     }
 }
+
