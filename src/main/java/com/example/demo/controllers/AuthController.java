@@ -25,4 +25,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @GetMapping("loggedin")
+    public String loggedin(){
+        return "successfully logged in";
+    }
+
+    // http://localhost:8080/api/v1/login/oauth2/code/google
 }

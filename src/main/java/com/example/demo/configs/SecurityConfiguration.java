@@ -56,7 +56,7 @@ public class SecurityConfiguration {
                             // Redirect to your frontend with the JWT
                             //TODO: change this to the page we need the user to be redirected to
                             response.sendRedirect(
-                                    "http://localhost:3000/oauth-success?token=" + token
+                                    "http://localhost:8080/api/v1/auth/loggedin?token=" + token
                             );
                         })
                 )
