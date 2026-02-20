@@ -82,3 +82,25 @@ Or run directly from IntelliJ.
 Server runs on:
 
 http://localhost:8080/api/v1
+
+---
+
+## 📘 API Documentation (Swagger)
+
+Interactive API documentation is available via OpenAPI.
+
+After running the application:
+
+http://localhost:8080/api/v1/swagger-ui/index.html
+
+### OpenAPI JSON
+
+
+http://localhost:8080/api/v1/v3/api-docs
+
+
+### Swagger allows:
+
+- Testing endpoints directly
+- Viewing request/response schemas
+- Exploring secured endpoints  
