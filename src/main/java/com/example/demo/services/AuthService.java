@@ -28,31 +28,42 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public String signup(SignupRequestDTO request) {
+        try {
+            if (userRepo.findByEmail(request.getEmail()).isPresent()) {
+                throw new RuntimeException("Email already exists");
+            }
 
-        if (userRepo.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            User user = User.builder()
+                    .name(request.getName())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .provider(AuthProvider.LOCAL)
+                    .role(Role.USER)
+                    .build();
+
+            userRepo.save(user);
+            String token = jwtService.generateToken(user);
+            return token;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred during signup", e);
         }
-
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .provider(AuthProvider.LOCAL)
-                .role(Role.USER)
-                .build();
-
-        userRepo.save(user);
-        String token = jwtService.generateToken(user);
-        return token;
     }
 
     public String login(LoginRequestDTO request) {
-        authenticationManager.authenticate(
+        try {
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
-        User parent = userRepo.findByEmail(request.getEmail())
+            );
+            User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials!"));
-        String token = jwtService.generateToken(parent);
-        return token;
+            String token = jwtService.generateToken(user);
+            return token;
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred during login", e);
+        }
     }
 }
