@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,12 +29,11 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String signup(SignupRequestDTO request) {
+    public LoginResponseDTO signup(SignupRequestDTO request) {
 
         if (userRepo.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
-
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -44,18 +44,30 @@ public class AuthService {
 
         userRepo.save(user);
         String token = jwtService.generateToken(user);
-        return token;
+        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+                .token(token)
+                .username(user.getName())
+                .role(user.getRole())
+                .build();
+
+        return loginResponse;
     }
 
-    public String login(LoginRequestDTO request) {
+    public LoginResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials!"));
-        System.out.println(user);
+
         String token = jwtService.generateToken(user);
-        System.out.println(token);
-        return token;
+
+        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+                .token(token)
+                .username(user.getName())
+                .role(user.getRole())
+                .build();
+
+        return loginResponse;
     }
 }

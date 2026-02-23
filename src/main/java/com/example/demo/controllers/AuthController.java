@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.LoginRequestDTO;
+import com.example.demo.dtos.LoginResponseDTO;
 import com.example.demo.dtos.SignupRequestDTO;
 import com.example.demo.services.AuthService;
 import lombok.Getter;
@@ -15,13 +16,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDTO signupRequest) {
-        String token = authService.signup(signupRequest);
-        return ResponseEntity.ok(token);
+    public ResponseEntity<LoginResponseDTO> signup(@RequestBody SignupRequestDTO signupRequest) {
+        LoginResponseDTO loginResponse = authService.signup(signupRequest);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request){
         return ResponseEntity.ok(authService.login(request));
     }
 
