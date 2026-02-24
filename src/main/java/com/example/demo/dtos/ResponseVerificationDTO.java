@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class ResponseVerificationDTO {
+    private String message;
     private String verificationToken;
     private LocalDateTime expirationDateAt;
 }

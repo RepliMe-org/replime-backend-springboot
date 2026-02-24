@@ -22,8 +22,7 @@ public class InfluencerVerificationController {
         return response;
     }
     @PostMapping("/confirm")
-    public ResponseEntity<String> confirmVerification(@RequestHeader("Authorization") String token) {
-        influencerVerificationService.confirmVerification(token);
-        return ResponseEntity.ok("Influencer Verification Confirmed");
+    public ResponseEntity<ResponseVerificationDTO> confirmVerification(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(influencerVerificationService.confirmVerification(token));
     }
 }

@@ -83,6 +83,7 @@ public class InfluencerVerificationService {
                 .build();
 
         influencerVerificationRepo.save(verification);
+        verificationTokenAndExpiry.setMessage("Verification Requested Successfully!");
         return verificationTokenAndExpiry;
     }
 
@@ -103,36 +104,8 @@ public class InfluencerVerificationService {
                 .build();
     }
 
-    private ResponseVerificationDTO renewVerificationToken(String token) {
-
-        User user = jwtService.extractUser(token);
-
-        InfluencerVerification verification = influencerVerificationRepo.findByUser(user);
-
-        LocalDateTime expirationDate = LocalDateTime.now().plus(1, ChronoUnit.HOURS);
-
-        byte[] randomBytes = new byte[24]; // 192 bits
-        new SecureRandom().nextBytes(randomBytes);
-        String verificationToken = Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(randomBytes);
-
-        verification.setVerificationToken(verificationToken);
-        verification.setTokenExpirationAt(expirationDate);
-        influencerVerificationRepo.save(verification);
-
-
-        return ResponseVerificationMapper(verification);
-    }
-
-    private ResponseVerificationDTO ResponseVerificationMapper(InfluencerVerification verification){
-        return ResponseVerificationDTO.builder()
-                .expirationDateAt(verification.getTokenExpirationAt())
-                .verificationToken(verification.getVerificationToken())
-                .build();
-    }
     @Transactional
-    public void confirmVerification(String token) {
+    public ResponseVerificationDTO confirmVerification(String token) {
 
         User user = jwtService.extractUser(token);
 
@@ -144,7 +117,14 @@ public class InfluencerVerificationService {
                                 new VerificationException("No pending verification found."));
 
         if (verification.getTokenExpirationAt().isBefore(LocalDateTime.now())) {
-            throw new VerificationException("Verification token expired.");
+
+            ResponseVerificationDTO newToken = generateVerificationToken();
+            newToken.setMessage("Previous token expired. New token generated.");
+            verification.setVerificationToken(newToken.getVerificationToken());
+            verification.setTokenExpirationAt(newToken.getExpirationDateAt());
+            verification.setRequestedAt(LocalDateTime.now());
+            influencerVerificationRepo.save(verification);
+            return newToken;
         }
 
         JsonNode channelData =
@@ -169,5 +149,8 @@ public class InfluencerVerificationService {
         verification.setVerifiedAt(LocalDateTime.now());
 
         user.setRole(Role.INFLUENCER);
+        return ResponseVerificationDTO.builder()
+                .message("Influencer Verification Confirmed")
+                .build();
     }
 }
