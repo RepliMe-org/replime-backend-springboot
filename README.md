@@ -91,7 +91,7 @@ Interactive API documentation is available via OpenAPI.
 
 After running the application:
 
-http://localhost:8080/api/v1/swagge r-ui/index.html
+http://localhost:8080/api/v1/swagger-ui/index.html
 
 ### OpenAPI JSON
 
