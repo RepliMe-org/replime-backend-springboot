@@ -14,4 +14,6 @@ import java.util.UUID;
 @Repository
 public interface InfluencerVerificationRepo extends JpaRepository<InfluencerVerification, UUID> {
     Optional<InfluencerVerification> findByUserAndStatusIn(User user, List<VerificationStatus> statuses);
+
+    InfluencerVerification findByUser(User user);
 }

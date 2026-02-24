@@ -38,4 +38,6 @@ public class InfluencerVerification {
     private LocalDateTime requestedAt;
 
     private LocalDateTime verifiedAt;
+
+    private LocalDateTime tokenExpirationAt;
 }

@@ -1,12 +1,11 @@
 package com.example.demo.controllers;
 
-
-import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.RequestVerificationDTO;
-import com.example.demo.entities.User;
-import com.example.demo.repos.UserRepo;
+import com.example.demo.dtos.ResponseVerificationDTO;
 import com.example.demo.services.InfluencerVerificationService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +15,15 @@ public class InfluencerVerificationController {
     private InfluencerVerificationService influencerVerificationService;
 
     @PostMapping("/request")
-    public String requestVerification(@RequestBody RequestVerificationDTO requestVerificationDTO, @RequestHeader("Authorization") String token) {
-        String verificationToken = influencerVerificationService.requestVerification(
+    public ResponseVerificationDTO requestVerification(@RequestBody RequestVerificationDTO requestVerificationDTO,
+                                                       @RequestHeader("Authorization") String token) {
+        ResponseVerificationDTO response = influencerVerificationService.requestVerification(
                 requestVerificationDTO.getChannelUrl(), token);
-        return verificationToken;
+        return response;
+    }
+    @PostMapping("/confirm")
+    public ResponseEntity<String> confirmVerification(@RequestHeader("Authorization") String token) {
+        influencerVerificationService.confirmVerification(token);
+        return ResponseEntity.ok("Influencer Verification Confirmed");
     }
 }
