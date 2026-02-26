@@ -50,3 +50,5 @@ spring-boot-jars/
 
 # Environment variables
 .env
+.idea/compiler.xml
+/.idea
