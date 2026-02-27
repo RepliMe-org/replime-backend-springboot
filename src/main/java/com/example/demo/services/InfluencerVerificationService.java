@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InfluencerVerificationService {
@@ -36,17 +37,37 @@ public class InfluencerVerificationService {
 
 
         User user = jwtService.extractUser(token);
-        // Check if the channel url already found
-
 
         // Check if user already has a pending or verified request
-        influencerVerificationRepo.findByUserAndStatusIn(user,
-                List.of(VerificationStatus.PENDING, VerificationStatus.VERIFIED))
-                .ifPresent(existing -> {
-                    throw new VerificationException(
-                            "You have already requested verification. Status: " + existing.getStatus()
-                    );
-                });
+        Optional<InfluencerVerification> existingOpt =
+                influencerVerificationRepo.findByUserAndStatusIn(
+                        user,
+                        List.of(VerificationStatus.PENDING, VerificationStatus.VERIFIED)
+                );
+
+        if (existingOpt.isPresent()) {
+            InfluencerVerification existing = existingOpt.get();
+
+            if (existing.getStatus() == VerificationStatus.PENDING) {
+
+                // Generate new token
+                ResponseVerificationDTO newToken = generateVerificationToken();
+
+                // Update existing record
+                existing.setVerificationToken(newToken.getVerificationToken());
+                existing.setTokenExpirationAt(newToken.getExpirationDateAt());
+
+                influencerVerificationRepo.save(existing);
+
+                return newToken;  // return new token to user
+            }
+
+            if (existing.getStatus() == VerificationStatus.VERIFIED) {
+                throw new VerificationException(
+                        "You are already verified."
+                );
+            }
+        }
 
         String channelId = youtubeClientService.extractChannelId(channelUrl);
 
@@ -148,7 +169,7 @@ public class InfluencerVerificationService {
 
         System.out.println(description);
 
-        String expected = "RepliMe Verification: " + verification.getVerificationToken();
+        String expected = verification.getVerificationToken();
 
         if (!description.contains(expected)) {
             throw new VerificationException("Verification token not found.");
