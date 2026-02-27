@@ -36,6 +36,13 @@ public class InfluencerVerificationService {
 
 
         User user = jwtService.extractUser(token);
+        // Check if the channel url already found
+        InfluencerVerification isFoundUrl = influencerVerificationRepo.findByChannelUrl(channelUrl);
+        if (isFoundUrl != null){
+            throw new VerificationException(
+                    "This channel requested verification before."
+            );
+        }
 
         // Check if user already has a pending or verified request
         influencerVerificationRepo.findByUserAndStatusIn(user,

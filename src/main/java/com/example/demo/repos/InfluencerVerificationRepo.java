@@ -16,4 +16,6 @@ public interface InfluencerVerificationRepo extends JpaRepository<InfluencerVeri
     Optional<InfluencerVerification> findByUserAndStatusIn(User user, List<VerificationStatus> statuses);
 
     InfluencerVerification findByUser(User user);
+
+    InfluencerVerification findByChannelUrl(String channelUrl);
 }

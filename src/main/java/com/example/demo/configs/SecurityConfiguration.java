@@ -65,10 +65,6 @@ public class SecurityConfiguration {
                         })
                 )
 
-                // Stateless session for JWT architecture
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
 
                 // Custom authentication provider (for local login)
                 .authenticationProvider(authenticationProvider)
