@@ -37,12 +37,7 @@ public class InfluencerVerificationService {
 
         User user = jwtService.extractUser(token);
         // Check if the channel url already found
-        InfluencerVerification isFoundUrl = influencerVerificationRepo.findByChannelUrl(channelUrl);
-        if (isFoundUrl != null){
-            throw new VerificationException(
-                    "This channel requested verification before."
-            );
-        }
+
 
         // Check if user already has a pending or verified request
         influencerVerificationRepo.findByUserAndStatusIn(user,
@@ -55,12 +50,19 @@ public class InfluencerVerificationService {
 
         String channelId = youtubeClientService.extractChannelId(channelUrl);
 
+        InfluencerVerification isFoundChannel = influencerVerificationRepo.findByChannelId(channelId);
+        if (isFoundChannel != null){
+            throw new VerificationException(
+                    "This channel requested verification before."
+            );
+        }
+
         JsonNode channelData = youtubeClientService.getChannelData(channelId);
 
         JsonNode items = channelData.get("items");
 
         if (items == null || items.isEmpty()) {
-            throw new RuntimeException("Channel not found");
+            throw new VerificationException("Channel not found");
         }
 
         JsonNode statistics = items.get(0).get("statistics");
