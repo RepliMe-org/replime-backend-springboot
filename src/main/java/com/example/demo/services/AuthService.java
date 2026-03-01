@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.dtos.LoginResponseDTO;
+import com.example.demo.exceptions.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +33,7 @@ public class AuthService {
     public LoginResponseDTO signup(SignupRequestDTO request) {
 
         if (userRepo.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new AuthenticationException("Email already exists");
         }
         User user = User.builder()
                 .name(request.getName())
@@ -54,20 +55,29 @@ public class AuthService {
     }
 
     public LoginResponseDTO login(LoginRequestDTO request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            throw new AuthenticationException("Invalid email or password");
+        }
+
         User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials!"));
+                .orElseThrow(() ->
+                        new AuthenticationException("Invalid email or password")
+                );
 
         String token = jwtService.generateToken(user);
 
-        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+        return LoginResponseDTO.builder()
                 .token(token)
                 .username(user.getName())
                 .role(user.getRole())
                 .build();
-
-        return loginResponse;
     }
 }

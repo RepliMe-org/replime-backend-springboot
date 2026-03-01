@@ -21,4 +21,16 @@ public class GlobalExceptionHandler {
                         "error", ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException ex) {
+
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "success", false,
+                        "error", ex.getMessage()
+                ));
+    }
 }
