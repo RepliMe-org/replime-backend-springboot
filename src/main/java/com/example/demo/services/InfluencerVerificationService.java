@@ -1,5 +1,15 @@
 package com.example.demo.services;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.ResponseVerificationDTO;
 import com.example.demo.entities.InfluencerVerification;
@@ -8,18 +18,9 @@ import com.example.demo.entities.User;
 import com.example.demo.entities.VerificationStatus;
 import com.example.demo.exceptions.VerificationException;
 import com.example.demo.repos.InfluencerVerificationRepo;
-import com.example.demo.repos.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class InfluencerVerificationService {
@@ -46,6 +47,11 @@ public class InfluencerVerificationService {
                 );
 
         if (existingOpt.isPresent()) {
+                if (!existingOpt.get().getChannelUrl().equals(channelUrl)) {
+                        throw new VerificationException(
+                                "You have already requested verification for different channel."
+                        );
+                }
             InfluencerVerification existing = existingOpt.get();
 
             if (existing.getStatus() == VerificationStatus.PENDING) {
