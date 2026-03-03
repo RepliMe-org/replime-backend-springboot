@@ -32,6 +32,9 @@ public class InfluencerVerificationService {
     @Autowired
     private InfluencerVerificationRepo influencerVerificationRepo;
 
+    @Autowired
+    private ChatbotService chatbotService;
+
     @Transactional
     public ResponseVerificationDTO requestVerification(String channelUrl, String token) {
 
@@ -185,6 +188,7 @@ public class InfluencerVerificationService {
         verification.setVerifiedAt(LocalDateTime.now());
 
         user.setRole(Role.INFLUENCER);
+        chatbotService.createChatbot(user);
         return ResponseVerificationDTO.builder()
                 .message("Influencer Verification Confirmed")
                 .build();

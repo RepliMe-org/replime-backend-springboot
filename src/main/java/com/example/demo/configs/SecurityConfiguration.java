@@ -30,6 +30,11 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
 
+                // Stateless session management
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -37,11 +42,16 @@ public class SecurityConfiguration {
                                 "/api/test/**",
                                 "/actuator/**",
                                 "/api/review/**",
-                                //swagger
+                                "/chatbot/all/public",
+                                //swagger - these paths are relative to context-path
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/api-docs/**"
                         ).permitAll()
+                        .requestMatchers("/chatbot/all").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
@@ -64,6 +74,9 @@ public class SecurityConfiguration {
                             );
                         })
                 )
+
+                // Disable default form login to prevent redirects
+                .formLogin(form -> form.disable())
 
 
                 // Custom authentication provider (for local login)
