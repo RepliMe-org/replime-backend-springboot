@@ -68,12 +68,10 @@ public class ChatbotService {
                 .createdAt(chatbot.getCreatedAt())
                 .configId(config != null ? config.getId() : null)
                 .chatbotName(config != null ? config.getName() : "")
+                .greetingMessage(config != null ? config.getGreetingMessage() : "")
                 .chatbotDescription(config != null ? config.getDescription() : "")
                 .systemPrompt(config != null ? config.getSystemPrompt() : "")
-                .modelName(config != null ? config.getModelName() : "")
                 .temperature(config != null ? config.getTemperature() : null)
-                .version(config != null ? config.getVersion() : null)
-                .isActive(config != null && config.isActive())
                 .configCreatedAt(config != null ? config.getCreatedAt() : null)
                 .build();
     }

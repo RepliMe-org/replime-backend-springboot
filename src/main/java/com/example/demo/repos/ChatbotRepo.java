@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface ChatbotRepo extends JpaRepository<Chatbot, UUID> {
     List<Chatbot> findAllByIsPublicTrue();
+
+    Chatbot findByInfluencerId(Long id);
 }

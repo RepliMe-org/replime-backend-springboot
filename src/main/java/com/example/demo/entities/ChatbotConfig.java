@@ -15,8 +15,8 @@ import java.util.UUID;
 public class ChatbotConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne
     private Chatbot chatbot;
@@ -29,15 +29,13 @@ public class ChatbotConfig {
     @Column(columnDefinition = "TEXT")
     private String systemPrompt;
 
-    private String modelName;
+//    private String modelName;
 
     private Double temperature;
 
 //    private Integer maxTokens;
 
-    private Integer version;
-
-    private boolean isActive;
+//    private Integer version;
 
     private LocalDateTime createdAt;
 }

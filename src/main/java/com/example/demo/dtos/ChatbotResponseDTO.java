@@ -32,7 +32,7 @@ public class ChatbotResponseDTO {
     private String greetingMessage;
 
     // ChatbotConfig fields
-    private UUID configId;
+    private Long configId;
 
     private String chatbotName;
 

@@ -31,7 +31,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
+              "raw": "{\n  \"name\": \"testuser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/signup",
@@ -129,6 +129,112 @@
               "raw": "{{baseUrl}}/influencer/verify/confirm",
               "host": ["{{baseUrl}}"],
               "path": ["influencer", "verify", "confirm"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chatbot",
+      "item": [
+        {
+          "name": "Get All Public Chatbots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/all/public",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "all", "public"]
+            }
+          }
+        },
+        {
+          "name": "Get All Chatbots (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Chatbot By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/{{chatbotId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "{{chatbotId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chatbot Config",
+      "item": [
+        {
+          "name": "Create Chatbot Config",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Assistant\",\n  \"description\": \"Helpful chatbot for FAQs\",\n  \"greetingMessage\": \"Hi! How can I help you today?\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "config"]
+            }
+          }
+        },
+        {
+          "name": "Update Chatbot Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"greetingMessage\": \"Hello! Ask me anything.\",\n  \"temperature\": 0.8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "config"]
             }
           }
         }
