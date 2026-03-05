@@ -1,7 +1,9 @@
 package com.example.demo.services;
 
-import com.example.demo.dtos.ChatbotBrowseResponseDTO;
-import com.example.demo.dtos.ChatbotResponseDTO;
+import com.example.demo.configs.JwtService;
+import com.example.demo.dtos.AdminChatbotResponseDTO;
+import com.example.demo.dtos.PublicChatbotResponseDTO;
+import com.example.demo.dtos.InfluencerChatbotResponseDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
 import com.example.demo.entities.ChatbotStatus;
@@ -21,6 +23,9 @@ public class ChatbotService {
     @Autowired
     private ChatbotRepo chatbotRepo;
 
+    @Autowired
+    private JwtService jwtService;
+
     public void createChatbot(User user){
         Chatbot chatbot = Chatbot.builder()
                 .influencer(user)
@@ -31,24 +36,24 @@ public class ChatbotService {
         System.out.println("Created chatbot " + chatbot);
     }
 
-    public ResponseEntity<List<ChatbotBrowseResponseDTO>> getPublicChatbots() {
+    public ResponseEntity<List<PublicChatbotResponseDTO>> getPublicChatbots() {
         List<Chatbot> chatbots = chatbotRepo.findAllByIsPublicTrue();
-        List<ChatbotBrowseResponseDTO> browseDTOs = chatbots.stream()
-                .map(this::mapToChatbotBrowseDTO)
+        List<PublicChatbotResponseDTO> browseDTOs = chatbots.stream()
+                .map(this::mapToPublicChatbotResponseDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(browseDTOs);
     }
 
-    public ResponseEntity<List<ChatbotResponseDTO>> getAllChatbots() {
+    public ResponseEntity<List<InfluencerChatbotResponseDTO>> getAllChatbots() {
         List<Chatbot> chatbots = chatbotRepo.findAll();
-        List<ChatbotResponseDTO> responseDTOs = chatbots.stream()
-                .map(this::mapToChatbotResponseDTO)
+        List<InfluencerChatbotResponseDTO> responseDTOs = chatbots.stream()
+                .map(this::mapToInfluencerChatbotResponseDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseDTOs);
     }
 
-    private ChatbotBrowseResponseDTO mapToChatbotBrowseDTO(Chatbot chatbot) {
-        return ChatbotBrowseResponseDTO.builder()
+    private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(Chatbot chatbot) {
+        return PublicChatbotResponseDTO.builder()
                 .id(chatbot.getId())
                 .influencerUsername(chatbot.getInfluencer().getUsername())
                 .chatbotName(chatbot.getConfig() != null ? chatbot.getConfig().getName() : "")
@@ -58,9 +63,9 @@ public class ChatbotService {
                 .build();
     }
 
-    private ChatbotResponseDTO mapToChatbotResponseDTO(Chatbot chatbot) {
+    private InfluencerChatbotResponseDTO mapToInfluencerChatbotResponseDTO(Chatbot chatbot) {
         ChatbotConfig config = chatbot.getConfig();
-        return ChatbotResponseDTO.builder()
+        return InfluencerChatbotResponseDTO.builder()
                 .id(chatbot.getId())
                 .influencerUsername(chatbot.getInfluencer().getUsername())
                 .status(chatbot.getStatus())
@@ -76,10 +81,65 @@ public class ChatbotService {
                 .build();
     }
 
-    public ResponseEntity<ChatbotResponseDTO> getChatbotById(UUID id) {
+    private AdminChatbotResponseDTO mapToAdminChatbotResponseDTO(Chatbot chatbot) {
+        ChatbotConfig config = chatbot.getConfig();
+        return AdminChatbotResponseDTO.builder()
+                .id(chatbot.getId())
+                .influencerUsername(chatbot.getInfluencer().getUsername())
+                .chatbotName(config != null ? config.getName() : "")
+                .chatbotDescription(config != null ? config.getDescription() : "")
+                .greetingMessage(config != null ? config.getGreetingMessage() : "")
+                .status(chatbot.getStatus())
+                .isPublic(chatbot.isPublic())
+                .build();
+    }
+
+    public ResponseEntity<PublicChatbotResponseDTO> getChatbotById(UUID id) {
         return chatbotRepo.findById(id)
-                .map(this::mapToChatbotResponseDTO)
+                .map(this::mapToPublicChatbotResponseDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    public ResponseEntity<InfluencerChatbotResponseDTO> getInfluencerChatbot(String token) {
+        User user = jwtService.extractUser(token);
+        Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
+        if (chatbot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(mapToInfluencerChatbotResponseDTO(chatbot));
+    }
+
+    public ResponseEntity<List<AdminChatbotResponseDTO>> getAllChatbotsForAdmin() {
+        List<Chatbot> chatbots = chatbotRepo.findAll();
+        List<AdminChatbotResponseDTO> responseDTOs = chatbots.stream()
+                .map(this::mapToAdminChatbotResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseDTOs);
+    }
+
+    public ResponseEntity<String> updateChatbotStatus(UUID id, String status) {
+        Chatbot chatbot = chatbotRepo.findById(id).orElse(null);
+        if (chatbot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            ChatbotStatus newStatus = ChatbotStatus.valueOf(status.toUpperCase());
+            chatbot.setStatus(newStatus);
+            chatbotRepo.save(chatbot);
+            return ResponseEntity.ok("Chatbot status updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status value");
+        }
+    }
+
+    public ResponseEntity<String> updateChatbotVisibility(UUID id, boolean isPublic) {
+        Chatbot chatbot = chatbotRepo.findById(id).orElse(null);
+        if (chatbot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        chatbot.setPublic(isPublic);
+        chatbotRepo.save(chatbot);
+        return ResponseEntity.ok("Chatbot visibility updated successfully");
     }
 }

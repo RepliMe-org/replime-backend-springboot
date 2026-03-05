@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class ChatbotResponseDTO {
+public class InfluencerChatbotResponseDTO {
 
     @NotNull
     private UUID id;

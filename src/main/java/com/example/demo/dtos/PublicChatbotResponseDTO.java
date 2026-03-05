@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class ChatbotBrowseResponseDTO {
+public class PublicChatbotResponseDTO {
 
     @NotNull
     private UUID id;
