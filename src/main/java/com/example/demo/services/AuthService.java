@@ -80,4 +80,34 @@ public class AuthService {
                 .role(user.getRole())
                 .build();
     }
+
+    public LoginResponseDTO createAdmin(SignupRequestDTO signupRequest) {
+
+        boolean adminExists = userRepo.existsByRole(Role.ADMIN);
+        if (adminExists) {
+            throw new AuthenticationException("Admin user already exists");
+        }
+        if (userRepo.findByEmail(signupRequest.getEmail()).isPresent()) {
+            throw new AuthenticationException("Email already exists");
+        }
+
+        User admin = User.builder()
+                .name(signupRequest.getName())
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .provider(AuthProvider.LOCAL)
+                .role(Role.ADMIN)
+                .build();
+
+        userRepo.save(admin);
+
+        String token = jwtService.generateToken(admin);
+        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+                .token(token)
+                .username(admin.getName())
+                .role(admin.getRole())
+                .build();
+
+        return loginResponse;
+    }
 }

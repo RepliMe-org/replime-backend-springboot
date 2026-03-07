@@ -84,6 +84,39 @@
               }
             }
           ]
+        },
+        {
+          "name": "Admin Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"admin\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "admin"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -135,7 +168,7 @@
       ]
     },
     {
-      "name": "Chatbot",
+      "name": "Public Chatbot",
       "item": [
         {
           "name": "Get All Public Chatbots",
@@ -143,12 +176,29 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/all/public",
+              "raw": "{{baseUrl}}/chatbots",
               "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "all", "public"]
+              "path": ["chatbots"]
             }
           }
         },
+        {
+          "name": "Get Chatbot By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbots", "{{chatbotId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Chatbot",
+      "item": [
         {
           "name": "Get All Chatbots (Admin)",
           "request": {
@@ -160,14 +210,65 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/all",
+              "raw": "{{baseUrl}}/admin/chatbots",
               "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "all"]
+              "path": ["admin", "chatbots"]
             }
           }
         },
         {
-          "name": "Get Chatbot By Id",
+          "name": "Update Chatbot Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/status?status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "chatbots", "{{chatbotId}}", "status"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Chatbot Visibility",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "chatbots", "{{chatbotId}}", "visibility"],
+              "query": [
+                {
+                  "key": "isPublic",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Influencer Chatbot",
+      "item": [
+        {
+          "name": "Get Chatbot Config",
           "request": {
             "method": "GET",
             "header": [
@@ -177,19 +278,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/{{chatbotId}}",
+              "raw": "{{baseUrl}}/influencer/chatbot",
               "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "{{chatbotId}}"]
+              "path": ["influencer", "chatbot"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Chatbot Config",
-      "item": [
+        },
         {
-          "name": "Create Chatbot Config",
+          "name": "Save Chatbot Config",
           "request": {
             "method": "POST",
             "header": [
@@ -204,12 +300,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"My Assistant\",\n  \"description\": \"Helpful chatbot for FAQs\",\n  \"greetingMessage\": \"Hi! How can I help you today?\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
+              "raw": "{\n  \"name\": \"My Chatbot\",\n  \"description\": \"A test chatbot\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/config",
+              "raw": "{{baseUrl}}/influencer/chatbot/config",
               "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "config"]
+              "path": ["influencer", "chatbot", "config"]
             }
           }
         },
@@ -229,12 +325,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"greetingMessage\": \"Hello! Ask me anything.\",\n  \"temperature\": 0.8\n}"
+              "raw": "{\n  \"name\": \"Updated Chatbot\",\n  \"description\": \"Updated description\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/config",
+              "raw": "{{baseUrl}}/influencer/chatbot/config",
               "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "config"]
+              "path": ["influencer", "chatbot", "config"]
             }
           }
         }

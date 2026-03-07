@@ -25,6 +25,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("signup/admin")
+    public ResponseEntity<LoginResponseDTO> signupAdmin(@RequestBody SignupRequestDTO signupRequest)
+    {
+        LoginResponseDTO loginResponse = authService.createAdmin(signupRequest);
+        return ResponseEntity.ok(loginResponse);
+    }
+
     @GetMapping("loggedin")
     public String loggedin(){
         return "successfully logged in";

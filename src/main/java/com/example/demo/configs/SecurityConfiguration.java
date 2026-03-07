@@ -3,6 +3,7 @@ package com.example.demo.configs;
 import com.example.demo.entities.CustomOAuth2User;
 import com.example.demo.entities.User;
 import com.example.demo.services.CustomOidcUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,21 +42,27 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
-                                "/api/test/**",
-                                "/actuator/**",
-                                "/api/review/**",
-                                "/chatbot/all/public",
-                                //swagger - these paths are relative to context-path
+                                "/chatbots/**",
+
+                                // --- Swagger exact paths and wildcards ---
+                                "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api-docs/**"
+                                "/api-docs/**",
+
+                                // --- Swagger paths with your /api/v1 prefix ---
+                                "/api/v1/v3/api-docs",
+                                "/api/v1/v3/api-docs/**",
+                                "/api/v1/swagger-ui/**",
+                                "/api/v1/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/chatbot/all").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/admin/chatbots/**").hasRole("ADMIN")
+                        .requestMatchers("/influencer/chatbot/**").hasRole("INFLUENCER")
+                        .anyRequest()
+                        .authenticated())
 
                 // OAuth2 Login
                 .oauth2Login(oauth -> oauth

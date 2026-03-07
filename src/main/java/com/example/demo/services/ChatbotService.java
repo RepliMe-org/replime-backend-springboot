@@ -95,6 +95,9 @@ public class ChatbotService {
     }
 
     public ResponseEntity<PublicChatbotResponseDTO> getChatbotById(UUID id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return chatbotRepo.findById(id)
                 .map(this::mapToPublicChatbotResponseDTO)
                 .map(ResponseEntity::ok)
