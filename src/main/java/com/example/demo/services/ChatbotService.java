@@ -29,7 +29,7 @@ public class ChatbotService {
     public void createChatbot(User user){
         Chatbot chatbot = Chatbot.builder()
                 .influencer(user)
-                .status(ChatbotStatus.DRAFT)
+                .status(ChatbotStatus.CONFIGURING)
                 .createdAt(LocalDateTime.now())
                 .build();
         chatbotRepo.save(chatbot);
@@ -144,5 +144,14 @@ public class ChatbotService {
         chatbot.setPublic(isPublic);
         chatbotRepo.save(chatbot);
         return ResponseEntity.ok("Chatbot visibility updated successfully");
+    }
+
+    public ResponseEntity<ChatbotStatus> getChatbotStatus(String token) {
+        User user = jwtService.extractUser(token);
+        Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
+        if (chatbot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(chatbot.getStatus());
     }
 }

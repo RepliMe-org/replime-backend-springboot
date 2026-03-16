@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.dtos.InfluencerChatbotResponseDTO;
+import com.example.demo.entities.ChatbotStatus;
 import com.example.demo.services.ChatbotConfigService;
 import com.example.demo.services.ChatbotService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +39,12 @@ public class InfluencerChatbotController {
             @RequestBody ChatbotConfigUpdateDTO requestDTO,
             @RequestHeader("Authorization") String token) {
         return chatbotConfigService.updateChatbotConfig(requestDTO,token);
+    }
+
+    @GetMapping("status")
+    ResponseEntity<ChatbotStatus> getChatbotStatus(
+            @RequestHeader("Authorization") String token
+    ){
+        return chatbotService.getChatbotStatus(token);
     }
 }

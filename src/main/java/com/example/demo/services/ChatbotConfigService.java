@@ -5,6 +5,7 @@ import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
+import com.example.demo.entities.ChatbotStatus;
 import com.example.demo.entities.User;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
@@ -40,6 +41,7 @@ public class ChatbotConfigService {
         ChatbotConfig config = mapToChatbotConfig(requestDTO, chatbot);
         chatbotConfigRepo.save(config);
         chatbot.setConfig(config);
+        chatbot.setStatus(ChatbotStatus.TRAINING);
         chatbotRepo.save(chatbot);
         return ResponseEntity.ok("Chatbot config saved successfully");
     }
