@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dtos.AssignCategoryRequest;
 import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.dtos.InfluencerChatbotResponseDTO;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/influencer/chatbot")
@@ -46,5 +49,14 @@ public class InfluencerChatbotController {
             @RequestHeader("Authorization") String token
     ){
         return chatbotService.getChatbotStatus(token);
+    }
+
+    @PatchMapping("/{chatbotId}/category")
+    public ResponseEntity<Void> assignCategory(
+            @PathVariable UUID chatbotId,
+            @RequestBody AssignCategoryRequest request
+    ) {
+        chatbotService.assignCategory(chatbotId, request);
+        return ResponseEntity.noContent().build();
     }
 }

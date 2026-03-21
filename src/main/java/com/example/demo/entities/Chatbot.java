@@ -36,4 +36,7 @@ public class Chatbot {
 
     @OneToOne
     private ChatbotConfig config;
+
+    @OneToOne
+    private ChatbotCategory chatbotCategory;
 }

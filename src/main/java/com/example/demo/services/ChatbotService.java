@@ -2,12 +2,11 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.AdminChatbotResponseDTO;
+import com.example.demo.dtos.AssignCategoryRequest;
 import com.example.demo.dtos.PublicChatbotResponseDTO;
 import com.example.demo.dtos.InfluencerChatbotResponseDTO;
-import com.example.demo.entities.Chatbot;
-import com.example.demo.entities.ChatbotConfig;
-import com.example.demo.entities.ChatbotStatus;
-import com.example.demo.entities.User;
+import com.example.demo.entities.*;
+import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +24,9 @@ public class ChatbotService {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private ChatbotCategoryRepo chatbotCategoryRepo;
 
     public void createChatbot(User user){
         Chatbot chatbot = Chatbot.builder()
@@ -153,5 +155,17 @@ public class ChatbotService {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(chatbot.getStatus());
+    }
+
+    public void assignCategory(UUID chatbotId, AssignCategoryRequest request) {
+        Chatbot chatbot = chatbotRepo.findById(chatbotId)
+                .orElseThrow(() -> new RuntimeException("Chatbot not found"));
+
+
+        ChatbotCategory category = chatbotCategoryRepo.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Chatbot category not found"));
+
+        chatbot.setChatbotCategory(category);
+        chatbotRepo.save(chatbot);
     }
 }
