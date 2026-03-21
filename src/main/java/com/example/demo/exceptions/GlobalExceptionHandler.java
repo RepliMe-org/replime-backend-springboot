@@ -33,4 +33,16 @@ public class GlobalExceptionHandler {
                         "error", ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<?> handleResourceConflictException(ResourceConflictException ex) {
+
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "success", false,
+                        "error", ex.getMessage()
+                ));
+    }
 }
