@@ -51,12 +51,12 @@ public class InfluencerChatbotController {
         return chatbotService.getChatbotStatus(token);
     }
 
-    @PatchMapping("/category")
+    @PatchMapping("/category/{categoryId}")
     public ResponseEntity<Void> assignCategory(
-            @RequestBody AssignCategoryRequest request,
+            @RequestParam Long categoryId,
             @RequestHeader("Authorization") String token
     ) {
-        chatbotService.assignCategory(request,token);
+        chatbotService.assignCategory(categoryId,token);
         return ResponseEntity.noContent().build();
     }
 }
