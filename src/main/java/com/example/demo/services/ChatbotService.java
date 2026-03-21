@@ -157,9 +157,10 @@ public class ChatbotService {
         return ResponseEntity.ok(chatbot.getStatus());
     }
 
-    public void assignCategory(UUID chatbotId, AssignCategoryRequest request) {
-        Chatbot chatbot = chatbotRepo.findById(chatbotId)
-                .orElseThrow(() -> new RuntimeException("Chatbot not found"));
+    public void assignCategory(AssignCategoryRequest request, String token) {
+
+        User user = jwtService.extractUser(token);
+        Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
 
 
         ChatbotCategory category = chatbotCategoryRepo.findById(request.getCategoryId())
