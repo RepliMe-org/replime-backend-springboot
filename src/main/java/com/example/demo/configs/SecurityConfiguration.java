@@ -83,7 +83,7 @@ public class SecurityConfiguration {
 
                             // IMPORTANT: encode values to avoid URL issues
                             String redirectUrl = String.format(
-                                    "http://localhost:4200?token=%s&username=%s&role=%s",
+                                    "http://localhost:4200/auth/callback?token=%s&username=%s&role=%s",
                                     URLEncoder.encode(token, StandardCharsets.UTF_8),
                                     URLEncoder.encode(username, StandardCharsets.UTF_8),
                                     URLEncoder.encode(role, StandardCharsets.UTF_8)
