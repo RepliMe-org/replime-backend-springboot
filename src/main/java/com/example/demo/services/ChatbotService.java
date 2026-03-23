@@ -2,7 +2,6 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.AdminChatbotResponseDTO;
-import com.example.demo.dtos.AssignCategoryRequest;
 import com.example.demo.dtos.PublicChatbotResponseDTO;
 import com.example.demo.dtos.InfluencerChatbotResponseDTO;
 import com.example.demo.entities.*;

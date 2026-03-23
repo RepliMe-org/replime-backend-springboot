@@ -15,6 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -64,10 +67,9 @@ public class SecurityConfiguration {
                         .anyRequest()
                         .authenticated())
 
-                // OAuth2 Login
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(oidcUserService)   // Handles OIDC (e.g. Google)
+                                .oidcUserService(oidcUserService)
                         )
                         .successHandler((request, response, authentication) -> {
 
@@ -76,11 +78,18 @@ public class SecurityConfiguration {
 
                             String token = jwtService.generateToken(user);
 
-                            // Redirect to your frontend with the JWT
-                            //TODO: change this to the page we need the user to be redirected to
-                            response.sendRedirect(
-                                    "http://localhost:8080/api/v1/auth/loggedin?token=" + token
+                            String username = user.getUsername();
+                            String role = user.getRole().name();
+
+                            // IMPORTANT: encode values to avoid URL issues
+                            String redirectUrl = String.format(
+                                    "http://localhost:4200?token=%s&username=%s&role=%s",
+                                    URLEncoder.encode(token, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(username, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(role, StandardCharsets.UTF_8)
                             );
+
+                            response.sendRedirect(redirectUrl);
                         })
                 )
 
