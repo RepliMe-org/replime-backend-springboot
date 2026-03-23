@@ -78,7 +78,7 @@ public class SecurityConfiguration {
 
                             String token = jwtService.generateToken(user);
 
-                            String username = user.getUsername();
+                            String username = user.getName();
                             String role = user.getRole().name();
 
                             // IMPORTANT: encode values to avoid URL issues
