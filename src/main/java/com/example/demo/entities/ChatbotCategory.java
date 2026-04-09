@@ -3,6 +3,9 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -16,4 +19,8 @@ public class ChatbotCategory {
 
     @Column(unique = true, nullable = false)
     private String name;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "category")
+    private Set<MessageClass> messageClasses = new HashSet<>();
 }

@@ -3,6 +3,9 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -18,9 +21,15 @@ public class MessageClass {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private ChatbotCategory category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Chatbot chatbot;
+    @Builder.Default
+    @ManyToMany(mappedBy = "messageClasses")
+    private Set<Chatbot> chatbots = new HashSet<>();
 
     @Column(nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private MessageClassType type = MessageClassType.SYSTEM;
 }

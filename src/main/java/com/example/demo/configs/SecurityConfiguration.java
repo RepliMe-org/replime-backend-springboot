@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,7 +35,7 @@ public class SecurityConfiguration {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(Customizer.withDefaults())
 
                 // Stateless session management
                 .sessionManagement(session -> session
@@ -46,6 +47,8 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/auth/**",
                                 "/chatbots/**",
+                                "/chatbot/category",
+                                "/chatbot/category/**",
 
                                 // --- Swagger exact paths and wildcards ---
                                 "/v3/api-docs",
@@ -62,10 +65,17 @@ public class SecurityConfiguration {
                                 "/api/v1/swagger-ui/**",
                                 "/api/v1/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/admin/chatbots/**").hasRole("ADMIN")
-                        .requestMatchers("/influencer/chatbot/**").hasRole("INFLUENCER")
                         .anyRequest()
                         .authenticated())
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                )
 
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo

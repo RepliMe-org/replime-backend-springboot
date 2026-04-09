@@ -4,6 +4,7 @@ package com.example.demo.services;
 import com.example.demo.dtos.ChatbotCategoryRequest;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,4 +40,9 @@ public class ChatbotCategoryService {
         chatbotCategoryRepo.deleteById(id);
     }
 
+    public ChatbotCategory getChabotCategoryById(Long id) {
+        return chatbotCategoryRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+                "Chatbot category not found with id: " + id
+        ));
+    }
 }

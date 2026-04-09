@@ -5,6 +5,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -37,6 +39,15 @@ public class Chatbot {
     @OneToOne
     private ChatbotConfig config;
 
-    @OneToOne
-    private ChatbotCategory chatbotCategory;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ChatbotCategory category;
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "custom_messageclass",
+            joinColumns = @JoinColumn(name = "chatbot_id"),
+            inverseJoinColumns = @JoinColumn(name = "message_class_id")
+    )
+    private Set<MessageClass> messageClasses = new HashSet<>();
 }

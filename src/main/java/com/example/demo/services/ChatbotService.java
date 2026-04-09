@@ -165,7 +165,11 @@ public class ChatbotService {
         ChatbotCategory category = chatbotCategoryRepo.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Chatbot category not found"));
 
-        chatbot.setChatbotCategory(category);
+        chatbot.setCategory(category);
         chatbotRepo.save(chatbot);
+    }
+
+    public Chatbot getChatbotByUser(User user) {
+        return chatbotRepo.findByInfluencerId(user.getId());
     }
 }

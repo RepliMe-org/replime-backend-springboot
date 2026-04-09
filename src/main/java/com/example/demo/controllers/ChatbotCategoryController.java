@@ -24,8 +24,10 @@ public class ChatbotCategoryController {
         return ResponseEntity.ok("Chatbot category added successfully");
     }
 
+
     @GetMapping
-    public ResponseEntity<List<ChatbotCategory>>  getAllChatbotCategories() {
+    public ResponseEntity<List<ChatbotCategory>> getAllChatbotCategories() {
+        System.out.println("Fetching all chatbot categories...");
         return ResponseEntity.ok(chatbotCategoryService.getAllCategories());
     }
 
