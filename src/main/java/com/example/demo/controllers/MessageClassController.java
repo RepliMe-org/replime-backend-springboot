@@ -36,7 +36,7 @@ public class MessageClassController {
         return ResponseEntity.ok(
                 messageClassService.getAllMessageClassesByCategoryUserToken(token));
     }
-
+    //TODO: make the api take list of message classes in the body
     @PostMapping("{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<MessageClassResponseDTO>> CreateMessageClassForAdmin(
@@ -47,9 +47,10 @@ public class MessageClassController {
                 messageClassService.createMessageClassForCategory(
                         categoryId,messageClassRequestDTO));
     }
+    //TODO: make the api take list of message classes in the body
     @PostMapping()
     @PreAuthorize("hasRole('INFLUENCER')")
-    public ResponseEntity<MessageClassResponseDTO> CreateMessageClassForAdmin(
+    public ResponseEntity<MessageClassResponseDTO> CreateMessageClassForInfluencer(
             @RequestBody MessageClassRequestDTO messageClassRequestDTO,
             @RequestHeader("Authorization") String token
     ){
@@ -57,4 +58,9 @@ public class MessageClassController {
                 messageClassService.createMessageClassForSpecificChatbot(
                         token,messageClassRequestDTO));
     }
+    //TODO: make influencer choose classes that he wants from the system classes
+
+    //TODO: add update and delete for message class, but only for influencer,
+    // admin can only create the system classes and influencer
+    // can choose from them and create custom classes, but cannot update or delete system classes
 }

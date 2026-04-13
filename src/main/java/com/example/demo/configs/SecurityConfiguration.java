@@ -49,6 +49,7 @@ public class SecurityConfiguration {
                                 "/chatbots/**",
                                 "/chatbot/category",
                                 "/chatbot/category/**",
+                                "/test-fastapi",
 
                                 // --- Swagger exact paths and wildcards ---
                                 "/v3/api-docs",
