@@ -127,7 +127,7 @@ public class ChatbotController {
     @PostMapping("chatbots/influencer/message-classes")
     @PreAuthorize("hasRole('INFLUENCER')")
     @Operation(description = "Influencer creates custom message classes to his chatbot category.")
-    public ResponseEntity<?> CreateMessageClassForInfluencer(
+    public ResponseEntity<String> CreateMessageClassForInfluencer(
             @RequestBody List<MessageClassRequestDTO> messageClassesRequestDTO,
             @RequestHeader("Authorization") String token
     ){
@@ -140,8 +140,8 @@ public class ChatbotController {
     @DeleteMapping("chatbots/influencer/message-classes/{messageClassId}")
     @PreAuthorize("hasRole('INFLUENCER')")
     @Operation(description = "Influencer deletes a message class from his chatbot category," +
-            "if CUSTOM class delete it forever but it is SYSTEM class just remove it from this chatbot.")
-    public ResponseEntity<?> RemoveMessageClassForInfluencer(
+            "if CUSTOM class delete it forever but if it is SYSTEM class just remove it from this chatbot.")
+    public ResponseEntity<String> RemoveMessageClassForInfluencer(
             @PathVariable Long messageClassId,
             @RequestHeader("Authorization") String token
     ) {
