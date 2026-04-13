@@ -55,7 +55,9 @@ public class ChatbotCategoryService {
         return messageClassService.getAllSystemMessageClassesForCategory(categoryId);
     }
 
-    public List<MessageClassResponseDTO> createMessageClassForCategory(Long categoryId, MessageClassRequestDTO messageClassRequestDTO) {
+    public List<MessageClassResponseDTO> createMessageClassForCategory(
+            Long categoryId, List<MessageClassRequestDTO> messageClassRequestDTO
+    ) {
         ChatbotCategory category = getChabotCategoryById(categoryId);
         return messageClassService.createMessageClassForCategory(
                 category,messageClassRequestDTO);

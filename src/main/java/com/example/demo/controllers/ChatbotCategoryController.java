@@ -52,17 +52,17 @@ public class ChatbotCategoryController {
         );
     }
 
-    //TODO: make the api take list of message classes in the body
+
     @PostMapping("{categoryId}/message-classes")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "Admin Create new system message class for a specific chatbot category.")
+    @Operation(description = "Admin Create new system message classes for a specific category.")
     public ResponseEntity<List<MessageClassResponseDTO>> CreateMessageClassForAdmin(
             @PathVariable Long categoryId,
-            @RequestBody MessageClassRequestDTO messageClassRequestDTO
+            @RequestBody List<MessageClassRequestDTO> messageClassesRequestDTO
     ){
         return ResponseEntity.ok(
                 chatbotCategoryService.createMessageClassForCategory(
-                        categoryId,messageClassRequestDTO));
+                        categoryId,messageClassesRequestDTO));
     }
 
 }

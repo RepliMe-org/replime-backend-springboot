@@ -80,14 +80,28 @@ public class MessageClassService {
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(
         ChatbotCategory category,
-        MessageClassRequestDTO messageClassRequestDTO
+        List<MessageClassRequestDTO> messageClassRequestDTO
     ) {
-        MessageClass newMessageClass = MessageClass.builder()
-            .name(messageClassRequestDTO.getName())
-            .category(category)
-            .type(MessageClassType.SYSTEM)
-            .build();
-        messageClassRepo.save(newMessageClass);
+        for (MessageClassRequestDTO messageClassRequest : messageClassRequestDTO) {
+            if (messageClassRepo.existsByCategoryIdAndName(
+                category.getId(),
+                messageClassRequest.getName()
+            )) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Message class name already exists in this category: " +
+                    messageClassRequest.getName()
+                );
+            }
+        }
+        for (MessageClassRequestDTO messageClassRequest : messageClassRequestDTO) {
+            MessageClass newMessageClass = MessageClass.builder()
+                    .name(messageClassRequest.getName())
+                    .category(category)
+                    .type(MessageClassType.SYSTEM)
+                    .build();
+            messageClassRepo.save(newMessageClass);
+        }
         return getAllSystemMessageClassesForCategory(category.getId());
     }
 
