@@ -2,6 +2,8 @@ package com.example.demo.services;
 
 
 import com.example.demo.dtos.ChatbotCategoryRequest;
+import com.example.demo.dtos.MessageClassRequestDTO;
+import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
 import com.example.demo.exceptions.ResourceNotFoundException;
@@ -16,6 +18,8 @@ import java.util.List;
 public class ChatbotCategoryService {
     @Autowired
     private ChatbotCategoryRepo chatbotCategoryRepo;
+    @Autowired
+    private MessageClassService messageClassService;
 
     public void addCategory(ChatbotCategoryRequest chatbotCategoryRequest) {
         if (chatbotCategoryRepo.existsByName(chatbotCategoryRequest.getName())) {
@@ -44,5 +48,16 @@ public class ChatbotCategoryService {
         return chatbotCategoryRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException(
                 "Chatbot category not found with id: " + id
         ));
+    }
+
+    public List<MessageClassResponseDTO> getAllClassesInCategory(Long categoryId) {
+        ChatbotCategory category = getChabotCategoryById(categoryId);
+        return messageClassService.getAllSystemMessageClassesForCategory(categoryId);
+    }
+
+    public List<MessageClassResponseDTO> createMessageClassForCategory(Long categoryId, MessageClassRequestDTO messageClassRequestDTO) {
+        ChatbotCategory category = getChabotCategoryById(categoryId);
+        return messageClassService.createMessageClassForCategory(
+                category,messageClassRequestDTO);
     }
 }

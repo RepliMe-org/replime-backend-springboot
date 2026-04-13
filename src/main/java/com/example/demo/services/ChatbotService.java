@@ -1,23 +1,22 @@
 package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
-import com.example.demo.dtos.AdminChatbotResponseDTO;
-import com.example.demo.dtos.PublicChatbotResponseDTO;
-import com.example.demo.dtos.InfluencerChatbotResponseDTO;
+import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ChatbotService {
+
     @Autowired
     private ChatbotRepo chatbotRepo;
 
@@ -27,85 +26,109 @@ public class ChatbotService {
     @Autowired
     private ChatbotCategoryRepo chatbotCategoryRepo;
 
-    public void createChatbot(User user){
+    @Autowired
+    private MessageClassService messageClassService;
+
+    public void createChatbot(User user) {
         Chatbot chatbot = Chatbot.builder()
-                .influencer(user)
-                .status(ChatbotStatus.CONFIGURING)
-                .createdAt(LocalDateTime.now())
-                .build();
+            .influencer(user)
+            .status(ChatbotStatus.CONFIGURING)
+            .createdAt(LocalDateTime.now())
+            .build();
         chatbotRepo.save(chatbot);
         System.out.println("Created chatbot " + chatbot);
     }
 
     public ResponseEntity<List<PublicChatbotResponseDTO>> getPublicChatbots() {
         List<Chatbot> chatbots = chatbotRepo.findAllByIsPublicTrue();
-        List<PublicChatbotResponseDTO> browseDTOs = chatbots.stream()
-                .map(this::mapToPublicChatbotResponseDTO)
-                .collect(Collectors.toList());
+        List<PublicChatbotResponseDTO> browseDTOs = chatbots
+            .stream()
+            .map(this::mapToPublicChatbotResponseDTO)
+            .collect(Collectors.toList());
         return ResponseEntity.ok(browseDTOs);
     }
 
     public ResponseEntity<List<InfluencerChatbotResponseDTO>> getAllChatbots() {
         List<Chatbot> chatbots = chatbotRepo.findAll();
-        List<InfluencerChatbotResponseDTO> responseDTOs = chatbots.stream()
-                .map(this::mapToInfluencerChatbotResponseDTO)
-                .collect(Collectors.toList());
+        List<InfluencerChatbotResponseDTO> responseDTOs = chatbots
+            .stream()
+            .map(this::mapToInfluencerChatbotResponseDTO)
+            .collect(Collectors.toList());
         return ResponseEntity.ok(responseDTOs);
     }
 
-    private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(Chatbot chatbot) {
+    private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(
+        Chatbot chatbot
+    ) {
         return PublicChatbotResponseDTO.builder()
-                .id(chatbot.getId())
-                .influencerUsername(chatbot.getInfluencer().getUsername())
-                .chatbotName(chatbot.getConfig() != null ? chatbot.getConfig().getName() : "")
-                .chatbotDescription(chatbot.getConfig() != null ? chatbot.getConfig().getDescription() : "")
-                .greetingMessage(chatbot.getConfig() != null ? chatbot.getConfig().getGreetingMessage() : "")
-                .status(chatbot.getStatus())
-                .build();
+            .id(chatbot.getId())
+            .influencerUsername(chatbot.getInfluencer().getUsername())
+            .chatbotName(
+                chatbot.getConfig() != null ? chatbot.getConfig().getName() : ""
+            )
+            .chatbotDescription(
+                chatbot.getConfig() != null
+                    ? chatbot.getConfig().getDescription()
+                    : ""
+            )
+            .greetingMessage(
+                chatbot.getConfig() != null
+                    ? chatbot.getConfig().getGreetingMessage()
+                    : ""
+            )
+            .status(chatbot.getStatus())
+            .build();
     }
 
-    private InfluencerChatbotResponseDTO mapToInfluencerChatbotResponseDTO(Chatbot chatbot) {
+    private InfluencerChatbotResponseDTO mapToInfluencerChatbotResponseDTO(
+        Chatbot chatbot
+    ) {
         ChatbotConfig config = chatbot.getConfig();
         return InfluencerChatbotResponseDTO.builder()
-                .id(chatbot.getId())
-                .influencerUsername(chatbot.getInfluencer().getUsername())
-                .status(chatbot.getStatus())
-                .isPublic(chatbot.isPublic())
-                .createdAt(chatbot.getCreatedAt())
-                .configId(config != null ? config.getId() : null)
-                .chatbotName(config != null ? config.getName() : "")
-                .greetingMessage(config != null ? config.getGreetingMessage() : "")
-                .chatbotDescription(config != null ? config.getDescription() : "")
-                .systemPrompt(config != null ? config.getSystemPrompt() : "")
-                .temperature(config != null ? config.getTemperature() : null)
-                .configCreatedAt(config != null ? config.getCreatedAt() : null)
-                .build();
+            .id(chatbot.getId())
+            .influencerUsername(chatbot.getInfluencer().getUsername())
+            .status(chatbot.getStatus())
+            .isPublic(chatbot.isPublic())
+            .createdAt(chatbot.getCreatedAt())
+            .configId(config != null ? config.getId() : null)
+            .chatbotName(config != null ? config.getName() : "")
+            .greetingMessage(config != null ? config.getGreetingMessage() : "")
+            .chatbotDescription(config != null ? config.getDescription() : "")
+            .systemPrompt(config != null ? config.getSystemPrompt() : "")
+            .temperature(config != null ? config.getTemperature() : null)
+            .configCreatedAt(config != null ? config.getCreatedAt() : null)
+            .build();
     }
 
-    private AdminChatbotResponseDTO mapToAdminChatbotResponseDTO(Chatbot chatbot) {
+    private AdminChatbotResponseDTO mapToAdminChatbotResponseDTO(
+        Chatbot chatbot
+    ) {
         ChatbotConfig config = chatbot.getConfig();
         return AdminChatbotResponseDTO.builder()
-                .id(chatbot.getId())
-                .influencerUsername(chatbot.getInfluencer().getUsername())
-                .chatbotName(config != null ? config.getName() : "")
-                .chatbotDescription(config != null ? config.getDescription() : "")
-                .greetingMessage(config != null ? config.getGreetingMessage() : "")
-                .status(chatbot.getStatus())
-                .isPublic(chatbot.isPublic())
-                .build();
+            .id(chatbot.getId())
+            .influencerUsername(chatbot.getInfluencer().getUsername())
+            .chatbotName(config != null ? config.getName() : "")
+            .chatbotDescription(config != null ? config.getDescription() : "")
+            .greetingMessage(config != null ? config.getGreetingMessage() : "")
+            .status(chatbot.getStatus())
+            .isPublic(chatbot.isPublic())
+            .build();
     }
 
     public ResponseEntity<PublicChatbotResponseDTO> getChatbotById(UUID id) {
         if (id == null) {
             return ResponseEntity.badRequest().build();
         }
-        return chatbotRepo.findById(id)
-                .map(this::mapToPublicChatbotResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return chatbotRepo
+            .findById(id)
+            .map(this::mapToPublicChatbotResponseDTO)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
-    public ResponseEntity<InfluencerChatbotResponseDTO> getInfluencerChatbot(String token) {
+    public ResponseEntity<InfluencerChatbotResponseDTO> getInfluencerChatbot(
+        String token
+    ) {
         User user = jwtService.extractUser(token);
         Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
         if (chatbot == null) {
@@ -114,11 +137,14 @@ public class ChatbotService {
         return ResponseEntity.ok(mapToInfluencerChatbotResponseDTO(chatbot));
     }
 
-    public ResponseEntity<List<AdminChatbotResponseDTO>> getAllChatbotsForAdmin() {
+    public ResponseEntity<
+        List<AdminChatbotResponseDTO>
+    > getAllChatbotsForAdmin() {
         List<Chatbot> chatbots = chatbotRepo.findAll();
-        List<AdminChatbotResponseDTO> responseDTOs = chatbots.stream()
-                .map(this::mapToAdminChatbotResponseDTO)
-                .collect(Collectors.toList());
+        List<AdminChatbotResponseDTO> responseDTOs = chatbots
+            .stream()
+            .map(this::mapToAdminChatbotResponseDTO)
+            .collect(Collectors.toList());
         return ResponseEntity.ok(responseDTOs);
     }
 
@@ -128,7 +154,9 @@ public class ChatbotService {
             return ResponseEntity.notFound().build();
         }
         try {
-            ChatbotStatus newStatus = ChatbotStatus.valueOf(status.toUpperCase());
+            ChatbotStatus newStatus = ChatbotStatus.valueOf(
+                status.toUpperCase()
+            );
             chatbot.setStatus(newStatus);
             chatbotRepo.save(chatbot);
             return ResponseEntity.ok("Chatbot status updated successfully");
@@ -137,7 +165,10 @@ public class ChatbotService {
         }
     }
 
-    public ResponseEntity<String> updateChatbotVisibility(UUID id, boolean isPublic) {
+    public ResponseEntity<String> updateChatbotVisibility(
+        UUID id,
+        boolean isPublic
+    ) {
         Chatbot chatbot = chatbotRepo.findById(id).orElse(null);
         if (chatbot == null) {
             return ResponseEntity.notFound().build();
@@ -157,19 +188,64 @@ public class ChatbotService {
     }
 
     public void assignCategory(Long categoryId, String token) {
-
         User user = jwtService.extractUser(token);
         Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
 
-
-        ChatbotCategory category = chatbotCategoryRepo.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Chatbot category not found"));
+        ChatbotCategory category = chatbotCategoryRepo
+            .findById(categoryId)
+            .orElseThrow(() ->
+                new RuntimeException("Chatbot category not found")
+            );
 
         chatbot.setCategory(category);
         chatbotRepo.save(chatbot);
     }
 
     public Chatbot getChatbotByUser(User user) {
-        return chatbotRepo.findByInfluencerId(user.getId());
+        //return chatbot by user id or else throw resource not found exception
+        Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
+        if (chatbot == null) {
+            throw new ResourceNotFoundException(
+                "Chatbot not found for influencer"
+            );
+        }
+        return chatbot;
+    }
+
+    public List<MessageClassResponseDTO> getAllMessageClassesAssignedToChatbot(
+        String token
+    ) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+
+        if (chatbot.getCategory() == null) {
+            throw new ResourceNotFoundException(
+                "Chatbot category not yet set for influencer"
+            );
+        }
+        return messageClassService.getAllMessageClassesByUserChatbot(chatbot);
+    }
+
+    public void chooseMessageClassesForChatbot(
+        List<Long> messageClassIds,
+        String token
+    ) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        messageClassService.assignClassesToChatbot(messageClassIds, chatbot);
+    }
+
+    public void createMessageClassesForSpecificChatbot(
+            String token, List<MessageClassRequestDTO> messageClassesRequestDTO
+    ) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        messageClassService.createCustomMessageClassesForChatbot(chatbot, messageClassesRequestDTO);
+    }
+
+    public void deleteMessageClassFromChatbot(Long messageClassId, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
     }
 }

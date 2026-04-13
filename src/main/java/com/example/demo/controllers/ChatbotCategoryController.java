@@ -1,8 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.ChatbotCategoryRequest;
+import com.example.demo.dtos.MessageClassRequestDTO;
+import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.services.ChatbotCategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/chatbot/category")
+@RequestMapping("/chatbot/categories")
 public class ChatbotCategoryController {
     @Autowired
     private ChatbotCategoryService chatbotCategoryService;
@@ -36,6 +39,30 @@ public class ChatbotCategoryController {
     public ResponseEntity<String> deleteChatbotCategory(@PathVariable Long id) {
         chatbotCategoryService.deleteCategory(id);
         return ResponseEntity.ok("Chatbot category deleted successfully");
+    }
+
+    @GetMapping("{categoryId}/message-classes")
+    @PreAuthorize("hasAnyRole('ADMIN','INFLUENCER')")
+    @Operation(description = "Get all system message classes for a specific chatbot category.")
+    public ResponseEntity<List<MessageClassResponseDTO>> GetAllCategoryMessageClassesForAdmin(
+            @PathVariable Long categoryId
+    ) {
+        return ResponseEntity.ok(
+                chatbotCategoryService.getAllClassesInCategory(categoryId)
+        );
+    }
+
+    //TODO: make the api take list of message classes in the body
+    @PostMapping("{categoryId}/message-classes")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(description = "Admin Create new system message class for a specific chatbot category.")
+    public ResponseEntity<List<MessageClassResponseDTO>> CreateMessageClassForAdmin(
+            @PathVariable Long categoryId,
+            @RequestBody MessageClassRequestDTO messageClassRequestDTO
+    ){
+        return ResponseEntity.ok(
+                chatbotCategoryService.createMessageClassForCategory(
+                        categoryId,messageClassRequestDTO));
     }
 
 }

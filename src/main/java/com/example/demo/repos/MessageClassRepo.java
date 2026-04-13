@@ -12,4 +12,6 @@ public interface MessageClassRepo extends JpaRepository<MessageClass, Long> {
     List<MessageClass> findByCategoryIdAndType(Long categoryId, MessageClassType type);
     List<MessageClass> findByChatbotsContaining(Chatbot chatbot);
     List<MessageClass> findByChatbotsContainingAndType(Chatbot chatbot, MessageClassType type);
+
+    List<MessageClass> findByIdIn(List<Long> messageClassIds);
 }
