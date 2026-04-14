@@ -471,7 +471,7 @@
               "raw": "{\n  \"name\": \"New Category\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category"]
             }
@@ -483,7 +483,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category"]
             }
@@ -500,7 +500,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category/{{categoryId}}",
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category", "{{categoryId}}"]
             }
@@ -723,7 +723,7 @@
               "raw": "{\n  \"name\": \"{{testCategoryName}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category"]
             }
@@ -752,7 +752,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category"]
             }
@@ -916,7 +916,49 @@
           }
         },
         {
-          "name": "15) Create Message Class (Influencer)",
+          "name": "15) Get Message Classes (Influencer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["influencer", "chatbot", "message-classes"]
+            }
+          }
+        },
+        {
+          "name": "16) Choose Message Classes (Influencer)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[1, 2, 3]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["influencer", "chatbot", "message-classes"]
+            }
+          }
+        },
+        {
+          "name": "16.1) Create Custom Message Classes (Influencer)",
           "request": {
             "method": "POST",
             "header": [
@@ -931,19 +973,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Runner Influencer Class\"\n}"
+              "raw": "[\"Custom Class 1\", \"Custom Class 2\"]"
             },
             "url": {
-              "raw": "{{baseUrl}}/message-class",
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
               "host": ["{{baseUrl}}"],
-              "path": ["message-class"]
+              "path": ["influencer", "chatbot", "message-classes"]
             }
           }
         },
         {
-          "name": "16) Get Message Classes (Influencer)",
+          "name": "16.2) Delete Message Class (Influencer)",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [
               {
                 "key": "Authorization",
@@ -951,9 +993,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/message-class",
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/1",
               "host": ["{{baseUrl}}"],
-              "path": ["message-class"]
+              "path": ["influencer", "chatbot", "message-classes", "1"]
             }
           }
         },
@@ -1113,7 +1155,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category/{{categoryId}}",
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
               "host": ["{{baseUrl}}"],
               "path": ["chatbot", "category", "{{categoryId}}"]
             }
