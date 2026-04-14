@@ -26,7 +26,6 @@ public class ChatbotCategoryController {
         return ResponseEntity.ok("Chatbot category added successfully");
     }
 
-    // TODO: add response DTO
     @GetMapping
     public ResponseEntity<List<ChatbotCategoryResponseDTO>> getAllChatbotCategories() {
         System.out.println("Fetching all chatbot categories...");
