@@ -47,8 +47,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/auth/**",
                                 "/chatbots/**",
-                                "/chatbot/category",
-                                "/chatbot/category/**",
+                                "/chatbot/categories/**",
                                 "/test-fastapi",
 
                                 // --- Swagger exact paths and wildcards ---

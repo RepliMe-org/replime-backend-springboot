@@ -58,7 +58,7 @@ public class InfluencerChatbotController {
     ) {
         return chatbotConfigService.saveChatbotConfig(requestDTO, token);
     }
-
+    //TODO: make this returns the whole configuration
     @PutMapping("/config")
     @Operation(description = "Update existing chatbot configuration")
     public ResponseEntity<String> updateChatbotConfig(
@@ -67,7 +67,7 @@ public class InfluencerChatbotController {
     ) {
         return chatbotConfigService.updateChatbotConfig(requestDTO, token);
     }
-
+    //TODO: add message confirms that the category assigned successfully
     @PatchMapping("/category/{categoryId}")
     @Operation(description = "Assign a category to the influencer's chatbot")
     public ResponseEntity<Void> assignCategory(

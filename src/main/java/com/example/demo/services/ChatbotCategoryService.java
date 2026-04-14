@@ -8,6 +8,7 @@ import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
+import com.example.demo.repos.ChatbotRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class ChatbotCategoryService {
     private ChatbotCategoryRepo chatbotCategoryRepo;
     @Autowired
     private MessageClassService messageClassService;
+    @Autowired
+    private ChatbotRepo chatbotRepo;
 
     public void addCategory(ChatbotCategoryRequest chatbotCategoryRequest) {
         if (chatbotCategoryRepo.existsByName(chatbotCategoryRequest.getName())) {
@@ -51,6 +54,9 @@ public class ChatbotCategoryService {
     }
 
     public void deleteCategory(Long id) {
+        if (chatbotRepo.existsByCategoryId(id)) {
+            throw new ResourceConflictException("Cannot delete category as it is currently assigned to a chatbot");
+        }
         chatbotCategoryRepo.deleteById(id);
     }
 
