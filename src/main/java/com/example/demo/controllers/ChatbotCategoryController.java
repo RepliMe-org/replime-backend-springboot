@@ -1,9 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dtos.ChatbotCategoryResponseDTO;
 import com.example.demo.dtos.ChatbotCategoryRequest;
-import com.example.demo.dtos.MessageClassRequestDTO;
 import com.example.demo.dtos.MessageClassResponseDTO;
-import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.services.ChatbotCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class ChatbotCategoryController {
 
     // TODO: add response DTO
     @GetMapping
-    public ResponseEntity<List<ChatbotCategory>> getAllChatbotCategories() {
+    public ResponseEntity<List<ChatbotCategoryResponseDTO>> getAllChatbotCategories() {
         System.out.println("Fetching all chatbot categories...");
         return ResponseEntity.ok(chatbotCategoryService.getAllCategories());
     }

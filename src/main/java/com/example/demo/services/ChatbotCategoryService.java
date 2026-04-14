@@ -1,8 +1,8 @@
 package com.example.demo.services;
 
 
+import com.example.demo.dtos.ChatbotCategoryResponseDTO;
 import com.example.demo.dtos.ChatbotCategoryRequest;
-import com.example.demo.dtos.MessageClassRequestDTO;
 import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,8 +37,17 @@ public class ChatbotCategoryService {
         }
     }
 
-    public List<ChatbotCategory> getAllCategories() {
-        return chatbotCategoryRepo.findAll();
+    public List<ChatbotCategoryResponseDTO> getAllCategories() {
+        List<ChatbotCategory> chatbotCategories = chatbotCategoryRepo.findAll();
+        List<ChatbotCategoryResponseDTO> chatbotCategoryDTOs = new ArrayList<>();
+        for (ChatbotCategory category : chatbotCategories) {
+            ChatbotCategoryResponseDTO categoryDTO = ChatbotCategoryResponseDTO.builder()
+                    .id(category.getId())
+                    .name(category.getName())
+                    .build();
+            chatbotCategoryDTOs.add(categoryDTO);
+        }
+        return chatbotCategoryDTOs;
     }
 
     public void deleteCategory(Long id) {
