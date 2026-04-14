@@ -56,10 +56,10 @@ public class ChatbotCategoryService {
     }
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(
-            Long categoryId, List<MessageClassRequestDTO> messageClassRequestDTO
+            Long categoryId, List<String> messageClassesNames
     ) {
         ChatbotCategory category = getChabotCategoryById(categoryId);
         return messageClassService.createMessageClassForCategory(
-                category,messageClassRequestDTO);
+                category,messageClassesNames);
     }
 }

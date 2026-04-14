@@ -37,5 +37,5 @@ public class AuthController {
         return "successfully logged in";
     }
 
-    // http://localhost:8080/api/v1/login/oauth2/code/google
+    //TODO: add admin from the admin panel
 }

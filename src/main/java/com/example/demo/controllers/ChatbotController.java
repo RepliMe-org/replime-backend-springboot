@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.*;
-import com.example.demo.entities.ChatbotStatus;
 import com.example.demo.services.ChatbotConfigService;
 import com.example.demo.services.ChatbotService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,15 +39,6 @@ public class ChatbotController {
         return chatbotService.getAllChatbotsForAdmin();
     }
 
-    @PatchMapping("/admin/chatbots/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateChatbotStatus(
-            @PathVariable UUID id,
-            @RequestParam String status
-    ) {
-        return chatbotService.updateChatbotStatus(id, status);
-    }
-
     @PatchMapping("/admin/chatbots/{id}/visibility")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateChatbotVisibility(
@@ -84,14 +74,6 @@ public class ChatbotController {
         return chatbotConfigService.updateChatbotConfig(requestDTO, token);
     }
 
-    @GetMapping("/influencer/chatbot/status")
-    @PreAuthorize("hasRole('INFLUENCER')")
-    public ResponseEntity<ChatbotStatus> getChatbotStatus(
-            @RequestHeader("Authorization") String token
-    ) {
-        return chatbotService.getChatbotStatus(token);
-    }
-
     @PatchMapping("/influencer/chatbot/category/{categoryId}")
     @PreAuthorize("hasRole('INFLUENCER')")
     public ResponseEntity<Void> assignCategory(
@@ -112,7 +94,6 @@ public class ChatbotController {
                 chatbotService.getAllMessageClassesAssignedToChatbot(token));
     }
 
-    //TODO: make influencer choose classes that he wants from the system classes
     @PutMapping("/chatbots/influencer/message-classes")
     @PreAuthorize("hasRole( 'INFLUENCER')")
     @Operation(description = "Influencer choose message classes from the system classes assigned to his chatbot category.")
@@ -128,12 +109,12 @@ public class ChatbotController {
     @PreAuthorize("hasRole('INFLUENCER')")
     @Operation(description = "Influencer creates custom message classes to his chatbot category.")
     public ResponseEntity<String> CreateMessageClassForInfluencer(
-            @RequestBody List<MessageClassRequestDTO> messageClassesRequestDTO,
+            @RequestBody List<String> messageClassesNames,
             @RequestHeader("Authorization") String token
     ){
 
         chatbotService.createMessageClassesForSpecificChatbot(
-                token,messageClassesRequestDTO);
+                token,messageClassesNames);
         return ResponseEntity.ok("Message classes created and assigned to chatbot successfully");
     }
 

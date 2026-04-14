@@ -27,7 +27,7 @@ public class ChatbotCategoryController {
         return ResponseEntity.ok("Chatbot category added successfully");
     }
 
-
+    // TODO: add response DTO
     @GetMapping
     public ResponseEntity<List<ChatbotCategory>> getAllChatbotCategories() {
         System.out.println("Fetching all chatbot categories...");
@@ -52,17 +52,16 @@ public class ChatbotCategoryController {
         );
     }
 
-
     @PostMapping("{categoryId}/message-classes")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(description = "Admin Create new system message classes for a specific category.")
     public ResponseEntity<List<MessageClassResponseDTO>> CreateMessageClassForAdmin(
             @PathVariable Long categoryId,
-            @RequestBody List<MessageClassRequestDTO> messageClassesRequestDTO
+            @RequestBody List<String> messageClassesNames
     ){
         return ResponseEntity.ok(
                 chatbotCategoryService.createMessageClassForCategory(
-                        categoryId,messageClassesRequestDTO));
+                        categoryId,messageClassesNames));
     }
 
 }

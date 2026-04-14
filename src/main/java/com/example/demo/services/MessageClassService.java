@@ -80,23 +80,21 @@ public class MessageClassService {
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(
         ChatbotCategory category,
-        List<MessageClassRequestDTO> messageClassRequestDTO
+        List<String> messageClassesNames
     ) {
-        for (MessageClassRequestDTO messageClassRequest : messageClassRequestDTO) {
+        for (String messageClassName : messageClassesNames) {
             if (messageClassRepo.existsByCategoryIdAndName(
-                category.getId(),
-                messageClassRequest.getName()
+                category.getId(), messageClassName
             )) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Message class name already exists in this category: " +
-                    messageClassRequest.getName()
+                    "Message class name already exists in this category: " + messageClassName
                 );
             }
         }
-        for (MessageClassRequestDTO messageClassRequest : messageClassRequestDTO) {
+        for (String messageClassName : messageClassesNames) {
             MessageClass newMessageClass = MessageClass.builder()
-                    .name(messageClassRequest.getName())
+                    .name(messageClassName)
                     .category(category)
                     .type(MessageClassType.SYSTEM)
                     .build();
@@ -124,12 +122,12 @@ public class MessageClassService {
     }
 
     public void createCustomMessageClassesForChatbot(
-            Chatbot chatbot, List<MessageClassRequestDTO> messageClassesRequestDTO
+            Chatbot chatbot, List<String> messageClassesNames
     ){
-        for(MessageClassRequestDTO messageClassRequestDTO : messageClassesRequestDTO) {
+        for(String messageClassName : messageClassesNames) {
 
             MessageClass newMessageClass = MessageClass.builder()
-                    .name(messageClassRequestDTO.getName())
+                    .name(messageClassName)
                     .category(chatbot.getCategory())
                     .type(MessageClassType.CUSTOM)
                     .chatbots(new HashSet<>(List.of(chatbot)))
