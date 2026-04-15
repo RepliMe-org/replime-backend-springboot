@@ -57,8 +57,10 @@ public class ChatbotConfigService {
                 .name(requestDTO.getName())
                 .description(requestDTO.getDescription())
                 .greetingMessage(requestDTO.getGreetingMessage())
-                .systemPrompt(requestDTO.getSystemPrompt())
-                .temperature(requestDTO.getTemperature())
+                .talkLikeMe(requestDTO.getTalkLikeMe())
+                .tone(requestDTO.getTone())
+                .verbosity(requestDTO.getVerbosity())
+                .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -95,11 +97,22 @@ public class ChatbotConfigService {
         if (requestDTO.getGreetingMessage() != null) {
             config.setGreetingMessage(requestDTO.getGreetingMessage());
         }
-        if (requestDTO.getSystemPrompt() != null) {
-            config.setSystemPrompt(requestDTO.getSystemPrompt());
+        if (requestDTO.getTalkLikeMe() != null) {
+            config.setTalkLikeMe(requestDTO.getTalkLikeMe());
+            if (requestDTO.getTalkLikeMe()) { // if get talkLikeMe switched on
+                config.setTone(null);
+                config.setVerbosity(null);
+                config.setFormality(null);
+            }
         }
-        if (requestDTO.getTemperature() != null) {
-            config.setTemperature(requestDTO.getTemperature());
+        if (requestDTO.getTone() != null) {
+            config.setTone(requestDTO.getTone());
+        }
+        if (requestDTO.getFormality() != null) {
+            config.setFormality(requestDTO.getFormality());
+        }
+        if (requestDTO.getTone() != null) {
+            config.setTone(requestDTO.getTone());
         }
     }
 }

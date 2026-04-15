@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,21 +22,42 @@ public class ChatbotConfig {
     @OneToOne
     private Chatbot chatbot;
 
+    @NotNull(message = "Name cannot be null")
     private String name;
+
+    @NotNull(message = "Description cannot be null")
     private String description;
 
+    @NotNull(message = "greeting message cannot be null")
     private String greetingMessage;
 
-    @Column(columnDefinition = "TEXT")
-    private String systemPrompt;
+    private boolean talkLikeMe;
 
-//    private String modelName;
+    @Enumerated(EnumType.STRING)
+    private Tone tone;
 
-    private Double temperature;
+    @Enumerated(EnumType.STRING)
+    private Verbosity verbosity;
 
-//    private Integer maxTokens;
+    @Enumerated(EnumType.STRING)
+    private Formality formality;
 
-//    private Integer version;
+//    @Column(columnDefinition = "TEXT")
+//    private String systemPrompt;
 
     private LocalDateTime createdAt;
+
+    @PrePersist
+    @PreUpdate
+    private void validateAttributes() {
+        if (talkLikeMe) {
+            tone = null;
+            verbosity = null;
+            formality = null;
+        } else {
+            if (tone == null || verbosity == null || formality == null) {
+                throw new IllegalStateException("Tone, verbosity, and formality must have a value when talkLikeMe is false");
+            }
+        }
+    }
 }

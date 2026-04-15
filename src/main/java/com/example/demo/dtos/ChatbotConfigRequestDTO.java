@@ -2,10 +2,11 @@ package com.example.demo.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.DecimalMax;
 import lombok.Getter;
 import lombok.Setter;
+import com.example.demo.entities.Tone;
+import com.example.demo.entities.Verbosity;
+import com.example.demo.entities.Formality;
 
 @Getter
 @Setter
@@ -19,12 +20,12 @@ public class ChatbotConfigRequestDTO {
     @NotBlank(message = "Greeting message is required")
     private String greetingMessage;
 
-    @NotBlank(message = "System prompt is required")
-    private String systemPrompt;
+    @NotNull(message = "talkLikeMe is required")
+    private Boolean talkLikeMe;
 
-    @NotNull(message = "Temperature is required")
-    @DecimalMin(value = "0.0", message = "Temperature must be at least 0.0")
-    @DecimalMax(value = "2.0", message = "Temperature must be at most 2.0")
-    private Double temperature;
+    private Tone tone;
+
+    private Verbosity verbosity;
+
+    private Formality formality;
 }
-

@@ -29,7 +29,6 @@ public class Chatbot {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Chatbot status cannot be null")
     private ChatbotStatus status;
-    // DRAFT, CONFIGURING, TRAINING, ACTIVE, FAILED
 
     private boolean isPublic = false;
 

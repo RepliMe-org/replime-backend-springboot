@@ -1,9 +1,10 @@
 package com.example.demo.dtos;
 
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
 import lombok.Setter;
+import com.example.demo.entities.Tone;
+import com.example.demo.entities.Verbosity;
+import com.example.demo.entities.Formality;
 
 @Getter
 @Setter
@@ -15,10 +16,11 @@ public class ChatbotConfigUpdateDTO {
 
     private String greetingMessage;
 
-    private String systemPrompt;
+    private Boolean talkLikeMe;
 
-    @DecimalMin(value = "0.0", message = "Temperature must be at least 0.0")
-    @DecimalMax(value = "2.0", message = "Temperature must be at most 2.0")
-    private Double temperature;
+    private Tone tone;
+
+    private Verbosity verbosity;
+
+    private Formality formality;
 }
-

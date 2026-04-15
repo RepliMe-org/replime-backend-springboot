@@ -1,6 +1,9 @@
 package com.example.demo.dtos;
 
 import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.entities.Formality;
+import com.example.demo.entities.Tone;
+import com.example.demo.entities.Verbosity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,27 +32,29 @@ public class InfluencerChatbotResponseDTO {
     @NotNull
     private LocalDateTime createdAt;
 
+    @NotNull
     private String greetingMessage;
 
     // ChatbotConfig fields
+    @NotNull
     private Long configId;
 
+    @NotNull
     private String chatbotName;
 
+    @NotNull
     private String chatbotDescription;
 
-    private String systemPrompt;
+    @NotNull
+    private boolean talkLikeMe;
 
-    private String modelName;
+    private Tone tone;
 
-    private Double temperature;
+    private Verbosity verbosity;
 
-//    private Integer maxTokens;
+    private Formality formality;
 
-    private Integer version;
-
-    private boolean isActive;
-
+    @NotNull
     private LocalDateTime configCreatedAt;
 }
 

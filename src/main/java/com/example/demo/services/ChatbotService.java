@@ -94,8 +94,10 @@ public class ChatbotService {
             .chatbotName(config != null ? config.getName() : "")
             .greetingMessage(config != null ? config.getGreetingMessage() : "")
             .chatbotDescription(config != null ? config.getDescription() : "")
-            .systemPrompt(config != null ? config.getSystemPrompt() : "")
-            .temperature(config != null ? config.getTemperature() : null)
+            .tone(config != null ? config.getTone() : null)
+            .verbosity(config != null ? config.getVerbosity() : null)
+            .formality(config != null ? config.getFormality() : null)
+            .talkLikeMe(config != null && config.isTalkLikeMe())
             .configCreatedAt(config != null ? config.getCreatedAt() : null)
             .build();
     }
