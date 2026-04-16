@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.entities.InfluencerVerification;
 import com.example.demo.entities.User;
-import com.example.demo.entities.VerificationStatus;
+import com.example.demo.entities.utils.VerificationStatus;
 
 import java.util.List;
 import java.util.Optional;

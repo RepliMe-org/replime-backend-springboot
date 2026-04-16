@@ -1,6 +1,6 @@
 package com.example.demo.dtos;
 
-import com.example.demo.entities.Role;
+import com.example.demo.entities.utils.Role;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;

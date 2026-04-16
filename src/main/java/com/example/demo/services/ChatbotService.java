@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;

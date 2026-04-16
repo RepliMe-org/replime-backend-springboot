@@ -1,11 +1,13 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.Formality;
+import com.example.demo.entities.utils.Tone;
+import com.example.demo.entities.utils.Verbosity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter

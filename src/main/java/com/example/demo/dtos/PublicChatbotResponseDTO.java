@@ -1,6 +1,6 @@
 package com.example.demo.dtos;
 
-import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.entities.utils.ChatbotStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;

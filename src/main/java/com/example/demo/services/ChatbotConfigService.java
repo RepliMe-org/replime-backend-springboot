@@ -5,7 +5,7 @@ import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
-import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;

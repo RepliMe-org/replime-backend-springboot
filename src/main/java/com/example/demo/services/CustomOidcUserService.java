@@ -1,8 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.entities.AuthProvider;
+import com.example.demo.entities.utils.AuthProvider;
 import com.example.demo.entities.CustomOAuth2User;
-import com.example.demo.entities.Role;
+import com.example.demo.entities.utils.Role;
 import com.example.demo.entities.User;
 import com.example.demo.repos.UserRepo;
 import lombok.RequiredArgsConstructor;

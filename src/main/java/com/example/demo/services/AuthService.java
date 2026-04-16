@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.LoginRequestDTO;
 import com.example.demo.dtos.SignupRequestDTO;
-import com.example.demo.entities.AuthProvider;
-import com.example.demo.entities.Role;
+import com.example.demo.entities.utils.AuthProvider;
+import com.example.demo.entities.utils.Role;
 import com.example.demo.entities.User;
 import com.example.demo.repos.UserRepo;
 

@@ -1,5 +1,7 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.AuthProvider;
+import com.example.demo.entities.utils.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 @Entity
