@@ -3,18 +3,25 @@ package com.example.demo.configs;
 import com.example.demo.entities.CustomOAuth2User;
 import com.example.demo.entities.User;
 import com.example.demo.services.CustomOidcUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -28,27 +35,51 @@ public class SecurityConfiguration {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(Customizer.withDefaults())
+
+                // Stateless session management
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
-                                "/api/test/**",
-                                "/actuator/**",
-                                "/api/review/**",
-                                //swagger
+                                "/chatbots/**",
+                                "/chatbot/categories/**",
+                                "/test-fastapi",
+
+                                // --- Swagger exact paths and wildcards ---
+                                "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/api-docs/**",
+
+                                // --- Swagger paths with your /api/v1 prefix ---
+                                "/api/v1/v3/api-docs",
+                                "/api/v1/v3/api-docs/**",
+                                "/api/v1/swagger-ui/**",
+                                "/api/v1/swagger-ui.html"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated())
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
                 )
 
-                // OAuth2 Login
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(oidcUserService)   // Handles OIDC (e.g. Google)
+                                .oidcUserService(oidcUserService)
                         )
                         .successHandler((request, response, authentication) -> {
 
@@ -57,13 +88,23 @@ public class SecurityConfiguration {
 
                             String token = jwtService.generateToken(user);
 
-                            // Redirect to your frontend with the JWT
-                            //TODO: change this to the page we need the user to be redirected to
-                            response.sendRedirect(
-                                    "http://localhost:8080/api/v1/auth/loggedin?token=" + token
+                            String username = user.getName();
+                            String role = user.getRole().name();
+
+                            // IMPORTANT: encode values to avoid URL issues
+                            String redirectUrl = String.format(
+                                    "http://localhost:4200/auth/callback?token=%s&username=%s&role=%s",
+                                    URLEncoder.encode(token, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(username, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(role, StandardCharsets.UTF_8)
                             );
+
+                            response.sendRedirect(redirectUrl);
                         })
                 )
+
+                // Disable default form login to prevent redirects
+                .formLogin(form -> form.disable())
 
 
                 // Custom authentication provider (for local login)
