@@ -269,7 +269,11 @@ public class ChatbotService {
         if (isThisSourceBelongsToVerifiedChannel(user, sourceRequest)) {
             trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
         } else {
-            throw new RuntimeException("URL does not belong to the verified channel of this influencer");
+            if (sourceRequest.getSourceType() == SourceType.VIDEO) {
+                throw new RuntimeException("Video URL does not belong to the verified channel of this influencer");
+            } else if (sourceRequest.getSourceType() == SourceType.PLAYLIST) {
+                throw new RuntimeException("Playlist URL does not belong to the verified channel of this influencer");
+            }
         }
     }
 
