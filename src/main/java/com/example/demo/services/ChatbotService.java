@@ -4,9 +4,11 @@ import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
+import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
+import com.example.demo.repos.InfluencerVerificationRepo;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +30,14 @@ public class ChatbotService {
     private ChatbotCategoryRepo chatbotCategoryRepo;
 
     @Autowired
+    private InfluencerVerificationRepo influencerVerificationRepo;
+
+    @Autowired
     private MessageClassService messageClassService;
+    @Autowired
+    private TrainingSourceService trainingSourceService;
+    @Autowired
+    private YoutubeClientService youtubeClientService;
 
     public void createChatbot(User user) {
         Chatbot chatbot = Chatbot.builder()
@@ -250,5 +259,42 @@ public class ChatbotService {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
         messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
+    }
+
+    public void addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        String url = sourceRequest.getSourceValue();
+        if (isThisUrlBelongsToVerifiedChannel(user, url)) {
+            trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
+        } else {
+            throw new RuntimeException("URL does not belong to the verified channel of this influencer");
+        }
+    }
+
+    private boolean isThisUrlBelongsToVerifiedChannel(User user, String url) {
+        return influencerVerificationRepo
+                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
+                .map(verification -> {
+                    // check if the url starts with or contains the channelUrl or uses channelId if applicable
+                    // simplified check: just check if the url contains the channelUrl or vice versa
+                    if (verification.getChannelUrl() != null && url.contains(verification.getChannelUrl())) {
+                        return true;
+                    }
+                    if (verification.getChannelId() != null && url.contains(verification.getChannelId())) {
+                        return true;
+                    }
+
+                    if (verification.getChannelId() != null) {
+                        try {
+                            return youtubeClientService.isVideoUrlFromChannel(url, verification.getChannelId());
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    return false;
+                })
+                .orElse(false);
     }
 }

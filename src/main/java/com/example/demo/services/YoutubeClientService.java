@@ -64,9 +64,50 @@ public class YoutubeClientService {
         Matcher handleMatcher = handlePattern.matcher(url);
 
         if (handleMatcher.find()) {
-            return handleMatcher.group(1);
+            return "@" + handleMatcher.group(1);
         }
 
         throw new RuntimeException("Invalid YouTube channel URL");
+    }
+
+    public String extractVideoId(String url) {
+        url = url.trim();
+        Pattern pattern = Pattern.compile("(?:youtube\\.com\\/(?:[^\\/]+\\/.+\\/|(?:v|e(?:mbed)?)\\/|.*[?&]v=)|youtu\\.be\\/)([^\"&?\\/\\s]{11})");
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public String getChannelIdFromVideoUrl(String videoUrl) {
+        String videoId = extractVideoId(videoUrl);
+        if (videoId == null) {
+            return null;
+        }
+
+        String url = "https://www.googleapis.com/youtube/v3/videos" +
+                "?part=snippet" +
+                "&id=" + videoId +
+                "&key=" + apiKey;
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode items = root.path("items");
+            if (items.isArray() && items.size() > 0) {
+                System.out.println("channel id: " + items.get(0).path("snippet").path("channelId").asText());
+                return items.get(0).path("snippet").path("channelId").asText();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get video details from YouTube API");
+        }
+        return null;
+    }
+
+    public boolean isVideoUrlFromChannel(String videoUrl, String expectedChannelId) {
+        String channelId = getChannelIdFromVideoUrl(videoUrl);
+        return expectedChannelId != null && expectedChannelId.equals(channelId);
     }
 }

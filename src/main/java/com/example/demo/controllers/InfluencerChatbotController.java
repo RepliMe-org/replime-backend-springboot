@@ -1,10 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.ChatbotConfigRequestDTO;
-import com.example.demo.dtos.ChatbotConfigUpdateDTO;
-import com.example.demo.dtos.InfluencerChatbotResponseDTO;
-import com.example.demo.dtos.MessageClassResponseDTO;
-import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.dtos.*;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.services.ChatbotConfigService;
 import com.example.demo.services.ChatbotService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -134,5 +131,17 @@ public class InfluencerChatbotController {
         return ResponseEntity.ok(
             "Message class removed from chatbot successfully"
         );
+    }
+
+    // ---- Training Sources APIs ----
+
+    @PostMapping("/training-sources")
+    @Operation(description = "Add a new training source to the chatbot")
+    public ResponseEntity<String> addTrainingSource(
+        @RequestBody TrainingSourceRequestDTO sourceRequest,
+        @RequestHeader("Authorization") String token
+    ) {
+        chatbotService.addTrainingSourceToChatbot(sourceRequest, token);
+        return ResponseEntity.ok("Training source added successfully");
     }
 }

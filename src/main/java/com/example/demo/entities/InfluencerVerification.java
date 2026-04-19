@@ -26,6 +26,8 @@ public class InfluencerVerification {
 
     private String channelId;
 
+    private String handle;
+
     private String channelUrl;
 
     private long subscriberCount;

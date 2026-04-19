@@ -30,6 +30,8 @@ public class TrainingSource {
 
     private String sourceValue;
 
+    private Integer last_n;
+
     private LocalDateTime addedAt;
 
     @Enumerated(EnumType.STRING)
