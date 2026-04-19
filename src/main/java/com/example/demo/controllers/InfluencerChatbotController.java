@@ -7,6 +7,7 @@ import com.example.demo.services.ChatbotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -138,7 +139,7 @@ public class InfluencerChatbotController {
     @PostMapping("/training-sources")
     @Operation(description = "Add a new training source to the chatbot")
     public ResponseEntity<String> addTrainingSource(
-        @RequestBody TrainingSourceRequestDTO sourceRequest,
+        @Valid @RequestBody TrainingSourceRequestDTO sourceRequest,
         @RequestHeader("Authorization") String token
     ) {
         chatbotService.addTrainingSourceToChatbot(sourceRequest, token);

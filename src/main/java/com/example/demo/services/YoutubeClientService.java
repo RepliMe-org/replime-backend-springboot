@@ -80,6 +80,46 @@ public class YoutubeClientService {
         return null;
     }
 
+    public String extractPlaylistId(String url) {
+        url = url.trim();
+        Pattern pattern = Pattern.compile("[?&]list=([a-zA-Z0-9_-]+)");
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public String getChannelIdFromPlaylistUrl(String playlistUrl) {
+        String playlistId = extractPlaylistId(playlistUrl);
+        if (playlistId == null) {
+            return null;
+        }
+
+        String url = "https://www.googleapis.com/youtube/v3/playlists" +
+                "?part=snippet" +
+                "&id=" + playlistId +
+                "&key=" + apiKey;
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode items = root.path("items");
+            if (items.isArray() && !items.isEmpty()) {
+                return items.get(0).path("snippet").path("channelId").asText();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get playlist details from YouTube API");
+        }
+        return null;
+    }
+
+    public boolean isPlaylistUrlFromChannel(String playlistUrl, String expectedChannelId) {
+        String channelId = getChannelIdFromPlaylistUrl(playlistUrl);
+        return expectedChannelId != null && expectedChannelId.equals(channelId);
+    }
+
     public String getChannelIdFromVideoUrl(String videoUrl) {
         String videoId = extractVideoId(videoUrl);
         if (videoId == null) {

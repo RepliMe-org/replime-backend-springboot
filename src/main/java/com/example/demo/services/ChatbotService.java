@@ -5,6 +5,7 @@ import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
+import com.example.demo.entities.utils.SourceType;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
@@ -264,15 +265,22 @@ public class ChatbotService {
     public void addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
-        String url = sourceRequest.getSourceValue();
-        if (isThisUrlBelongsToVerifiedChannel(user, url)) {
+
+        if (isThisSourceBelongsToVerifiedChannel(user, sourceRequest)) {
             trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
         } else {
             throw new RuntimeException("URL does not belong to the verified channel of this influencer");
         }
     }
 
-    private boolean isThisUrlBelongsToVerifiedChannel(User user, String url) {
+    private boolean isThisSourceBelongsToVerifiedChannel(User user, TrainingSourceRequestDTO sourceRequest) {
+        if (sourceRequest.getSourceType() == SourceType.LAST_N) {
+            return true;
+        }
+
+        String url = sourceRequest.getSourceValue();
+        if (url == null) return false;
+
         return influencerVerificationRepo
                 .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
                 .map(verification -> {
@@ -287,7 +295,11 @@ public class ChatbotService {
 
                     if (verification.getChannelId() != null) {
                         try {
-                            return youtubeClientService.isVideoUrlFromChannel(url, verification.getChannelId());
+                            if (sourceRequest.getSourceType() == SourceType.VIDEO) {
+                                return youtubeClientService.isVideoUrlFromChannel(url, verification.getChannelId());
+                            } else if (sourceRequest.getSourceType() == SourceType.PLAYLIST) {
+                                return youtubeClientService.isPlaylistUrlFromChannel(url, verification.getChannelId());
+                            }
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
