@@ -26,6 +26,18 @@ public class FastApiService {
                 .block();
     }
 
+    public Map<String, Object> deleteVideoChunks(String videoId, String chatbotId) {
+        Map<String, String> body = Map.of("chatbot_id", chatbotId);
+
+        return webClient.method(org.springframework.http.HttpMethod.DELETE)
+                .uri("/internal/videos/{video_id}", videoId)
+                .header("X-INTERNAL-TOKEN", X_TOKEN)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+    }
+
     public void indexVideo(VideoIndexRequestDTO videoIndexRequestDTO, String videoId) {
 
         webClient.post()

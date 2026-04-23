@@ -145,4 +145,14 @@ public class InfluencerChatbotController {
         chatbotService.addTrainingSourceToChatbot(sourceRequest, token);
         return ResponseEntity.accepted().body("Training source added successfully");
     }
+
+    @DeleteMapping("/videos/{videoId}")
+    @Operation(description = "Remove a video from the chatbot's training sources")
+    public ResponseEntity<String> removeVideo(
+            @PathVariable Long videoId,
+            @RequestHeader("Authorization") String token
+    ){
+        chatbotService.deleteVideoFromChatbot(videoId, token);
+        return ResponseEntity.ok("Video removed successfully");
+    }
 }

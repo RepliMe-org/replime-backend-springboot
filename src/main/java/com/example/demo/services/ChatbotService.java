@@ -12,11 +12,14 @@ import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
+import com.example.demo.repos.VideoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,11 +40,19 @@ public class ChatbotService {
     private InfluencerVerificationRepo influencerVerificationRepo;
 
     @Autowired
+    private VideoRepository videoRepository;
+
+    @Autowired
+    private FastApiService fastApiService;
+
+    @Autowired
     private MessageClassService messageClassService;
     @Autowired
     private TrainingSourceService trainingSourceService;
     @Autowired
     private YoutubeClientService youtubeClientService;
+    @Autowired
+    private VideoService videoService;
 
     public void createChatbot(User user) {
         Chatbot chatbot = Chatbot.builder()
@@ -280,7 +291,7 @@ public class ChatbotService {
             throw new TrainingSourceException(
                 "NOT_YOUR_VIDEO",
                 "This video does not belong to your channel",
-                org.springframework.http.HttpStatus.FORBIDDEN
+                HttpStatus.FORBIDDEN
             );
         }
     }
@@ -321,5 +332,13 @@ public class ChatbotService {
                     return false;
                 })
                 .orElse(false);
+    }
+
+    @Transactional
+    public void deleteVideoFromChatbot(Long videoId, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+
+        videoService.deleteVideoFromChatbot(videoId, chatbot);
     }
 }
