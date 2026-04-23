@@ -39,6 +39,7 @@ public class Video {
 
     private LocalDateTime processedAt;
 
+    @Enumerated(EnumType.STRING)
     private SyncStatus syncStatus;
 
     @Column(columnDefinition = "JSON")

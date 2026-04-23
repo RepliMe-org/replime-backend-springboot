@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.entities.Video;
+import com.example.demo.entities.utils.SyncStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -182,8 +183,7 @@ public class YoutubeClientService {
                 video.setYoutubeVideoId(videoId);
                 video.setTitle(title);
                 video.setThumbnailUrl(thumbnail);
-
-
+                video.setSyncStatus(SyncStatus.PROCESSING);
 
                 return video;
             }
@@ -222,6 +222,7 @@ public class YoutubeClientService {
                     video.setYoutubeVideoId(videoId);
                     video.setTitle(title);
                     video.setThumbnailUrl(thumbnail);
+                    video.setSyncStatus(SyncStatus.PROCESSING);
                     videos.add(video);
                 }
             }
@@ -266,6 +267,7 @@ public class YoutubeClientService {
                     video.setYoutubeVideoId(videoId);
                     video.setTitle(title);
                     video.setThumbnailUrl(thumbnail);
+                    video.setSyncStatus(SyncStatus.PROCESSING);
                     videos.add(video);
                 }
             }
