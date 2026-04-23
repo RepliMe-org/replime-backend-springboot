@@ -13,12 +13,16 @@ import com.example.demo.entities.User;
 import com.example.demo.entities.utils.SourceType;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.InfluencerVerificationRepo;
+import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import com.example.demo.dtos.SyncStatusMessageDTO;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,11 @@ public class VideoService {
     private YoutubeClientService youtubeClientService;
     @Autowired
     private InfluencerVerificationRepo influencerVerificationRepo;
+    @Autowired
+    private TrainingSourceRepository trainingSourceRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public List<Video> fetchAndSaveVideosForTrainingSource(
             TrainingSourceRequestDTO sourceRequest,
@@ -80,7 +89,8 @@ public class VideoService {
 
         List<Video> successfullySavedVideos = new ArrayList<>();
         for (Video video : videosToSave) {
-            if (video.getYoutubeVideoId() != null && !videoRepository.existsByYoutubeVideoId(video.getYoutubeVideoId())) {
+            if (video.getYoutubeVideoId() != null &&
+                    !videoRepository.existsByYoutubeVideoId(video.getYoutubeVideoId())) {
                 video.setTrainingSource(trainingSource);
                 video = videoRepository.save(video);
                 successfullySavedVideos.add(video);
@@ -128,5 +138,55 @@ public class VideoService {
                 .thumbnail(video.getThumbnailUrl())
                 .syncStatus(video.getSyncStatus())
                 .build()).toList();
+    }
+
+    public void updateVideoStatus(String videoId, String status) {
+        Video updateVideo = videoRepository.findById(Long.parseLong(videoId))
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+        try {
+            SyncStatus syncStatus = SyncStatus.valueOf(status);
+            updateVideo.setSyncStatus(syncStatus);
+            videoRepository.save(updateVideo);
+
+            TrainingSource trainingSource = updateVideo.getTrainingSource();
+
+            // Send websocket notification for single video update
+            SyncStatusMessageDTO videoUpdateMsg = SyncStatusMessageDTO.builder()
+                    .type("VIDEO_UPDATE")
+                    .sourceId(trainingSource.getId())
+                    .videoId(updateVideo.getId())
+                    .status(syncStatus.name())
+                    .build();
+            messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
+
+            boolean allFinished = true;
+            for (Video v : trainingSource.getVideos()) {
+                // If it's this video, use the new status
+                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? syncStatus : v.getSyncStatus();
+                if (currentStatus == SyncStatus.PROCESSING) {
+                    allFinished = false;
+                    break;
+                }
+            }
+
+            if (allFinished && trainingSource.getSyncStatus() == SyncStatus.PROCESSING) {
+                trainingSource.setSyncStatus(SyncStatus.COMPLETED);
+                trainingSourceRepository.save(trainingSource);
+                // System out for notification (or real notification logic)
+                System.out.println("Notification: Ingestion finished for training source ID " + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
+
+                // Send websocket notification for entire source
+                SyncStatusMessageDTO sourceUpdateMsg = SyncStatusMessageDTO.builder()
+                        .type("SOURCE_COMPLETE")
+                        .sourceId(trainingSource.getId())
+                        .status(SyncStatus.COMPLETED.name())
+                        .build();
+                messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", sourceUpdateMsg);
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw new TrainingSourceException("INVALID_STATUS",
+                    "Invalid sync status value: " + status, HttpStatus.BAD_REQUEST);
+        }
     }
 }
