@@ -37,8 +37,8 @@ public class TrainingSource {
     @Enumerated(EnumType.STRING)
     private SyncStatus syncStatus;
 
-    @Column(columnDefinition = "JSON")
-    private String metadata;
+//    @Column(columnDefinition = "JSON")
+//    private String metadata;
 
     // Relationships
     @OneToMany(mappedBy = "trainingSource", cascade = CascadeType.ALL)

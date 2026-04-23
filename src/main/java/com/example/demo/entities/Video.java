@@ -29,8 +29,8 @@ public class Video {
 
     private Integer duration;
 
-    @Column(columnDefinition = "TEXT")
-    private String transcript;
+//    @Column(columnDefinition = "TEXT")
+//    private String transcript;
 
     private Integer totalChunks;
 
@@ -39,7 +39,7 @@ public class Video {
     private LocalDateTime processedAt;
 
     @Column(columnDefinition = "JSON")
-    private String metadata;
+//    private String metadata;
 
     // Relationships
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)

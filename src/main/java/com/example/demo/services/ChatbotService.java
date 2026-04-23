@@ -6,7 +6,9 @@ import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
+import com.example.demo.exceptions.InvalidSourceException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChatbotService {
@@ -262,22 +265,28 @@ public class ChatbotService {
         messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
     }
 
+    @Transactional
     public void addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
+        if (sourceRequest.getSourceType() == SourceType.LAST_N){
+            trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
+            return;
+        }
 
         if (isThisSourceBelongsToVerifiedChannel(user, sourceRequest)) {
             trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
         } else {
-            if (sourceRequest.getSourceType() == SourceType.VIDEO) {
-                throw new RuntimeException("Video URL does not belong to the verified channel of this influencer");
-            } else if (sourceRequest.getSourceType() == SourceType.PLAYLIST) {
-                throw new RuntimeException("Playlist URL does not belong to the verified channel of this influencer");
-            }
+            throw new TrainingSourceException(
+                "NOT_YOUR_VIDEO",
+                "This video does not belong to your channel",
+                org.springframework.http.HttpStatus.FORBIDDEN
+            );
         }
     }
 
-    private boolean isThisSourceBelongsToVerifiedChannel(User user, TrainingSourceRequestDTO sourceRequest) {
+    private boolean isThisSourceBelongsToVerifiedChannel(
+            User user, TrainingSourceRequestDTO sourceRequest) {
         if (sourceRequest.getSourceType() == SourceType.LAST_N) {
             return true;
         }
@@ -305,7 +314,7 @@ public class ChatbotService {
                                 return youtubeClientService.isPlaylistUrlFromChannel(url, verification.getChannelId());
                             }
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
+                            throw new InvalidSourceException("Failed to verify source URL against YouTube API.", e);
                         }
                     }
 

@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ChatbotConfig {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,12 +52,11 @@ public class ChatbotConfig {
     @PreUpdate
     private void validateAttributes() {
         if (talkLikeMe) {
-            tone = null;
             verbosity = null;
             formality = null;
         } else {
             if (tone == null || verbosity == null || formality == null) {
-                throw new IllegalStateException("Tone, verbosity, and formality must have a value when talkLikeMe is false");
+                throw new IllegalStateException("verbosity and formality must have a value when talkLikeMe is false");
             }
         }
     }

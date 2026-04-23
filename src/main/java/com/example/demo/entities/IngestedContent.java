@@ -33,6 +33,6 @@ public class IngestedContent {
 
     private Integer chunkIndex;
 
-    @Column(columnDefinition = "JSON")
-    private String metadata;
+//    @Column(columnDefinition = "JSON")
+//    private String metadata;
 }

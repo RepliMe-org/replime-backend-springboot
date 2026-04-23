@@ -143,6 +143,6 @@ public class InfluencerChatbotController {
         @RequestHeader("Authorization") String token
     ) {
         chatbotService.addTrainingSourceToChatbot(sourceRequest, token);
-        return ResponseEntity.ok("Training source added successfully");
+        return ResponseEntity.accepted().body("Training source added successfully");
     }
 }
