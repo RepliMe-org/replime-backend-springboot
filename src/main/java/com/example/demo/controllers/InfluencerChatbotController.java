@@ -138,12 +138,12 @@ public class InfluencerChatbotController {
 
     @PostMapping("/training-sources")
     @Operation(description = "Add a new training source to the chatbot")
-    public ResponseEntity<String> addTrainingSource(
+    public ResponseEntity<List<VideoResponseDTO>> addTrainingSource(
         @Valid @RequestBody TrainingSourceRequestDTO sourceRequest,
         @RequestHeader("Authorization") String token
     ) {
-        chatbotService.addTrainingSourceToChatbot(sourceRequest, token);
-        return ResponseEntity.accepted().body("Training source added successfully");
+
+        return ResponseEntity.accepted().body(chatbotService.addTrainingSourceToChatbot(sourceRequest, token));
     }
 
     @DeleteMapping("/videos/{videoId}")

@@ -277,16 +277,15 @@ public class ChatbotService {
     }
 
     @Transactional
-    public void addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
+    public List<VideoResponseDTO> addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
         if (sourceRequest.getSourceType() == SourceType.LAST_N){
-            trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
-            return;
+            return trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
         }
 
         if (isThisSourceBelongsToVerifiedChannel(user, sourceRequest)) {
-            trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
+            return trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
         } else {
             throw new TrainingSourceException(
                 "NOT_YOUR_VIDEO",

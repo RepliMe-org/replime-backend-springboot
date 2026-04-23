@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,6 +38,8 @@ public class Video {
     private String thumbnailUrl;
 
     private LocalDateTime processedAt;
+
+    private SyncStatus syncStatus;
 
     @Column(columnDefinition = "JSON")
 //    private String metadata;

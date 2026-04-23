@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.dtos.TrainingSourceRequestDTO;
+import com.example.demo.dtos.VideoResponseDTO;
 import com.example.demo.dtos.internal.VideoIndexRequestDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.TrainingSource;
@@ -42,7 +43,7 @@ public class TrainingSourceService {
     private FastApiService fastApiService;
 
     @Transactional
-    public void addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, Chatbot chatbot) {
+    public List<VideoResponseDTO> addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, Chatbot chatbot) {
         TrainingSource trainingSource = TrainingSource.builder()
                 .chatbot(chatbot)
                 .sourceType(sourceRequest.getSourceType())
@@ -114,5 +115,13 @@ public class TrainingSourceService {
                     .build();
             fastApiService.indexVideo(videoIndexRequestDTO,video.getId().toString());
         }
+        return successfullySavedVideos.stream().map(video -> VideoResponseDTO.builder()
+                .sourceId(video.getTrainingSource().getId())
+                .videoId(video.getId())
+                .youtubeVideoId(video.getYoutubeVideoId())
+                .title(video.getTitle())
+                .thumbnail(video.getThumbnailUrl())
+                .syncStatus(video.getSyncStatus())
+                .build()).toList();
     }
 }
