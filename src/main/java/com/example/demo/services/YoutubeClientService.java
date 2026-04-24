@@ -276,4 +276,55 @@ public class YoutubeClientService {
         }
         return videos;
     }
+
+    public List<Video> getAllVideosFromChannel(String channelId) {
+        List<Video> videos = new ArrayList<>();
+        String nextPageToken = "";
+        ObjectMapper mapper = new ObjectMapper();
+        
+        try {
+            do {
+                String url = "https://www.googleapis.com/youtube/v3/search" +
+                        "?part=snippet,id" +
+                        "&channelId=" + channelId +
+                        "&type=video" +
+                        "&maxResults=50" +
+                        "&key=" + apiKey;
+                
+                if (!nextPageToken.isEmpty()) {
+                    url += "&pageToken=" + nextPageToken;
+                }
+
+                ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                JsonNode root = mapper.readTree(response.getBody());
+                JsonNode items = root.path("items");
+                if (items.isArray()) {
+                    for (JsonNode item : items) {
+                        JsonNode snippet = item.path("snippet");
+                        String videoId = item.path("id").path("videoId").asText();
+                        String title = snippet.path("title").asText();
+                        String thumbnail = "";
+                        if (snippet.path("thumbnails").has("high")) {
+                            thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
+                        } else if (snippet.path("thumbnails").has("default")) {
+                            thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
+                        }
+
+                        Video video = new Video();
+                        video.setYoutubeVideoId(videoId);
+                        video.setTitle(title);
+                        video.setThumbnailUrl(thumbnail);
+                        video.setSyncStatus(SyncStatus.PROCESSING);
+                        videos.add(video);
+                    }
+                }
+                nextPageToken = root.path("nextPageToken").asText("");
+            } while (!nextPageToken.isEmpty());
+        } catch (Exception e) {
+            System.err.println("Failed to get all videos from channel using search API: " + e.getMessage());
+        }
+        return videos;
+    }
+
+
 }

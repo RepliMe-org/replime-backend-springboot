@@ -15,7 +15,6 @@ import com.example.demo.repos.InfluencerVerificationRepo;
 import com.example.demo.repos.VideoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +37,6 @@ public class ChatbotService {
 
     @Autowired
     private InfluencerVerificationRepo influencerVerificationRepo;
-
-    @Autowired
-    private VideoRepository videoRepository;
-
-    @Autowired
-    private FastApiService fastApiService;
 
     @Autowired
     private MessageClassService messageClassService;
@@ -340,4 +333,10 @@ public class ChatbotService {
 
         videoService.deleteVideoFromChatbot(videoId, chatbot);
     }
+
+    public void fetchChannelVideosToChatbot(Chatbot chatbot, User influencer) {
+        String channelId = influencerVerificationRepo.findByUser(influencer).getChannelId();
+        trainingSourceService.addInitialTrainingSource(chatbot,channelId);
+    }
 }
+

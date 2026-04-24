@@ -5,6 +5,7 @@ import com.example.demo.dtos.VideoResponseDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.Video;
+import com.example.demo.entities.utils.SourceType;
 import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.repos.TrainingSourceRepository;
 import jakarta.transaction.Transactional;
@@ -49,4 +50,23 @@ public class TrainingSourceService {
 
         return videoService.mapToVideoResponseDTO(successfullySavedVideos);
     }
+
+    public void addInitialTrainingSource(Chatbot chatbot, String channelId) {
+        TrainingSource trainingSource = TrainingSource.builder()
+                .chatbot(chatbot)
+                .sourceType(SourceType.CHANNEL)
+                .sourceValue(channelId)
+                .last_n(null)
+                .addedAt(LocalDateTime.now())
+                .syncStatus(SyncStatus.PROCESSING)
+                .build();
+        trainingSource = trainingSourceRepository.save(trainingSource);
+
+        List<Video> channelVideos = videoService.getChannelVideos(channelId,trainingSource,chatbot);
+        trainingSource.setVideos(channelVideos);
+        trainingSourceRepository.save(trainingSource);
+
+        videoService.indexSavedVideos(channelVideos, chatbot);
+    }
+
 }

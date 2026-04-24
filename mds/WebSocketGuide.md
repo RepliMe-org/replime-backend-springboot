@@ -118,3 +118,42 @@ const IngestionTracker = ({ chatbotId }) => {
 
 export default IngestionTracker;
 ```
+
+## 5. Testing with Postman
+
+Postman supports plain WebSockets, but Spring Boot STOMP operates over SockJS fallback bindings by default, which Postman's basic raw WebSocket request type does **not** natively understand.
+
+To easily test this locally without building a full frontend, you can use tools explicitly designed for STOMP or create a tiny raw HTML client.
+
+### Method A: Use Apic (Recommended)
+Download the free **Apic** Chrome Extension or Desktop App (which natively supports STOMP over SockJS).
+1. Click **+ New WS Request** and select **SockJS** + **STOMP** as protocols.
+2. Url: `http://localhost:8080/api/v1/ws`
+3. Click Connect.
+4. Under Subscriptions add `/topic/chatbot/{your_chatbot_id_here}/sync-status`.
+5. Trigger your backend APIs normally through Postman (e.g. update the sync status), and watch the payload arrive seamlessly on the Apic listener pane!
+
+### Method B: Using Postman (Raw Websocket without SockJS fallback)
+If you specifically want to use Postman, you must hit the raw WebSocket endpoint directly, bypassing SockJS fallback wrappers.
+
+1. Open Postman -> New **WebSocket Request**.
+2. URL: `ws://localhost:8080/api/v1/ws/websocket` *(Notice the `/websocket` append at the end)*
+3. Hit Connect.
+4. STOMP requires a handshake string to be sent first. In Postman's "Message" text box, paste exactly this block (be sure to add a trailing empty line AND hold control/command and press `[Ctrl+@]` representing the standard STOMP null byte terminator `^@` if your client supports it):
+   ```
+   CONNECT
+   accept-version:1.1,1.0
+   heart-beat:10000,10000
+   
+   ^@
+   ```
+5. You should receive a `CONNECTED` response frame.
+6. Now Subscribe by sending:
+   ```
+   SUBSCRIBE
+   id:sub-0
+   destination:/topic/chatbot/{chatbot_id}/sync-status
+   
+   ^@
+   ```
+*(Note: Method B can be finicky depending on Postman's unescaped termination characters support, so Method A or utilizing the JS snippet is heavily recommended for testing).*

@@ -1,5 +1,6 @@
 package com.example.demo.repos;
 
+import io.micrometer.observation.ObservationFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,5 @@ public interface InfluencerVerificationRepo extends JpaRepository<InfluencerVeri
 
     InfluencerVerification findByChannelId(String channelId);
 
+    InfluencerVerification findByUser(User influencer);
 }

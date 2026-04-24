@@ -43,6 +43,10 @@ public class ChatbotConfigService {
         chatbot.setConfig(config);
         chatbot.setStatus(ChatbotStatus.TRAINING);
         chatbotRepo.save(chatbot);
+
+        if (requestDTO.getFetchChannel()) {
+            chatbotService.fetchChannelVideosToChatbot(chatbot,user);
+        }
         return ResponseEntity.ok("Chatbot config saved successfully");
     }
 
@@ -62,6 +66,7 @@ public class ChatbotConfigService {
                 .verbosity(requestDTO.getVerbosity())
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
+                .fetchChannel(requestDTO.getFetchChannel())
                 .build();
     }
 

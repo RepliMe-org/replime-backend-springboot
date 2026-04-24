@@ -28,4 +28,7 @@ public class ChatbotConfigRequestDTO {
     private Verbosity verbosity;
 
     private Formality formality;
+
+    @NotNull
+    private Boolean fetchChannel;
 }

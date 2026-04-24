@@ -15,6 +15,7 @@ import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.InfluencerVerificationRepo;
 import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,5 +189,22 @@ public class VideoService {
             throw new TrainingSourceException("INVALID_STATUS",
                     "Invalid sync status value: " + status, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public List<Video> getChannelVideos(String channelId, TrainingSource trainingSource, Chatbot chatbot) {
+
+
+        List<Video> allVideos = youtubeClientService.getAllVideosFromChannel(channelId);
+        List<Video> successfullySavedVideos = new ArrayList<>();
+
+        for (Video video : allVideos) {
+            if (video.getYoutubeVideoId() != null &&
+                    !videoRepository.existsByYoutubeVideoId(video.getYoutubeVideoId())) {
+                video.setTrainingSource(trainingSource);
+                video = videoRepository.save(video);
+                successfullySavedVideos.add(video);
+            }
+        }
+        return successfullySavedVideos;
     }
 }

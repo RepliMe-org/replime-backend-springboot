@@ -43,6 +43,8 @@ public class ChatbotConfig {
     @Enumerated(EnumType.STRING)
     private Formality formality;
 
+    private boolean fetchChannel;
+
 //    @Column(columnDefinition = "TEXT")
 //    private String systemPrompt;
 
