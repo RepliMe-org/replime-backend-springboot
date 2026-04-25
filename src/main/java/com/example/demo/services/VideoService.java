@@ -117,11 +117,13 @@ public class VideoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
 
         if (!video.getTrainingSource().getChatbot().getId().equals(chatbot.getId())) {
-            throw new TrainingSourceException("FORBIDDEN", "This video does not belong to your chatbot", org.springframework.http.HttpStatus.FORBIDDEN);
+            throw new TrainingSourceException("FORBIDDEN", "This video does not belong to your chatbot",
+                    org.springframework.http.HttpStatus.FORBIDDEN);
         }
 
         try {
-            Map<String, Object> response = fastApiService.deleteVideoChunks(video.getId().toString(), chatbot.getId().toString());
+            Map<String, Object> response =
+                    fastApiService.deleteVideoChunks(video.getId().toString(), chatbot.getId().toString());
             System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
         } catch (Exception e) {
             throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
@@ -136,6 +138,7 @@ public class VideoService {
                 .sourceId(video.getTrainingSource().getId())
                 .youtubeVideoId(video.getYoutubeVideoId())
                 .title(video.getTitle())
+                .duration(video.getDuration())
                 .thumbnail(video.getThumbnailUrl())
                 .syncStatus(video.getSyncStatus())
                 .build()).toList();
@@ -174,7 +177,8 @@ public class VideoService {
                 trainingSource.setSyncStatus(SyncStatus.COMPLETED);
                 trainingSourceRepository.save(trainingSource);
                 // System out for notification (or real notification logic)
-                System.out.println("Notification: Ingestion finished for training source ID " + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
+                System.out.println("Notification: Ingestion finished for training source ID "
+                        + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
 
                 // Send websocket notification for entire source
                 SyncStatusMessageDTO sourceUpdateMsg = SyncStatusMessageDTO.builder()
@@ -182,7 +186,8 @@ public class VideoService {
                         .sourceId(trainingSource.getId())
                         .status(SyncStatus.COMPLETED.name())
                         .build();
-                messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", sourceUpdateMsg);
+                messagingTemplate.convertAndSend("/topic/chatbot/" +
+                        trainingSource.getChatbot().getId() + "/sync-status", sourceUpdateMsg);
             }
 
         } catch (IllegalArgumentException e) {
@@ -191,7 +196,7 @@ public class VideoService {
         }
     }
 
-    public List<Video> getChannelVideos(String channelId, TrainingSource trainingSource, Chatbot chatbot) {
+    public List<Video> getChannelVideos(String channelId, TrainingSource trainingSource) {
 
 
         List<Video> allVideos = youtubeClientService.getAllVideosFromChannel(channelId);

@@ -62,7 +62,7 @@ public class TrainingSourceService {
                 .build();
         trainingSource = trainingSourceRepository.save(trainingSource);
 
-        List<Video> channelVideos = videoService.getChannelVideos(channelId,trainingSource,chatbot);
+        List<Video> channelVideos = videoService.getChannelVideos(channelId,trainingSource);
         trainingSource.setVideos(channelVideos);
         trainingSourceRepository.save(trainingSource);
 
