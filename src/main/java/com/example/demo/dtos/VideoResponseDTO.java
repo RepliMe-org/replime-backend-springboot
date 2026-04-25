@@ -15,4 +15,5 @@ public class VideoResponseDTO {
     private String title;
     private String thumbnail;
     private SyncStatus syncStatus;
+    private String duration;
 }

@@ -28,7 +28,7 @@ public class Video {
 
     private String title;
 
-    private Integer duration;
+    private String duration;
 
 //    @Column(columnDefinition = "TEXT")
 //    private String transcript;

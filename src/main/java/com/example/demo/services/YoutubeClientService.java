@@ -158,47 +158,82 @@ public class YoutubeClientService {
         return expectedChannelId != null && expectedChannelId.equals(channelId);
     }
 
-    public Video getVideoDetailsForEntity(String videoId) {
-        String url = "https://www.googleapis.com/youtube/v3/videos" +
-                "?part=snippet,contentDetails" +
-                "&id=" + videoId +
-                "&key=" + apiKey;
+    public List<Video> fetchVideoDetails(List<String> videoIds) {
+        List<Video> videos = new ArrayList<>();
+        if (videoIds == null || videoIds.isEmpty()) return videos;
 
-        try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.getBody());
-            JsonNode items = root.path("items");
-            if (items.isArray() && !items.isEmpty()) {
-                JsonNode snippet = items.get(0).path("snippet");
-                String title = snippet.path("title").asText();
-                String thumbnail = "";
-                if (snippet.path("thumbnails").has("high")) {
-                    thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
-                } else if (snippet.path("thumbnails").has("default")) {
-                    thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Ensure we process in batches of 50 (YouTube API limit)
+        for (int i = 0; i < videoIds.size(); i += 50) {
+            List<String> batch = videoIds.subList(i, Math.min(i + 50, videoIds.size()));
+            String joinIds = String.join(",", batch);
+
+            String url = "https://www.googleapis.com/youtube/v3/videos" +
+                    "?part=snippet,contentDetails" +
+                    "&id=" + joinIds +
+                    "&key=" + apiKey;
+
+            try {
+                ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                JsonNode root = mapper.readTree(response.getBody());
+                JsonNode items = root.path("items");
+                if (items.isArray()) {
+                    for (JsonNode item : items) {
+                        JsonNode snippet = item.path("snippet");
+                        JsonNode contentDetails = item.path("contentDetails");
+
+                        String id = item.path("id").asText();
+                        String title = snippet.path("title").asText();
+
+                        String durationIso = contentDetails.path("duration").asText("");
+                        String formattedDuration = "00:00";
+                        if (!durationIso.isEmpty()) {
+                            long totalSeconds = java.time.Duration.parse(durationIso).getSeconds();
+                            long hours = totalSeconds / 3600;
+                            long minutes = (totalSeconds % 3600) / 60;
+                            long seconds = totalSeconds % 60;
+                            if (hours > 0) {
+                                formattedDuration = String.format("%d:%02d:%02d", hours, minutes, seconds);
+                            } else {
+                                formattedDuration = String.format("%02d:%02d", minutes, seconds);
+                            }
+                        }
+
+                        String thumbnail = "";
+                        if (snippet.path("thumbnails").has("high")) {
+                            thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
+                        } else if (snippet.path("thumbnails").has("default")) {
+                            thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
+                        }
+
+                        Video video = new Video();
+                        video.setYoutubeVideoId(id);
+                        video.setTitle(title);
+                        video.setDuration(formattedDuration);
+                        video.setThumbnailUrl(thumbnail);
+                        video.setSyncStatus(SyncStatus.PROCESSING);
+                        videos.add(video);
+                    }
                 }
-
-                Video video = new Video();
-                video.setYoutubeVideoId(videoId);
-                video.setTitle(title);
-                video.setThumbnailUrl(thumbnail);
-                video.setSyncStatus(SyncStatus.PROCESSING);
-
-                return video;
+            } catch (Exception e) {
+                System.err.println("Failed to fetch video details for batch: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Failed to get video details for entity: " + e.getMessage());
         }
-        return null;
+        return videos;
+    }
+
+    public Video getVideoDetailsForEntity(String videoId) {
+        List<Video> videos = fetchVideoDetails(List.of(videoId));
+        return videos.isEmpty() ? null : videos.get(0);
     }
 
     public List<Video> getVideosFromPlaylist(String playlistId) {
-        List<Video> videos = new ArrayList<>();
+        List<String> videoIds = new ArrayList<>();
         String url = "https://www.googleapis.com/youtube/v3/playlistItems" +
-                "?part=snippet,contentDetails" +
+                "?part=contentDetails" +
                 "&playlistId=" + playlistId +
-                "&maxResults=50" + // TODO: make maxResult value as variable
+                "&maxResults=50" +
                 "&key=" + apiKey;
 
         try {
@@ -208,38 +243,23 @@ public class YoutubeClientService {
             JsonNode items = root.path("items");
             if (items.isArray()) {
                 for (JsonNode item : items) {
-                    JsonNode snippet = item.path("snippet");
-                    String videoId = item.path("contentDetails").path("videoId").asText();
-                    String title = snippet.path("title").asText();
-                    String thumbnail = "";
-                    if (snippet.path("thumbnails").has("high")) {
-                        thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
-                    } else if (snippet.path("thumbnails").has("default")) {
-                        thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
-                    }
-
-                    Video video = new Video();
-                    video.setYoutubeVideoId(videoId);
-                    video.setTitle(title);
-                    video.setThumbnailUrl(thumbnail);
-                    video.setSyncStatus(SyncStatus.PROCESSING);
-                    videos.add(video);
+                    videoIds.add(item.path("contentDetails").path("videoId").asText());
                 }
             }
         } catch (Exception e) {
             System.err.println("Failed to get videos from playlist API: " + e.getMessage());
         }
-        return videos;
+        return fetchVideoDetails(videoIds);
     }
 
     public List<Video> getLatestVideosFromChannel(String channelId, int maxResults) {
-        List<Video> videos = new ArrayList<>();
-        if (maxResults <= 0) return videos;
+        List<String> videoIds = new ArrayList<>();
+        if (maxResults <= 0) return new ArrayList<>();
 
-        int limit = Math.min(maxResults, 50); // TODO: make maxResult value as variable
+        int limit = Math.min(maxResults, 50);
 
         String url = "https://www.googleapis.com/youtube/v3/search" +
-                "?part=snippet,id" +
+                "?part=id" +
                 "&channelId=" + channelId +
                 "&maxResults=" + limit +
                 "&order=date" +
@@ -253,39 +273,24 @@ public class YoutubeClientService {
             JsonNode items = root.path("items");
             if (items.isArray()) {
                 for (JsonNode item : items) {
-                    JsonNode snippet = item.path("snippet");
-                    String videoId = item.path("id").path("videoId").asText();
-                    String title = snippet.path("title").asText();
-                    String thumbnail = "";
-                    if (snippet.path("thumbnails").has("high")) {
-                        thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
-                    } else if (snippet.path("thumbnails").has("default")) {
-                        thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
-                    }
-
-                    Video video = new Video();
-                    video.setYoutubeVideoId(videoId);
-                    video.setTitle(title);
-                    video.setThumbnailUrl(thumbnail);
-                    video.setSyncStatus(SyncStatus.PROCESSING);
-                    videos.add(video);
+                    videoIds.add(item.path("id").path("videoId").asText());
                 }
             }
         } catch (Exception e) {
             System.err.println("Failed to get latest videos from channel API: " + e.getMessage());
         }
-        return videos;
+        return fetchVideoDetails(videoIds);
     }
 
     public List<Video> getAllVideosFromChannel(String channelId) {
-        List<Video> videos = new ArrayList<>();
+        List<String> videoIds = new ArrayList<>();
         String nextPageToken = "";
         ObjectMapper mapper = new ObjectMapper();
         
         try {
             do {
                 String url = "https://www.googleapis.com/youtube/v3/search" +
-                        "?part=snippet,id" +
+                        "?part=id" +
                         "&channelId=" + channelId +
                         "&type=video" +
                         "&maxResults=50" +
@@ -300,22 +305,7 @@ public class YoutubeClientService {
                 JsonNode items = root.path("items");
                 if (items.isArray()) {
                     for (JsonNode item : items) {
-                        JsonNode snippet = item.path("snippet");
-                        String videoId = item.path("id").path("videoId").asText();
-                        String title = snippet.path("title").asText();
-                        String thumbnail = "";
-                        if (snippet.path("thumbnails").has("high")) {
-                            thumbnail = snippet.path("thumbnails").path("high").path("url").asText();
-                        } else if (snippet.path("thumbnails").has("default")) {
-                            thumbnail = snippet.path("thumbnails").path("default").path("url").asText();
-                        }
-
-                        Video video = new Video();
-                        video.setYoutubeVideoId(videoId);
-                        video.setTitle(title);
-                        video.setThumbnailUrl(thumbnail);
-                        video.setSyncStatus(SyncStatus.PROCESSING);
-                        videos.add(video);
+                        videoIds.add(item.path("id").path("videoId").asText());
                     }
                 }
                 nextPageToken = root.path("nextPageToken").asText("");
@@ -323,8 +313,7 @@ public class YoutubeClientService {
         } catch (Exception e) {
             System.err.println("Failed to get all videos from channel using search API: " + e.getMessage());
         }
-        return videos;
+        return fetchVideoDetails(videoIds);
     }
-
 
 }
