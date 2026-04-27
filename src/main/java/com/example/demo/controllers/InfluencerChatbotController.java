@@ -155,4 +155,13 @@ public class InfluencerChatbotController {
         chatbotService.deleteVideoFromChatbot(videoId, token);
         return ResponseEntity.ok("Video removed successfully");
     }
+
+    @GetMapping("/videos")
+    @Operation(description = "Get all videos associated with the chatbot's training sources")
+    public ResponseEntity<List<VideoResponseDTO>> getAllVideos(
+            @RequestHeader("Authorization") String token)
+    {
+        return ResponseEntity.ok(chatbotService.getAllVideosOfChatbot(token));
+    }
+
 }

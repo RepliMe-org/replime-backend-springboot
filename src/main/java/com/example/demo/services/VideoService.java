@@ -212,4 +212,14 @@ public class VideoService {
         }
         return successfullySavedVideos;
     }
+
+    public List<VideoResponseDTO> getAllVideosOfChatbot(Chatbot chatbot) {
+        List<TrainingSource> chatbotTrainingSources  = chatbot.getTrainingSources();
+        List<Video> allVideosOfChatbot = new ArrayList<>();
+        for (TrainingSource trainingSource : chatbotTrainingSources) {
+            List<Video> videosOfSource = videoRepository.findByTrainingSource(trainingSource);
+            allVideosOfChatbot.addAll(videosOfSource);
+        }
+        return mapToVideoResponseDTO(allVideosOfChatbot);
+    }
 }

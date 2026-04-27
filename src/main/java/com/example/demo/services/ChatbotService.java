@@ -338,5 +338,11 @@ public class ChatbotService {
         String channelId = influencerVerificationRepo.findByUser(influencer).getChannelId();
         trainingSourceService.addInitialTrainingSource(chatbot,channelId);
     }
+
+    public List<VideoResponseDTO> getAllVideosOfChatbot(String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        return videoService.getAllVideosOfChatbot(chatbot);
+    }
 }
 
