@@ -1,5 +1,7 @@
 package com.example.demo.dtos;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +16,7 @@ public class SyncStatusMessageDTO {
     private Long sourceId;
     private Long videoId;
     private String status;
+    @Nullable
+    private String errorMessage;
 }
 
