@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,10 +16,19 @@ public class VideoIndexRequestDTO {
     @JsonProperty("chatbot_id")
     private String chatbotId;
 
-    @JsonProperty("youtube_video_id")
-    private String youtubeVideoId;
+    @JsonProperty("videos")
+    private List<VideoItem> videos;
 
-    @JsonProperty("video_title")
-    private String videoTitle;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VideoItem {
+        @JsonProperty("youtube_video_id")
+        private String youtubeVideoId;
+
+        @JsonProperty("video_title")
+        private String videoTitle;
+    }
 }
 

@@ -101,14 +101,21 @@ public class VideoService {
     }
 
     public void indexSavedVideos(List<Video> successfullySavedVideos, Chatbot chatbot) {
-        for (Video video : successfullySavedVideos) {
-            VideoIndexRequestDTO videoIndexRequestDTO = VideoIndexRequestDTO.builder()
-                    .videoTitle(video.getTitle())
-                    .chatbotId(chatbot.getId().toString())
-                    .youtubeVideoId(video.getYoutubeVideoId())
-                    .build();
-            fastApiService.indexVideo(videoIndexRequestDTO, video.getId().toString());
-        }
+        if (successfullySavedVideos.isEmpty()) return;
+
+        List<VideoIndexRequestDTO.VideoItem> videoItems = successfullySavedVideos.stream()
+                .map(video -> VideoIndexRequestDTO.VideoItem.builder()
+                        .youtubeVideoId(video.getYoutubeVideoId())
+                        .videoTitle(video.getTitle())
+                        .build())
+                .toList();
+
+        VideoIndexRequestDTO videoIndexRequestDTO = VideoIndexRequestDTO.builder()
+                .chatbotId(chatbot.getId().toString())
+                .videos(videoItems)
+                .build();
+
+        fastApiService.indexVideos(videoIndexRequestDTO);
     }
 
     @Transactional
@@ -149,7 +156,8 @@ public class VideoService {
                 .orElseThrow(() -> new ResourceNotFoundException("video not found with id: " + youtubeVideoId));
         System.out.println(updateVideo);
         try {
-            updateVideo.setSyncStatus(request.getSyncStatus());
+            SyncStatus parsedStatus = SyncStatus.valueOf(request.getStatus().toUpperCase());
+            updateVideo.setSyncStatus(parsedStatus);
             videoRepository.save(updateVideo);
 
             TrainingSource trainingSource = updateVideo.getTrainingSource();
@@ -162,8 +170,8 @@ public class VideoService {
                     .type("VIDEO_UPDATE")
                     .sourceId(trainingSource.getId())
                     .videoId(updateVideo.getId())
-                    .status(request.getSyncStatus().name())
-                    .errorMessage(request.getErrorMessage())
+                    .status(parsedStatus.name())
+                    .errorMessage(request.getError())
                     .build();
             messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
 
@@ -172,7 +180,7 @@ public class VideoService {
             boolean allFinished = true;
             for (Video v : trainingSource.getVideos()) {
                 // If it's this video, use the new status
-                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? request.getSyncStatus() : v.getSyncStatus();
+                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? parsedStatus : v.getSyncStatus();
                 if (currentStatus == SyncStatus.PROCESSING) {
                     allFinished = false;
                     break;
@@ -198,7 +206,7 @@ public class VideoService {
 
         } catch (IllegalArgumentException e) {
             throw new TrainingSourceException("INVALID_STATUS",
-                    "Invalid sync status value: " + request.getSyncStatus(), HttpStatus.BAD_REQUEST);
+                    "Invalid sync status value: " + request.getStatus(), HttpStatus.BAD_REQUEST);
         }
     }
 

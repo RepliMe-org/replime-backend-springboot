@@ -20,7 +20,7 @@ public class FastApiService {
 
     public Map<String, Object> callFastApi() {
         return webClient.get()
-                .uri("/api/v1/base/")
+                .uri("/api/v1/health/")
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();
@@ -38,15 +38,15 @@ public class FastApiService {
                 .block();
     }
 
-    public void indexVideo(VideoIndexRequestDTO videoIndexRequestDTO, String videoId) {
+    public void indexVideos(VideoIndexRequestDTO videoIndexRequestDTO) {
 
         webClient.post()
-                .uri("/internal/videos/{video_id}/index", videoId)
+                .uri("/ingest/videos")
                 .header("X-INTERNAL-TOKEN", X_TOKEN)
                 .bodyValue(videoIndexRequestDTO)
                 .retrieve()
                 .bodyToMono(Void.class)
-                .doOnError(error -> System.err.println("Failed to call FastAPI indexing for video " + videoId + ": " + error.getMessage()))
+                .doOnError(error -> System.err.println("Failed to call FastAPI indexing for batch videos. " + error.getMessage()))
                 .subscribe();
     }
 
