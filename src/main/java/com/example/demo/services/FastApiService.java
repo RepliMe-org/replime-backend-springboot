@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.DeleteVideoRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -26,13 +27,11 @@ public class FastApiService {
                 .block();
     }
 
-    public Map<String, Object> deleteVideoChunks(String videoId, String chatbotId) {
-        Map<String, String> body = Map.of("chatbot_id", chatbotId);
-
+    public Map<String, Object> deleteVideoChunks(String videoId, DeleteVideoRequestDTO deleteVideoRequestDTO) {
         return webClient.method(org.springframework.http.HttpMethod.DELETE)
-                .uri("/internal/videos/{video_id}", videoId)
+                .uri("/delete/video", videoId)
                 .header("X-INTERNAL-TOKEN", X_TOKEN)
-                .bodyValue(body)
+                .bodyValue(deleteVideoRequestDTO)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();

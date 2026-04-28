@@ -1,13 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
-import com.example.demo.dtos.VideoResponseDTO;
+import com.example.demo.dtos.*;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.Video;
 import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.TrainingSourceException;
-import com.example.demo.dtos.TrainingSourceRequestDTO;
 import com.example.demo.dtos.internal.VideoIndexRequestDTO;
 import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.User;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dtos.SyncStatusMessageDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.ArrayList;
@@ -119,18 +116,23 @@ public class VideoService {
     }
 
     @Transactional
-    public void deleteVideoFromChatbot(Long videoId, Chatbot chatbot) {
-        Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+    public void deleteVideoFromChatbot(String youtubeVideoId, Chatbot chatbot) {
+        Video video = videoRepository.findByYoutubeVideoId(youtubeVideoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + youtubeVideoId));
 
         if (!video.getTrainingSource().getChatbot().getId().equals(chatbot.getId())) {
             throw new TrainingSourceException("FORBIDDEN", "This video does not belong to your chatbot",
                     org.springframework.http.HttpStatus.FORBIDDEN);
         }
 
+        DeleteVideoRequestDTO deleteVideoRequestDTO = DeleteVideoRequestDTO.builder()
+                .youtube_video_id(youtubeVideoId)
+                .chatbot_id(chatbot.getId().toString())
+                .build();
+
         try {
             Map<String, Object> response =
-                    fastApiService.deleteVideoChunks(video.getId().toString(), chatbot.getId().toString());
+                    fastApiService.deleteVideoChunks(video.getId().toString(), deleteVideoRequestDTO);
             System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
         } catch (Exception e) {
             throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);

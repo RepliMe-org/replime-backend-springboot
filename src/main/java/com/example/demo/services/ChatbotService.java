@@ -327,11 +327,11 @@ public class ChatbotService {
     }
 
     @Transactional
-    public void deleteVideoFromChatbot(Long videoId, String token) {
+    public void deleteVideoFromChatbot(String youtubeVideoId, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
 
-        videoService.deleteVideoFromChatbot(videoId, chatbot);
+        videoService.deleteVideoFromChatbot(youtubeVideoId, chatbot);
     }
 
     public void fetchChannelVideosToChatbot(Chatbot chatbot, User influencer) {
