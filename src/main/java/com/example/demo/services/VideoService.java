@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
 import com.example.demo.dtos.VideoResponseDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.Video;
@@ -15,7 +16,6 @@ import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.InfluencerVerificationRepo;
 import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,29 +144,35 @@ public class VideoService {
                 .build()).toList();
     }
 
-    public void updateVideoStatus(String videoId, String status) {
-        Video updateVideo = videoRepository.findById(Long.parseLong(videoId))
-                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+    public void updateVideoStatus(String youtubeVideoId, UpdateVideoStatusRequestDTO request) {
+        Video updateVideo = videoRepository.findByYoutubeVideoId(youtubeVideoId)
+                .orElseThrow(() -> new ResourceNotFoundException("video not found with id: " + youtubeVideoId));
+        System.out.println(updateVideo);
         try {
-            SyncStatus syncStatus = SyncStatus.valueOf(status);
-            updateVideo.setSyncStatus(syncStatus);
+            updateVideo.setSyncStatus(request.getSyncStatus());
             videoRepository.save(updateVideo);
 
             TrainingSource trainingSource = updateVideo.getTrainingSource();
+
+            System.out.println("Sending to topic: /topic/chatbot/"
+                    + trainingSource.getChatbot().getId() + "/sync-status");
 
             // Send websocket notification for single video update
             SyncStatusMessageDTO videoUpdateMsg = SyncStatusMessageDTO.builder()
                     .type("VIDEO_UPDATE")
                     .sourceId(trainingSource.getId())
                     .videoId(updateVideo.getId())
-                    .status(syncStatus.name())
+                    .status(request.getSyncStatus().name())
+                    .errorMessage(request.getErrorMessage())
                     .build();
             messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
+
+            System.out.println("Sync status updated successfully");
 
             boolean allFinished = true;
             for (Video v : trainingSource.getVideos()) {
                 // If it's this video, use the new status
-                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? syncStatus : v.getSyncStatus();
+                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? request.getSyncStatus() : v.getSyncStatus();
                 if (currentStatus == SyncStatus.PROCESSING) {
                     allFinished = false;
                     break;
@@ -192,7 +198,7 @@ public class VideoService {
 
         } catch (IllegalArgumentException e) {
             throw new TrainingSourceException("INVALID_STATUS",
-                    "Invalid sync status value: " + status, HttpStatus.BAD_REQUEST);
+                    "Invalid sync status value: " + request.getSyncStatus(), HttpStatus.BAD_REQUEST);
         }
     }
 

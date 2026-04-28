@@ -7,10 +7,12 @@ import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.Video;
 import com.example.demo.entities.utils.SourceType;
 import com.example.demo.entities.utils.SyncStatus;
+import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.repos.TrainingSourceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,7 +42,7 @@ public class TrainingSourceService {
         List<Video> successfullySavedVideos = videoService.fetchAndSaveVideosForTrainingSource(sourceRequest, trainingSource, chatbot);
 
         if (successfullySavedVideos.isEmpty()) {
-            trainingSource.setSyncStatus(SyncStatus.FAILED);
+            throw new TrainingSourceException("NO_NEW_VIDEO","No videos were saved for the provided training source.", HttpStatus.OK);
         }
 
         trainingSource.setVideos(successfullySavedVideos);
