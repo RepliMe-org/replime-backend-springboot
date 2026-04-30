@@ -19,8 +19,7 @@ public class InternalController {
     @PatchMapping("/update-video-status/{videoId}")
     public ResponseEntity<String> updateVideoStatus(
             @PathVariable String videoId, @RequestBody UpdateVideoStatusRequestDTO request) {
-        System.out.println("testtttt");
-        System.out.println(request.getError() + "erorrrrrrrrrrrrrrrrrrrrr");
+        System.out.println(" ingest video error: "+request.getError());
         videoService.updateVideoStatus(videoId,request);
         return ResponseEntity.ok("Video status updated successfully");
     }

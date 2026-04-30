@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -30,9 +28,6 @@ public class Video {
 
     private String duration;
 
-//    @Column(columnDefinition = "TEXT")
-//    private String transcript;
-
     private Integer totalChunks;
 
     private String thumbnailUrl;
@@ -42,10 +37,4 @@ public class Video {
     @Enumerated(EnumType.STRING)
     private SyncStatus syncStatus;
 
-    @Column(columnDefinition = "JSON")
-//    private String metadata;
-
-    // Relationships
-    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
-    private List<IngestedContent> chunks = new ArrayList<>();
 }
