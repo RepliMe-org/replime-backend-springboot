@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.ResponseVerificationDTO;
 import com.example.demo.entities.InfluencerVerification;
-import com.example.demo.entities.Role;
+import com.example.demo.entities.utils.Role;
 import com.example.demo.entities.User;
-import com.example.demo.entities.VerificationStatus;
+import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.exceptions.VerificationException;
 import com.example.demo.repos.InfluencerVerificationRepo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -78,21 +78,24 @@ public class InfluencerVerificationService {
             }
         }
 
-        String channelId = youtubeClientService.extractChannelId(channelUrl);
+        String identifier = youtubeClientService.extractChannelId(channelUrl);
 
-        InfluencerVerification isFoundChannel = influencerVerificationRepo.findByChannelId(channelId);
-        if (isFoundChannel != null){
-            throw new VerificationException(
-                    "This channel requested verification before."
-            );
-        }
-
-        JsonNode channelData = youtubeClientService.getChannelData(channelId);
+        JsonNode channelData = youtubeClientService.getChannelData(identifier);
 
         JsonNode items = channelData.get("items");
 
         if (items == null || items.isEmpty()) {
             throw new VerificationException("Channel not found");
+        }
+
+        String actualChannelId = items.get(0).path("id").asText();
+        String handle = items.get(0).path("snippet").path("customUrl").asText();
+
+        InfluencerVerification isFoundChannel = influencerVerificationRepo.findByChannelId(actualChannelId);
+        if (isFoundChannel != null){
+            throw new VerificationException(
+                    "This channel requested verification before."
+            );
         }
 
         JsonNode statistics = items.get(0).get("statistics");
@@ -112,7 +115,8 @@ public class InfluencerVerificationService {
 
         InfluencerVerification verification = InfluencerVerification.builder()
                 .user(user)
-                .channelId(channelId)
+                .channelId(actualChannelId)
+                .handle(handle)
                 .channelUrl(channelUrl)
                 .subscriberCount(subscriberCount)
                 .verificationToken(verificationTokenAndExpiry.getVerificationToken())

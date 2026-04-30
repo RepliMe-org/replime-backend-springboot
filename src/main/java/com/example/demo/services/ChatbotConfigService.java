@@ -5,7 +5,7 @@ import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
-import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
@@ -43,6 +43,10 @@ public class ChatbotConfigService {
         chatbot.setConfig(config);
         chatbot.setStatus(ChatbotStatus.TRAINING);
         chatbotRepo.save(chatbot);
+
+        if (requestDTO.getFetchChannel()) {
+            chatbotService.fetchChannelVideosToChatbot(chatbot,user);
+        }
         return ResponseEntity.ok("Chatbot config saved successfully");
     }
 
@@ -62,6 +66,7 @@ public class ChatbotConfigService {
                 .verbosity(requestDTO.getVerbosity())
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
+                .fetchChannel(requestDTO.getFetchChannel())
                 .build();
     }
 

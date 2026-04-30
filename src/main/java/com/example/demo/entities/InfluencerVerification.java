@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.VerificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,8 @@ public class InfluencerVerification {
     private User user;
 
     private String channelId;
+
+    private String handle;
 
     private String channelUrl;
 

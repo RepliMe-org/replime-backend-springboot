@@ -1,9 +1,9 @@
 package com.example.demo.dtos;
 
-import com.example.demo.entities.ChatbotStatus;
-import com.example.demo.entities.Formality;
-import com.example.demo.entities.Tone;
-import com.example.demo.entities.Verbosity;
+import com.example.demo.entities.utils.ChatbotStatus;
+import com.example.demo.entities.utils.Formality;
+import com.example.demo.entities.utils.Tone;
+import com.example.demo.entities.utils.Verbosity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;

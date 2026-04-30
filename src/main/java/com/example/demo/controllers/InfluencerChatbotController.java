@@ -1,15 +1,13 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.ChatbotConfigRequestDTO;
-import com.example.demo.dtos.ChatbotConfigUpdateDTO;
-import com.example.demo.dtos.InfluencerChatbotResponseDTO;
-import com.example.demo.dtos.MessageClassResponseDTO;
-import com.example.demo.entities.ChatbotStatus;
+import com.example.demo.dtos.*;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.services.ChatbotConfigService;
 import com.example.demo.services.ChatbotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -135,4 +133,35 @@ public class InfluencerChatbotController {
             "Message class removed from chatbot successfully"
         );
     }
+
+    // ---- Training Sources APIs ----
+
+    @PostMapping("/training-sources")
+    @Operation(description = "Add a new training source to the chatbot")
+    public ResponseEntity<List<VideoResponseDTO>> addTrainingSource(
+        @Valid @RequestBody TrainingSourceRequestDTO sourceRequest,
+        @RequestHeader("Authorization") String token
+    ) {
+
+        return ResponseEntity.accepted().body(chatbotService.addTrainingSourceToChatbot(sourceRequest, token));
+    }
+
+    @DeleteMapping("/videos/{youtubeVideoId}")
+    @Operation(description = "Remove a video from the chatbot's training sources")
+    public ResponseEntity<String> removeVideo(
+            @PathVariable String youtubeVideoId,
+            @RequestHeader("Authorization") String token
+    ){
+        chatbotService.deleteVideoFromChatbot(youtubeVideoId, token);
+        return ResponseEntity.ok("Video removed successfully");
+    }
+
+    @GetMapping("/videos")
+    @Operation(description = "Get all videos associated with the chatbot's training sources")
+    public ResponseEntity<List<VideoResponseDTO>> getAllVideos(
+            @RequestHeader("Authorization") String token)
+    {
+        return ResponseEntity.ok(chatbotService.getAllVideosOfChatbot(token));
+    }
+
 }

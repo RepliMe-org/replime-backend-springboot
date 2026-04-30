@@ -2,7 +2,7 @@ package com.example.demo.repos;
 
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.MessageClass;
-import com.example.demo.entities.MessageClassType;
+import com.example.demo.entities.utils.MessageClassType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

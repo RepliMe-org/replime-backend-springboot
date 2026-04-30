@@ -1,58 +1,30 @@
 {
   "info": {
+    "_postman_id": "f7a29b73-7f5b-4dbd-9c2c-92931b593e4e",
     "name": "replime",
-    "_postman_id": "replime-collection",
     "description": "RepliMe Backend APIs",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36644295",
+    "_collection_link": "https://go.postman.co/collection/36644295-f7a29b73-7f5b-4dbd-9c2c-92931b593e4e?source=collection_link"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080/api/v1"
-    },
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "influencerToken",
-      "value": ""
-    },
-    {
-      "key": "adminToken",
-      "value": ""
-    },
-    {
-      "key": "influencerEmail",
-      "value": ""
-    },
-    {
-      "key": "adminEmail",
-      "value": ""
-    },
-    {
-      "key": "password",
-      "value": "12345678"
-    },
-    {
-      "key": "testCategoryName",
-      "value": ""
-    },
-    {
-      "key": "chatbotId",
-      "value": ""
-    },
-    {
-      "key": "categoryId",
-      "value": ""
-    }
-  ],
   "item": [
     {
       "name": "Auth",
       "item": [
         {
           "name": "Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -67,10 +39,19 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/signup",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Login",
           "event": [
             {
               "listen": "test",
@@ -82,10 +63,7 @@
                 "type": "text/javascript"
               }
             }
-          ]
-        },
-        {
-          "name": "Login",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -100,10 +78,19 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Admin Signup",
           "event": [
             {
               "listen": "test",
@@ -115,10 +102,7 @@
                 "type": "text/javascript"
               }
             }
-          ]
-        },
-        {
-          "name": "Admin Signup",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -133,22 +117,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/signup/admin",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "admin"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "admin"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "pm.collectionVariables.set(\"token\", jsonData.token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
@@ -175,10 +154,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/verify/request",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "verify", "request"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "verify",
+                "request"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Confirm Verification",
@@ -192,10 +178,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/verify/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "verify", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "verify",
+                "confirm"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -209,10 +202,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/chatbots",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbots"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbots"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get Chatbot By Id",
@@ -221,10 +219,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbots", "{{chatbotId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbots",
+                "{{chatbotId}}"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -243,10 +247,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/chatbots",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "chatbots"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Update Chatbot Status",
@@ -260,8 +270,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/status?status=ACTIVE",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots", "{{chatbotId}}", "status"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "chatbots",
+                "{{chatbotId}}",
+                "status"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -269,7 +286,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Update Chatbot Visibility",
@@ -283,8 +301,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots", "{{chatbotId}}", "visibility"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "chatbots",
+                "{{chatbotId}}",
+                "visibility"
+              ],
               "query": [
                 {
                   "key": "isPublic",
@@ -292,7 +317,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -311,10 +337,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Save Chatbot Config",
@@ -336,10 +368,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "config"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "config"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Update Chatbot Config",
@@ -361,10 +400,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "config"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "config"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get Chatbot Status",
@@ -378,10 +424,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "status"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Assign Chatbot Category",
@@ -395,10 +448,18 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "category", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "category",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -417,10 +478,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/message-class",
-              "host": ["{{baseUrl}}"],
-              "path": ["message-class"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "message-class"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Create My Message Class",
@@ -442,10 +508,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/message-class",
-              "host": ["{{baseUrl}}"],
-              "path": ["message-class"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "message-class"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -471,11 +542,17 @@
               "raw": "{\n  \"name\": \"New Category\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category"]
+              "raw": "{{baseUrl}}/chatbot/category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "category"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get All Categories",
@@ -483,11 +560,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category"]
+              "raw": "{{baseUrl}}/chatbot/category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "category"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Delete Category (Admin)",
@@ -500,11 +583,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category", "{{categoryId}}"]
+              "raw": "{{baseUrl}}/chatbot/category/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "category",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -553,10 +643,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/signup",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "2) Login Influencer",
@@ -564,7 +660,6 @@
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
                   "pm.test('login influencer success', function () { pm.expect(pm.response.code).to.equal(200); });",
                   "var jsonData = pm.response.json();",
@@ -572,7 +667,10 @@
                   "  pm.collectionVariables.set('influencerToken', jsonData.token);",
                   "  pm.collectionVariables.set('token', jsonData.token);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -590,10 +688,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "3) Signup Admin",
@@ -635,10 +739,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/signup/admin",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "admin"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "admin"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "4) Login Admin",
@@ -671,38 +782,29 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "5) Logged In Check",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/loggedin",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "loggedin"]
-            }
-          }
-        },
-        {
-          "name": "6) Create Chatbot Category (Admin)",
+          "name": "5) Create Chatbot Category (Admin)",
           "event": [
             {
               "listen": "prerequest",
               "script": {
-                "type": "text/javascript",
                 "exec": [
                   "pm.collectionVariables.set('testCategoryName', 'Category-' + Date.now());"
-                ]
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -720,14 +822,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"{{testCategoryName}}\"\n}"
+              "raw": "{\n  \"name\": \"Tech\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chatbot/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "7) Get Chatbot Categories + Capture categoryId",
@@ -735,7 +843,6 @@
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
                   "pm.test('get categories success', function () { pm.expect(pm.response.code).to.equal(200); });",
                   "var data = pm.response.json();",
@@ -744,7 +851,10 @@
                   "  var target = data.find(function (x) { return x.name === desiredName; }) || data[0];",
                   "  if (target && target.id != null) pm.collectionVariables.set('categoryId', target.id);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -753,10 +863,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/chatbot/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "8) Influencer Verification Request",
@@ -774,14 +890,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"channelUrl\": \"https://youtube.com/@example\"\n}"
+              "raw": "{\n  \"channelUrl\": \"https://www.youtube.com/@salmanahmed6763\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/verify/request",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "verify", "request"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "verify",
+                "request"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "9) Influencer Verification Confirm",
@@ -795,10 +918,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/verify/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "verify", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "verify",
+                "confirm"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "10) Save Chatbot Config (Influencer)",
@@ -816,14 +946,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Runner Chatbot\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
+              "raw": "{\n  \"name\": \"Chatbot1\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "config"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "config"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "11) Update Chatbot Config (Influencer)",
@@ -845,10 +982,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "config"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "config"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "12) Get Influencer Chatbot + Capture chatbotId",
@@ -876,10 +1020,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "13) Get Influencer Chatbot Status",
@@ -893,10 +1043,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "status"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "14) Assign Influencer Chatbot Category",
@@ -910,13 +1067,21 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "category", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "category",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "15) Get Message Classes (Influencer)",
+          "name": "15) Get Assigned Message Classes (Influencer)",
           "request": {
             "method": "GET",
             "header": [
@@ -927,10 +1092,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "message-classes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "16) Choose Message Classes (Influencer)",
@@ -952,10 +1124,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "message-classes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "16.1) Create Custom Message Classes (Influencer)",
@@ -977,10 +1156,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "message-classes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "16.2) Delete Message Class (Influencer)",
@@ -993,11 +1179,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["influencer", "chatbot", "message-classes", "1"]
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes",
+                "5"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "17) Create Message Class (Admin)",
@@ -1015,14 +1209,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Runner Admin Class\"\n}"
+              "raw": "[\n    \"system class1\",\n    \"system class2\",\n    \"system class3\"\n]"
             },
             "url": {
-              "raw": "{{baseUrl}}/message-class/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["message-class", "{{categoryId}}"]
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}",
+                "message-classes"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "18) Get Message Classes by Category (Admin)",
@@ -1035,11 +1237,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/message-class/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["message-class", "{{categoryId}}"]
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}",
+                "message-classes"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "19) Get All Chatbots (Admin) + Capture chatbotId",
@@ -1069,36 +1279,19 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/chatbots",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots"]
-            }
-          }
-        },
-        {
-          "name": "20) Update Chatbot Status (Admin)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/status?status=ACTIVE",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots", "{{chatbotId}}", "status"],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "ACTIVE"
-                }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "chatbots"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "21) Update Chatbot Visibility (Admin)",
+          "name": "20) Update Chatbot Visibility (Admin)",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1109,8 +1302,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "chatbots", "{{chatbotId}}", "visibility"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "chatbots",
+                "{{chatbotId}}",
+                "visibility"
+              ],
               "query": [
                 {
                   "key": "isPublic",
@@ -1118,31 +1318,43 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "22) Get All Public Chatbots",
+          "name": "21) Get All Public Chatbots",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/chatbots",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbots"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbots"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "23) Get Public Chatbot By Id",
+          "name": "22) Get Public Chatbot By Id",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbots", "{{chatbotId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbots",
+                "{{chatbotId}}"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "24) Delete Chatbot Category (Admin)",
@@ -1156,12 +1368,124 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["chatbot", "category", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
+    },
+    {
+      "name": "Ingest Content",
+      "item": [
+        {
+          "name": "add training source",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete video",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "influencerToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "influencerEmail",
+      "value": ""
+    },
+    {
+      "key": "adminEmail",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": "12345678"
+    },
+    {
+      "key": "testCategoryName",
+      "value": ""
+    },
+    {
+      "key": "chatbotId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
     }
   ]
 }

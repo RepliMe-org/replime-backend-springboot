@@ -1,13 +1,12 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.ChatbotStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -49,4 +48,7 @@ public class Chatbot {
             inverseJoinColumns = @JoinColumn(name = "message_class_id")
     )
     private Set<MessageClass> messageClasses = new HashSet<>();
+
+    @OneToMany(mappedBy = "chatbot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TrainingSource> trainingSources = new ArrayList<>();
 }

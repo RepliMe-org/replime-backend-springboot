@@ -56,4 +56,23 @@ public class GlobalExceptionHandler {
                         "error", ex.getMessage())
                 );
     }
+
+    @ExceptionHandler(InvalidSourceException.class)
+    public ResponseEntity<?> handleInvalidSourceException(InvalidSourceException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "success", false,
+                        "error", ex.getMessage())
+                );
+    }
+
+    @ExceptionHandler(TrainingSourceException.class)
+    public ResponseEntity<?> handleTrainingSourceException(TrainingSourceException ex) {
+        return ResponseEntity.status(ex.getStatus())
+                .body(Map.of(
+                        "error", ex.getErrorCode(),
+                        "message", ex.getMessage()
+                ));
+    }
 }

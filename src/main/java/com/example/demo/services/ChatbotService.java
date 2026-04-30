@@ -3,16 +3,25 @@ package com.example.demo.services;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
+import com.example.demo.entities.utils.ChatbotStatus;
+import com.example.demo.entities.utils.VerificationStatus;
+import com.example.demo.entities.utils.SourceType;
+import com.example.demo.exceptions.InvalidSourceException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
+import com.example.demo.repos.InfluencerVerificationRepo;
+import com.example.demo.repos.VideoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChatbotService {
@@ -27,7 +36,16 @@ public class ChatbotService {
     private ChatbotCategoryRepo chatbotCategoryRepo;
 
     @Autowired
+    private InfluencerVerificationRepo influencerVerificationRepo;
+
+    @Autowired
     private MessageClassService messageClassService;
+    @Autowired
+    private TrainingSourceService trainingSourceService;
+    @Autowired
+    private YoutubeClientService youtubeClientService;
+    @Autowired
+    private VideoService videoService;
 
     public void createChatbot(User user) {
         Chatbot chatbot = Chatbot.builder()
@@ -250,4 +268,81 @@ public class ChatbotService {
         Chatbot chatbot = getChatbotByUser(user);
         messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
     }
+
+    @Transactional
+    public List<VideoResponseDTO> addTrainingSourceToChatbot(TrainingSourceRequestDTO sourceRequest, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        if (sourceRequest.getSourceType() == SourceType.LAST_N){
+            return trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
+        }
+
+        if (isThisSourceBelongsToVerifiedChannel(user, sourceRequest)) {
+            return trainingSourceService.addTrainingSourceToChatbot(sourceRequest, chatbot);
+        } else {
+            throw new TrainingSourceException(
+                "NOT_YOUR_VIDEO",
+                "This video does not belong to your channel",
+                HttpStatus.FORBIDDEN
+            );
+        }
+    }
+
+    private boolean isThisSourceBelongsToVerifiedChannel(
+            User user, TrainingSourceRequestDTO sourceRequest) {
+        if (sourceRequest.getSourceType() == SourceType.LAST_N) {
+            return true;
+        }
+
+        String url = sourceRequest.getSourceValue();
+        if (url == null) return false;
+
+        return influencerVerificationRepo
+                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
+                .map(verification -> {
+                    // check if the url starts with or contains the channelUrl or uses channelId if applicable
+                    // simplified check: just check if the url contains the channelUrl or vice versa
+                    if (verification.getChannelUrl() != null && url.contains(verification.getChannelUrl())) {
+                        return true;
+                    }
+                    if (verification.getChannelId() != null && url.contains(verification.getChannelId())) {
+                        return true;
+                    }
+
+                    if (verification.getChannelId() != null) {
+                        try {
+                            if (sourceRequest.getSourceType() == SourceType.VIDEO) {
+                                return youtubeClientService.isVideoUrlFromChannel(url, verification.getChannelId());
+                            } else if (sourceRequest.getSourceType() == SourceType.PLAYLIST) {
+                                return youtubeClientService.isPlaylistUrlFromChannel(url, verification.getChannelId());
+                            }
+                        } catch (Exception e) {
+                            throw new InvalidSourceException("Failed to verify source URL against YouTube API.", e);
+                        }
+                    }
+
+                    return false;
+                })
+                .orElse(false);
+    }
+
+    @Transactional
+    public void deleteVideoFromChatbot(String youtubeVideoId, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+
+        videoService.deleteVideoFromChatbot(youtubeVideoId, chatbot);
+    }
+
+    public void fetchChannelVideosToChatbot(Chatbot chatbot, User influencer) {
+        String channelId = influencerVerificationRepo.findByUser(influencer).getChannelId();
+        trainingSourceService.addInitialTrainingSource(chatbot,channelId);
+    }
+
+    public List<VideoResponseDTO> getAllVideosOfChatbot(String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        return videoService.getAllVideosOfChatbot(chatbot);
+    }
 }
+

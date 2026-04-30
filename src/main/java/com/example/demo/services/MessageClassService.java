@@ -1,9 +1,9 @@
 package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
-import com.example.demo.dtos.MessageClassRequestDTO;
 import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.entities.*;
+import com.example.demo.entities.utils.MessageClassType;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.MessageClassRepo;

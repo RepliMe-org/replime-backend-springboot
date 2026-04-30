@@ -1,11 +1,13 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.Formality;
+import com.example.demo.entities.utils.Tone;
+import com.example.demo.entities.utils.Verbosity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -14,7 +16,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class ChatbotConfig {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,6 +43,8 @@ public class ChatbotConfig {
     @Enumerated(EnumType.STRING)
     private Formality formality;
 
+    private boolean fetchChannel;
+
 //    @Column(columnDefinition = "TEXT")
 //    private String systemPrompt;
 
@@ -51,12 +54,11 @@ public class ChatbotConfig {
     @PreUpdate
     private void validateAttributes() {
         if (talkLikeMe) {
-            tone = null;
             verbosity = null;
             formality = null;
         } else {
             if (tone == null || verbosity == null || formality == null) {
-                throw new IllegalStateException("Tone, verbosity, and formality must have a value when talkLikeMe is false");
+                throw new IllegalStateException("verbosity and formality must have a value when talkLikeMe is false");
             }
         }
     }

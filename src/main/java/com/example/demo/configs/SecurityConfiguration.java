@@ -29,6 +29,7 @@ public class SecurityConfiguration {
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomOidcUserService oidcUserService; // Inject the OIDC version
     private final JwtService jwtService;
+    private final InternalTokenFilter internalTokenFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,7 +50,8 @@ public class SecurityConfiguration {
                                 "/chatbots/**",
                                 "/chatbot/categories/**",
                                 "/test-fastapi",
-
+                                "/internal/**",
+                                "/ws/**",
                                 // --- Swagger exact paths and wildcards ---
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
@@ -109,7 +111,8 @@ public class SecurityConfiguration {
 
                 // Custom authentication provider (for local login)
                 .authenticationProvider(authenticationProvider)
-
+                // Internal token filter for /internal/** endpoints
+                .addFilterBefore(internalTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 // JWT filter for incoming API requests
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
