@@ -56,10 +56,10 @@ public class InfluencerChatbotController {
     ) {
         return chatbotConfigService.saveChatbotConfig(requestDTO, token);
     }
-    //TODO: make this returns the whole configuration
+
     @PutMapping("/config")
     @Operation(description = "Update existing chatbot configuration")
-    public ResponseEntity<String> updateChatbotConfig(
+    public ResponseEntity<ChatbotConfigResponseDTO> updateChatbotConfig(
         @RequestBody ChatbotConfigUpdateDTO requestDTO,
         @RequestHeader("Authorization") String token
     ) {
