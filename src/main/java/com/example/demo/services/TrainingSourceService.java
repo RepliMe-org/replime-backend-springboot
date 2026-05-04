@@ -5,6 +5,7 @@ import com.example.demo.dtos.VideoResponseDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.Video;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.SourceType;
 import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.exceptions.TrainingSourceException;
@@ -49,7 +50,8 @@ public class TrainingSourceService {
         trainingSourceRepository.save(trainingSource);
 
         videoService.indexSavedVideos(successfullySavedVideos, chatbot);
-
+        chatbot.setStatus(ChatbotStatus.TRAINING);
+        chatbot.setPublic(false);
         return videoService.mapToVideoResponseDTO(successfullySavedVideos);
     }
 
@@ -67,7 +69,8 @@ public class TrainingSourceService {
         List<Video> channelVideos = videoService.getChannelVideos(channelId,trainingSource);
         trainingSource.setVideos(channelVideos);
         trainingSourceRepository.save(trainingSource);
-
+        chatbot.setStatus(ChatbotStatus.TRAINING);
+        chatbot.setPublic(false);
         videoService.indexSavedVideos(channelVideos, chatbot);
     }
 
