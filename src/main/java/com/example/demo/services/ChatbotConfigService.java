@@ -67,6 +67,7 @@ public class ChatbotConfigService {
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .fetchChannel(requestDTO.getFetchChannel())
+                .avatarNumber(requestDTO.getAvatarNumber())
                 .build();
     }
 
@@ -106,7 +107,6 @@ public class ChatbotConfigService {
             config.setTalkLikeMe(requestDTO.getTalkLikeMe());
             if (requestDTO.getTalkLikeMe()) { // if get talkLikeMe switched on
                 config.setTone(null);
-                config.setVerbosity(null);
                 config.setFormality(null);
             }
         }
@@ -118,6 +118,10 @@ public class ChatbotConfigService {
         }
         if (requestDTO.getTone() != null) {
             config.setTone(requestDTO.getTone());
+        }
+
+        if (requestDTO.getAvatarNumber() != null) {
+            config.setAvatarNumber(requestDTO.getAvatarNumber());
         }
     }
 }

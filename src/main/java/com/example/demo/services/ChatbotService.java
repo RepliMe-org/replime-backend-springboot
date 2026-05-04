@@ -78,6 +78,7 @@ public class ChatbotService {
     private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(
         Chatbot chatbot
     ) {
+        InfluencerVerification influencerVerification = influencerVerificationRepo.findByUser(chatbot.getInfluencer());
         return PublicChatbotResponseDTO.builder()
             .id(chatbot.getId())
             .influencerUsername(chatbot.getInfluencer().getUsername())
@@ -94,6 +95,8 @@ public class ChatbotService {
                     ? chatbot.getConfig().getGreetingMessage()
                     : ""
             )
+            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+                .channelHandle(influencerVerification.getHandle())
             .status(chatbot.getStatus())
             .build();
     }
@@ -103,20 +106,25 @@ public class ChatbotService {
     ) {
         ChatbotConfig config = chatbot.getConfig();
         return InfluencerChatbotResponseDTO.builder()
-            .id(chatbot.getId())
-            .influencerUsername(chatbot.getInfluencer().getUsername())
-            .status(chatbot.getStatus())
-            .isPublic(chatbot.isPublic())
-            .createdAt(chatbot.getCreatedAt())
-            .configId(config != null ? config.getId() : null)
-            .chatbotName(config != null ? config.getName() : "")
-            .greetingMessage(config != null ? config.getGreetingMessage() : "")
-            .chatbotDescription(config != null ? config.getDescription() : "")
-            .tone(config != null ? config.getTone() : null)
-            .verbosity(config != null ? config.getVerbosity() : null)
-            .formality(config != null ? config.getFormality() : null)
-            .talkLikeMe(config != null && config.isTalkLikeMe())
-            .configCreatedAt(config != null ? config.getCreatedAt() : null)
+            .chatbotInfo(InfluencerChatbotResponseDTO.ChatbotInfo.builder()
+                .id(chatbot.getId())
+                .influencerUsername(chatbot.getInfluencer().getUsername())
+                .status(chatbot.getStatus())
+                .isPublic(chatbot.isPublic())
+                .createdAt(chatbot.getCreatedAt())
+                .build())
+            .configInfo(InfluencerChatbotResponseDTO.ConfigInfo.builder()
+                .configId(config != null ? config.getId() : null)
+                .chatbotName(config != null ? config.getName() : "")
+                .chatbotDescription(config != null ? config.getDescription() : "")
+                .greetingMessage(config != null ? config.getGreetingMessage() : "")
+                .avatarNumber(config != null ? config.getAvatarNumber() : null)
+                .talkLikeMe(config != null && config.isTalkLikeMe())
+                .tone(config != null ? config.getTone() : null)
+                .verbosity(config != null ? config.getVerbosity() : null)
+                .formality(config != null ? config.getFormality() : null)
+                .configCreatedAt(config != null ? config.getCreatedAt() : null)
+                .build())
             .build();
     }
 
@@ -345,4 +353,3 @@ public class ChatbotService {
         return videoService.getAllVideosOfChatbot(chatbot);
     }
 }
-
