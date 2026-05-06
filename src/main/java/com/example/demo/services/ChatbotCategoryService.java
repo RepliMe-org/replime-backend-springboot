@@ -60,6 +60,7 @@ public class ChatbotCategoryService {
             ChatbotCategory category = chatbotCategoryRepo.findById(id).get();
             category.setDeleted(true);
             chatbotCategoryRepo.save(category);
+            messageClassService.deleteMessageClassByCategory(id);
         } else {
             chatbotCategoryRepo.deleteById(id);
         }

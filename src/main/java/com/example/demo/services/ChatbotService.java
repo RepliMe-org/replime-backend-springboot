@@ -272,10 +272,10 @@ public class ChatbotService {
         messageClassService.createCustomMessageClassesForChatbot(chatbot, messageClassesNames);
     }
 
-    public void deleteMessageClassFromChatbot(Long messageClassId, String token) {
+    public void removeMessageClassFromChatbot(Long messageClassId, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
-        messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
+        messageClassService.removeMessageClassFromChatbot(messageClassId,chatbot);
     }
 
     @Transactional

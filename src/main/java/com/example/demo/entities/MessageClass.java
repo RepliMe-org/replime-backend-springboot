@@ -29,6 +29,8 @@ public class MessageClass {
     @Column(nullable = false)
     private String name;
 
+    private boolean isActive;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

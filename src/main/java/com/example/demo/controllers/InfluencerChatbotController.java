@@ -128,7 +128,7 @@ public class InfluencerChatbotController {
         @PathVariable Long messageClassId,
         @RequestHeader("Authorization") String token
     ) {
-        chatbotService.deleteMessageClassFromChatbot(messageClassId, token);
+        chatbotService.removeMessageClassFromChatbot(messageClassId, token);
         return ResponseEntity.ok(
             "Message class removed from chatbot successfully"
         );

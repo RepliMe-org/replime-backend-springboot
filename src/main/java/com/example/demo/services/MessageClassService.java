@@ -138,7 +138,7 @@ public class MessageClassService {
         chatbotRepo.save(chatbot);
     }
 
-    public void deleteMessageClassfromChatbot(Long messageClassId, Chatbot chatbot) {
+    public void removeMessageClassFromChatbot(Long messageClassId, Chatbot chatbot) {
         MessageClass messageClass = messageClassRepo.findById(messageClassId)
             .orElseThrow(() -> new ResourceNotFoundException(
                 "Message class not found with id: " + messageClassId
@@ -149,8 +149,29 @@ public class MessageClassService {
             messageClassRepo.save(messageClass);
         }else { // CUSTOM message class, delete it entirely
             chatbot.getMessageClasses().remove(messageClass);
-            messageClassRepo.delete(messageClass);
+            //TODO: check if their is a message that is classified with this class then just make isActed = false
+            if (true){
+                messageClass.setActive(false);
+                messageClassRepo.save(messageClass);
+            }else{
+                messageClassRepo.delete(messageClass);
+            }
         }
          chatbotRepo.save(chatbot);
     }
+
+    public void deleteMessageClassByCategory(Long id) {
+        List<MessageClass> messageClasses = messageClassRepo.findByCategoryId(id);
+        for (MessageClass messageClass : messageClasses) {
+            //TODO: check if their is a message that is classified with this class then just make isActed = false
+            if (true){
+                messageClass.setActive(false);
+                messageClassRepo.save(messageClass);
+            }else{
+                messageClassRepo.delete(messageClass);
+            }
+
+        }
+    }
+
 }
