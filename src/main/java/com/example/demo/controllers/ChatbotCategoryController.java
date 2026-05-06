@@ -21,8 +21,8 @@ public class ChatbotCategoryController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> addChatbotCategory(
-            @RequestBody ChatbotCategoryRequest chatbotCategoryRequest) {
-        chatbotCategoryService.addCategory(chatbotCategoryRequest);
+            @RequestBody List<ChatbotCategoryRequest> chatbotCategoryRequests) {
+        chatbotCategoryService.addCategories(chatbotCategoryRequests);
         return ResponseEntity.ok("Chatbot category added successfully");
     }
 

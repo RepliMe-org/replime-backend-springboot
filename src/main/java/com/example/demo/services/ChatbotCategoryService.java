@@ -9,6 +9,7 @@ import com.example.demo.exceptions.ResourceConflictException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,19 +25,20 @@ public class ChatbotCategoryService {
     private MessageClassService messageClassService;
     @Autowired
     private ChatbotRepo chatbotRepo;
-
-    public void addCategory(ChatbotCategoryRequest chatbotCategoryRequest) {
-        if (chatbotCategoryRepo.existsByName(chatbotCategoryRequest.getName())) {
-            throw new ResourceConflictException("Chatbot category name already exists");
+    @Transactional
+    public void addCategories(List<ChatbotCategoryRequest> chatbotCategoryRequests) {
+        for (ChatbotCategoryRequest request : chatbotCategoryRequests) {
+            addCategory(request);
         }
-
+    }
+    public void addCategory(ChatbotCategoryRequest chatbotCategoryRequest) {
         ChatbotCategory chatbotCategory = new ChatbotCategory();
         chatbotCategory.setName(chatbotCategoryRequest.getName());
 
         try {
             chatbotCategoryRepo.save(chatbotCategory);
         } catch (DataIntegrityViolationException ex) {
-            throw new ResourceConflictException("Chatbot category name already exists", ex);
+            throw new ResourceConflictException("Chatbot category name already exists with name: " + chatbotCategoryRequest.getName(), ex);
         }
     }
 
