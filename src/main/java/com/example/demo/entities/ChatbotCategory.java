@@ -20,6 +20,8 @@ public class ChatbotCategory {
     @Column(unique = true, nullable = false)
     private String name;
 
+    private boolean isDeleted = false;
+
     @Builder.Default
     @OneToMany(mappedBy = "category")
     private Set<MessageClass> messageClasses = new HashSet<>();

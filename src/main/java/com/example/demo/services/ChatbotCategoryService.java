@@ -57,9 +57,12 @@ public class ChatbotCategoryService {
 
     public void deleteCategory(Long id) {
         if (chatbotRepo.existsByCategoryId(id)) {
-            throw new ResourceConflictException("Cannot delete category as it is currently assigned to a chatbot");
+            ChatbotCategory category = chatbotCategoryRepo.findById(id).get();
+            category.setDeleted(true);
+            chatbotCategoryRepo.save(category);
+        } else {
+            chatbotCategoryRepo.deleteById(id);
         }
-        chatbotCategoryRepo.deleteById(id);
     }
 
     public ChatbotCategory getChabotCategoryById(Long id) {
