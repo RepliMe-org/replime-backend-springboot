@@ -30,6 +30,8 @@ public class PublicChatbotResponseDTO {
 
     private String channelHandle;
 
+    private String categoryName;
+
     @NotNull
     private ChatbotStatus status;
 }

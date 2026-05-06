@@ -97,6 +97,7 @@ public class ChatbotService {
             )
             .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
                 .channelHandle(influencerVerification.getHandle())
+                .categoryName(chatbot.getCategory() != null ? chatbot.getCategory().getName() : null)
             .status(chatbot.getStatus())
             .build();
     }
