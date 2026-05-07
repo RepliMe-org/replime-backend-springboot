@@ -128,6 +128,29 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Logged In Test",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/loggedin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "loggedin"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -542,13 +565,13 @@
               "raw": "{\n  \"name\": \"New Category\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "chatbot",
-                "category"
+                "categories"
               ]
             }
           },
@@ -560,13 +583,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category",
+              "raw": "{{baseUrl}}/chatbot/categories",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "chatbot",
-                "category"
+                "categories"
               ]
             }
           },
@@ -583,14 +606,98 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/chatbot/category/{{categoryId}}",
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "chatbot",
-                "category",
+                "categories",
                 "{{categoryId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Message Classes for Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}",
+                "message-classes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Message Class for Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}",
+                "message-classes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  \"faq\",\n  \"support\"\n]"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Message Class from Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes/{{classId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chatbot",
+                "categories",
+                "{{categoryId}}",
+                "message-classes",
+                "{{classId}}"
               ]
             }
           },
@@ -1386,60 +1493,191 @@
       "name": "Ingest Content",
       "item": [
         {
-          "name": "add training source",
+          "name": "Add Training Source",
           "request": {
-            "method": "DELETE",
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{influencerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
+              "raw": "{{baseUrl}}/influencer/chatbot/training-sources",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "influencer",
                 "chatbot",
-                "message-classes",
-                "5"
+                "training-sources"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playlistUrl\": \"https://youtube.com/playlist?list=123\"\n}"
             }
           },
           "response": []
         },
         {
-          "name": "delete video",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes",
-                "5"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "New Request",
+          "name": "Get All Videos",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/videos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "videos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Video",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{influencerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/videos/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "videos",
+                "{{videoId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat Sessions",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chatbotId\": 1\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Internal",
+      "item": [
+        {
+          "name": "Update Video Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/internal/update-video-status/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "internal",
+                "update-video-status",
+                "{{videoId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PROCESSED\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test WebSocket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/internal/ws-test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "internal",
+                "ws-test"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test",
+      "item": [
+        {
+          "name": "Test FastAPI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/test-fastapi",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "test-fastapi"
+              ]
+            }
           },
           "response": []
         }
