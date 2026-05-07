@@ -169,6 +169,11 @@ public class MessageClassService {
                 messageClass.setActive(false);
                 messageClassRepo.save(messageClass);
             }else{
+                for (Chatbot chatbot : messageClass.getChatbots()) {
+                    chatbot.getMessageClasses().remove(messageClass);
+                    chatbotRepo.save(chatbot);
+                }
+                messageClass.getChatbots().clear();
                 messageClassRepo.delete(messageClass);
             }
 
@@ -182,6 +187,11 @@ public class MessageClassService {
             messageClass.setActive(false);
             messageClassRepo.save(messageClass);
         }else{
+            for (Chatbot chatbot : messageClass.getChatbots()) {
+                chatbot.getMessageClasses().remove(messageClass);
+                chatbotRepo.save(chatbot);
+            }
+            messageClass.getChatbots().clear();
             messageClassRepo.delete(messageClass);
         }
     }

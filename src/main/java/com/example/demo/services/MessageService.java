@@ -10,9 +10,10 @@ public class MessageService {
     @Autowired
     private MessageRepo messageRepo;
 
+    //TODO: Implement message related operations
     // Mock implementation for existsByMessageClassId
     public boolean existsByMessageClassId(Long messageClassId) {
-        return false;
+        return true;
     }
 }
 
