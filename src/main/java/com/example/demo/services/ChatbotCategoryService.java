@@ -42,7 +42,7 @@ public class ChatbotCategoryService {
     }
 
     public List<ChatbotCategoryResponseDTO> getAllCategories() {
-        List<ChatbotCategory> chatbotCategories = chatbotCategoryRepo.findAll();
+        List<ChatbotCategory> chatbotCategories = chatbotCategoryRepo.findByIsDeletedFalse();
         List<ChatbotCategoryResponseDTO> chatbotCategoryDTOs = new ArrayList<>();
         for (ChatbotCategory category : chatbotCategories) {
             ChatbotCategoryResponseDTO categoryDTO = ChatbotCategoryResponseDTO.builder()
@@ -61,6 +61,7 @@ public class ChatbotCategoryService {
             chatbotCategoryRepo.save(category);
             messageClassService.deleteAllMessageClassesByCategory(id);
         } else {
+            messageClassService.deleteAllMessageClassesByCategory(id);
             chatbotCategoryRepo.deleteById(id);
         }
     }

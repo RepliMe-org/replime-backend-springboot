@@ -32,7 +32,7 @@ public class MessageClassService {
         Long id
     ) {
         List<MessageClass> messageClasses =
-            messageClassRepo.findByCategoryIdAndType(
+            messageClassRepo.findByCategoryIdAndTypeAndIsActiveTrue(
                 id,
                 MessageClassType.SYSTEM
             );
