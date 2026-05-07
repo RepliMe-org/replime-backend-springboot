@@ -25,6 +25,9 @@ public class MessageClassService {
     @Autowired
     private ChatbotRepo chatbotRepo;
 
+    @Autowired
+    private MessageService messageService;
+
     public List<MessageClassResponseDTO> getAllSystemMessageClassesForCategory(
         Long id
     ) {
@@ -149,8 +152,7 @@ public class MessageClassService {
             messageClassRepo.save(messageClass);
         }else { // CUSTOM message class, delete it entirely
             chatbot.getMessageClasses().remove(messageClass);
-            //TODO: check if their is a message that is classified with this class then just make isActed = false
-            if (true){
+            if (messageService.existsByMessageClassId(messageClass.getId())){
                 messageClass.setActive(false);
                 messageClassRepo.save(messageClass);
             }else{
@@ -160,11 +162,10 @@ public class MessageClassService {
          chatbotRepo.save(chatbot);
     }
 
-    public void deleteMessageClassByCategory(Long id) {
+    public void deleteAllMessageClassesByCategory(Long id) {
         List<MessageClass> messageClasses = messageClassRepo.findByCategoryId(id);
         for (MessageClass messageClass : messageClasses) {
-            //TODO: check if their is a message that is classified with this class then just make isActed = false
-            if (true){
+            if (messageService.existsByMessageClassId(messageClass.getId())){
                 messageClass.setActive(false);
                 messageClassRepo.save(messageClass);
             }else{
@@ -174,4 +175,14 @@ public class MessageClassService {
         }
     }
 
+    public void deleteMessageClassFromCategory(Long classId) {
+        MessageClass messageClass = messageClassRepo.findById(classId)
+            .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + classId));
+        if (messageService.existsByMessageClassId(messageClass.getId())){
+            messageClass.setActive(false);
+            messageClassRepo.save(messageClass);
+        }else{
+            messageClassRepo.delete(messageClass);
+        }
+    }
 }

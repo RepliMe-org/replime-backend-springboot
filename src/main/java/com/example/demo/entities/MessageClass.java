@@ -29,7 +29,7 @@ public class MessageClass {
     @Column(nullable = false)
     private String name;
 
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
