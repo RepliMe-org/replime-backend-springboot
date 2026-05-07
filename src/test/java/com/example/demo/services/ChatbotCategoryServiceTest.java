@@ -1,6 +1,5 @@
 package com.example.demo.services;
 
-import com.example.demo.dtos.ChatbotCategoryRequest;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
 import com.example.demo.repos.ChatbotCategoryRepo;
@@ -26,12 +25,9 @@ class ChatbotCategoryServiceTest {
 
         injectRepo(service, createRepoProxy(true, saveCalled, false, null));
 
-        ChatbotCategoryRequest request = ChatbotCategoryRequest.builder()
-                .name("Support")
-                .build();
 
         ResourceConflictException ex = assertThrows(ResourceConflictException.class,
-                () -> service.addCategory(request));
+                () -> service.addCategory("Support"));
 
         assertEquals("Chatbot category name already exists", ex.getMessage());
         assertFalse(saveCalled.get());
@@ -43,12 +39,9 @@ class ChatbotCategoryServiceTest {
 
         injectRepo(service, createRepoProxy(false, new AtomicBoolean(false), true, null));
 
-        ChatbotCategoryRequest request = ChatbotCategoryRequest.builder()
-                .name("Support")
-                .build();
 
         ResourceConflictException ex = assertThrows(ResourceConflictException.class,
-                () -> service.addCategory(request));
+                () -> service.addCategory("Support"));
 
         assertEquals("Chatbot category name already exists", ex.getMessage());
     }
@@ -61,11 +54,7 @@ class ChatbotCategoryServiceTest {
 
         injectRepo(service, createRepoProxy(false, saveCalled, false, savedCategory));
 
-        ChatbotCategoryRequest request = ChatbotCategoryRequest.builder()
-                .name("Support")
-                .build();
-
-        service.addCategory(request);
+        service.addCategory("Support");
 
         assertTrue(saveCalled.get());
         assertEquals("Support", savedCategory.get().getName());

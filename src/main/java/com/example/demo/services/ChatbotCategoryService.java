@@ -2,7 +2,6 @@ package com.example.demo.services;
 
 
 import com.example.demo.dtos.ChatbotCategoryResponseDTO;
-import com.example.demo.dtos.ChatbotCategoryRequest;
 import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.entities.ChatbotCategory;
 import com.example.demo.exceptions.ResourceConflictException;
@@ -26,19 +25,19 @@ public class ChatbotCategoryService {
     @Autowired
     private ChatbotRepo chatbotRepo;
     @Transactional
-    public void addCategories(List<ChatbotCategoryRequest> chatbotCategoryRequests) {
-        for (ChatbotCategoryRequest request : chatbotCategoryRequests) {
-            addCategory(request);
+    public void addCategories(List<String> chatbotCategoryNames) {
+        for (String categoryName : chatbotCategoryNames) {
+            addCategory(categoryName);
         }
     }
-    public void addCategory(ChatbotCategoryRequest chatbotCategoryRequest) {
+    public void addCategory(String categoryName) {
         ChatbotCategory chatbotCategory = new ChatbotCategory();
-        chatbotCategory.setName(chatbotCategoryRequest.getName());
+        chatbotCategory.setName(categoryName);
 
         try {
             chatbotCategoryRepo.save(chatbotCategory);
         } catch (DataIntegrityViolationException ex) {
-            throw new ResourceConflictException("Chatbot category name already exists with name: " + chatbotCategoryRequest.getName(), ex);
+            throw new ResourceConflictException("Chatbot category name already exists with name: " + categoryName, ex);
         }
     }
 
@@ -60,7 +59,7 @@ public class ChatbotCategoryService {
             ChatbotCategory category = chatbotCategoryRepo.findById(id).get();
             category.setDeleted(true);
             chatbotCategoryRepo.save(category);
-            messageClassService.deleteMessageClassByCategory(id);
+            messageClassService.deleteAllMessageClassesByCategory(id);
         } else {
             chatbotCategoryRepo.deleteById(id);
         }
@@ -83,5 +82,12 @@ public class ChatbotCategoryService {
         ChatbotCategory category = getChabotCategoryById(categoryId);
         return messageClassService.createMessageClassForCategory(
                 category,messageClassesNames);
+    }
+
+    public void deleteMessageClassForCategory(Long categoryId, Long classId) {
+        ChatbotCategory category = getChabotCategoryById(categoryId);
+        category.getMessageClasses().removeIf(messageClass -> messageClass.getId().equals(classId));
+        chatbotCategoryRepo.save(category);
+        messageClassService.deleteMessageClassFromCategory(classId);
     }
 }
