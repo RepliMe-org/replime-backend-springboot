@@ -5,11 +5,14 @@ import com.example.demo.dtos.SessionResponseDTO;
 import com.example.demo.entities.ChatSession;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.User;
+import com.example.demo.exceptions.AuthenticationException;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.ChatbotRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -47,10 +50,14 @@ public class ChatSessionService {
 
     public SessionResponseDTO getSessionDetails(Long sessionId, String token) {
         User  user = jwtService.extractUser(token);
-        ChatSession chatSession = chatSessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Chat session not found"));
+        ChatSession chatSession;
+        try {
+            chatSession = chatSessionRepo.findById(sessionId).get();
+        } catch (NoSuchElementException e) {
+            throw new ResourceNotFoundException("Chat session not found");
+        }
         if (!chatSession.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access to chat session");
+            throw new AuthenticationException("Unauthorized access to chat session");
         }
         return mapToSessionResponseDTO(chatSession);
     }
