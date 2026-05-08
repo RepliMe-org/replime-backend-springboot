@@ -16,4 +16,5 @@ public class SessionResponseDTO {
     String chatbotName;
     String greetingMessage;
     LocalDateTime startedAt;
+    Integer messageCount;
 }

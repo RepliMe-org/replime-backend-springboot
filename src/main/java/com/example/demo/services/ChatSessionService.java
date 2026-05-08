@@ -41,6 +41,17 @@ public class ChatSessionService {
                 .chatbotName(chatSession.getChatbot().getConfig().getName())
                 .greetingMessage(chatSession.getChatbot().getConfig().getGreetingMessage())
                 .startedAt(chatSession.getStartedAt())
+                .messageCount(chatSession.getMessages().size())
                 .build();
+    }
+
+    public SessionResponseDTO getSessionDetails(Long sessionId, String token) {
+        User  user = jwtService.extractUser(token);
+        ChatSession chatSession = chatSessionRepo.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Chat session not found"));
+        if (!chatSession.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access to chat session");
+        }
+        return mapToSessionResponseDTO(chatSession);
     }
 }

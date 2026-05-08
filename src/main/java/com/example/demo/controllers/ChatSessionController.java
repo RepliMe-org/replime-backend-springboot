@@ -25,11 +25,12 @@ public class ChatSessionController {
         return ResponseEntity.ok(chatSessionService.createSession(request.getChatbotId(), token));
     }
 
-//    @GetMapping("/sessionId")
-//    public ResponseEntity<SessionResponseDTO> getSessionDetails(
-//            @PathVariable Long sessionId,
-//            @RequestHeader("Authorization") String token
-//    ){
-//        return ResponseEntity.ok(chatSessionService.getSessionDetails(sessionId, token));
-//    }
+    @GetMapping("/{sessionId}")
+    @Operation(description = "Retrieve details of a specific chat session by its ID.")
+    public ResponseEntity<SessionResponseDTO> getSessionDetails(
+            @PathVariable Long sessionId,
+            @RequestHeader("Authorization") String token
+    ){
+        return ResponseEntity.ok(chatSessionService.getSessionDetails(sessionId, token));
+    }
 }
