@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
+import com.example.demo.dtos.SendMessageResponseDTO;
 import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
 import com.example.demo.entities.ChatSession;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import com.example.demo.dtos.utils.CursorData;
 
 @Service
 public class ChatSessionService {
@@ -84,8 +86,8 @@ public class ChatSessionService {
         if (cursor != null && !cursor.isBlank()) {
             try{
                 CursorData data = decodeCursor(cursor);
-                cursorTime = data.time();
-                cursorId = data.id();
+                cursorTime = data.getTime();
+                cursorId = data.getId();
                 sessions = chatSessionRepo.findSessions(
                         user.getId(), chatbotId, cursorTime, cursorId, safeLimit + 1
                 );
@@ -152,7 +154,8 @@ public class ChatSessionService {
         }
     }
 
-    private record CursorData(LocalDateTime time, Long id) {}
+//    public SendMessageResponseDTO sendMessage(Long sessionId, String userMessage, String token) {
+//    }
 
     private CursorData decodeCursor(String cursor) {
         try {
@@ -161,7 +164,11 @@ public class ChatSessionService {
                     StandardCharsets.UTF_8
             );
             String[] parts = raw.split("\\|");
-            return new CursorData(LocalDateTime.parse(parts[0]), Long.parseLong(parts[1]));
+              return CursorData.builder()
+                    .time(LocalDateTime.parse(parts[0]))
+                    .id(Long.parseLong(parts[1]))
+                    .build();
+
         } catch (Exception e) {
             throw new InvalidSourceException("Invalid pagination cursor");
         }
