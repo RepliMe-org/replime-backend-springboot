@@ -19,10 +19,10 @@ import java.util.UUID;
 @Table(
         name = "chat_session",
         indexes = {
+                @Index(name = "idx_session_chatbot_user_lastmsg",
+                        columnList = "chatbot_id, user_id, last_message_at DESC"),
                 @Index(name = "idx_session_chatbot_id", columnList = "chatbot_id"),
-                @Index(name = "idx_session_user_id", columnList = "user_id"),
-                @Index(name = "idx_session_started_at", columnList = "started_at DESC"),
-                @Index(name = "idx_session_chatbot_user", columnList = "chatbot_id, user_id")
+                @Index(name = "idx_session_user_id", columnList = "user_id")
         }
 )
 public class ChatSession {
@@ -55,8 +55,14 @@ public class ChatSession {
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
+    // known using ai service from the first message sent
+    private String sessionTopic;
+
+    private LocalDateTime lastMessageAt;
+
     @PrePersist
     protected void onCreate() {
         this.startedAt = LocalDateTime.now();
+        this.lastMessageAt = LocalDateTime.now();
     }
 }

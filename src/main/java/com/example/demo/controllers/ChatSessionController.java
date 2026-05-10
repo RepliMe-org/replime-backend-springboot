@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
 import com.example.demo.dtos.CreateSessionRequestDTO;
 import com.example.demo.services.ChatSessionService;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/sessions")
@@ -33,4 +36,19 @@ public class ChatSessionController {
     ){
         return ResponseEntity.ok(chatSessionService.getSessionDetails(sessionId, token));
     }
+
+    @GetMapping
+    @Operation(description = "Get a paginated list of all chat sessions for a specific chatbot." +
+            " Requires the chatbot ID as a query parameter and an authorization token in the request header. Supports pagination through cursor and limit parameters.")
+    public ResponseEntity<SessionListResponseDTO> getAllSessions(
+            @RequestHeader("Authorization") String token,
+            @RequestParam UUID chatbotId,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") Integer limit
+    ) {
+        return ResponseEntity.ok(chatSessionService.getAllSessions(
+                token, chatbotId, cursor, limit
+        ));
+    }
+
 }
