@@ -245,4 +245,10 @@ public class VideoService {
         }
         return mapToVideoResponseDTO(allVideosOfChatbot);
     }
+
+    public String getThumbnailByYoutubeVideoId(String videoId) {
+        Video video = videoRepository.findByYoutubeVideoId(videoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+        return video.getThumbnailUrl();
+    }
 }

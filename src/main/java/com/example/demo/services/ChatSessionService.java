@@ -1,17 +1,25 @@
 package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
+import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.dtos.SendMessageResponseDTO;
 import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
+import com.example.demo.dtos.internal.BotQueryRequestDTO;
+import com.example.demo.dtos.internal.BotQueryResponseDTO;
+import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.entities.ChatSession;
 import com.example.demo.entities.Chatbot;
+import com.example.demo.entities.Message;
 import com.example.demo.entities.User;
+import com.example.demo.entities.utils.MessageSender;
+import com.example.demo.entities.MessageClass;
 import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.InvalidSourceException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.ChatbotRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +30,8 @@ import org.springframework.data.domain.Pageable;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
+
 import com.example.demo.dtos.utils.CursorData;
 
 @Service
@@ -35,6 +45,14 @@ public class ChatSessionService {
 
     @Autowired
     private ChatbotRepo chatbotRepo;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private FastApiService fastApiService;
+    @Autowired
+    private VideoService videoService;
+    @Autowired
+    private MessageClassService messageClassService;
 
     public SessionResponseDTO createSession(UUID chatbotId, String token) {
         User user = jwtService.extractUser(token);
@@ -154,8 +172,6 @@ public class ChatSessionService {
         }
     }
 
-//    public SendMessageResponseDTO sendMessage(Long sessionId, String userMessage, String token) {
-//    }
 
     private CursorData decodeCursor(String cursor) {
         try {
@@ -172,5 +188,110 @@ public class ChatSessionService {
         } catch (Exception e) {
             throw new InvalidSourceException("Invalid pagination cursor");
         }
+    }
+
+    @Transactional
+    public SendMessageResponseDTO sendMessage(Long sessionId, String userMessage, String token) {
+        ChatSession chatSession =  chatSessionRepo.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chat session not found"));
+        User user = jwtService.extractUser(token);
+        if (!chatSession.getUser().getId().equals(user.getId())) {
+            throw new AuthenticationException("Unauthorized access to chat session");
+        }
+        
+        chatSession.setLastMessageAt(LocalDateTime.now());
+
+        Message message = messageService.createMessage(chatSession, userMessage, MessageSender.USER);
+
+        List<Message> messages = chatSession.getMessages();
+        boolean isFirstMessage = messages.isEmpty();
+        BotQueryRequestDTO botQueryRequestDTO = mapToBotQueryRequestDTO(chatSession, message, isFirstMessage);
+
+        System.out.println("Sending BotQueryRequestDTO to FastAPI: " + botQueryRequestDTO);
+
+        BotQueryResponseDTO botQueryResponseDTO = fastApiService.processChat(botQueryRequestDTO);
+
+        if (isFirstMessage && botQueryResponseDTO.getSessionTitle() != null) {
+            chatSession.setSessionTopic(botQueryResponseDTO.getSessionTitle());
+        }
+
+        Message response = messageService.createMessage(
+                chatSession, botQueryResponseDTO.getAnswer(), MessageSender.BOT);
+
+        messages.add(message);
+        messages.add(response);
+        chatSession.setMessages(messages);
+        chatSessionRepo.save(chatSession);
+
+        return SendMessageResponseDTO.builder()
+                .sessionId(chatSession.getId())
+                .sessionTitle(chatSession.getSessionTopic())
+                .userMessage(mapToMessageDto(message))
+                .aiResponse(mapToMessageDto(response))
+                .sources(mapToSource(botQueryResponseDTO.getSources()))
+                .build();
+    }
+
+    private BotQueryRequestDTO mapToBotQueryRequestDTO(ChatSession chatSession, Message userMessage, boolean isFirstMessage) {
+        List<BotQueryRequestDTO.ConversationHistoryDTO> conversationHistory = new ArrayList<>();
+        List<Message> allMessages = chatSession.getMessages();
+        int startIndex = Math.max(0, allMessages.size() - 10);
+        for (int i = startIndex; i < allMessages.size(); i++) {
+            Message msg = allMessages.get(i);
+            conversationHistory.add(
+                    new BotQueryRequestDTO.ConversationHistoryDTO(
+                            msg.getSender().toString(), msg.getContent()
+                    )
+            );
+        }
+
+        List<MessageClassResponseDTO> messageClasses = messageClassService.getAllMessageClassesByUserChatbot(
+                chatSession.getChatbot()
+        );
+
+        return BotQueryRequestDTO.builder()
+                .chatbotId(chatSession.getChatbot().getId().toString())
+                .messageId(userMessage.getId())
+                .query(userMessage.getContent())
+                .conversationHistory(conversationHistory)
+                .firstMessage(isFirstMessage)
+                .config(
+                        BotQueryRequestDTO.ConfigDTO.builder()
+                                .chatbotName(chatSession.getChatbot().getConfig().getName())
+                                .talkLikeMe(chatSession.getChatbot().getConfig().isTalkLikeMe())
+                                .tone(chatSession.getChatbot().getConfig().getTone() != null ? chatSession.getChatbot().getConfig().getTone().name() : null)
+                                .verbosity(chatSession.getChatbot().getConfig().getVerbosity() != null ? chatSession.getChatbot().getConfig().getVerbosity().name() : null)
+                                .formality(chatSession.getChatbot().getConfig().getFormality() != null ? chatSession.getChatbot().getConfig().getFormality().name() : null)
+                                .build()
+                )
+                .messageClasses(messageClasses)
+                .build();
+    }
+
+    private List<SendMessageResponseDTO.Source> mapToSource(List<BotQueryResponseDTO.SourceDTO> sources) {
+        if (sources == null) return new ArrayList<>();
+        List<SendMessageResponseDTO.Source> sourceList = new ArrayList<>();
+        for (BotQueryResponseDTO.SourceDTO sourceDTO : sources) {
+            sourceList.add(
+                    SendMessageResponseDTO.Source.builder()
+                            .videoId(sourceDTO.getVideoId())
+                            .videoTitle(sourceDTO.getVideoTitle())
+                            .youtubeUrl(sourceDTO.getYoutubeUrl())
+                            .thumbnailUrl(videoService.getThumbnailByYoutubeVideoId(sourceDTO.getVideoId()))
+                            .build()
+            );
+        }
+        return sourceList;
+    }
+
+    private MessageDto mapToMessageDto(Message message) {
+        if (message == null) return null;
+        return MessageDto.builder()
+                .id(message.getId())
+                .message(message.getContent())
+                .sender(message.getSender())
+                .messageStatus(message.getStatus())
+                .sentAt(message.getSentAt())
+                .build();
     }
 }

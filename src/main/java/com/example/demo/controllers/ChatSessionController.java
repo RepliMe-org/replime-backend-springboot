@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dtos.SendMessageResponseDTO;
 import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
 import com.example.demo.dtos.CreateSessionRequestDTO;
@@ -51,4 +52,13 @@ public class ChatSessionController {
         ));
     }
 
+    @PostMapping("/{sessionId}/messages")
+    @Operation(description = "Send message to specific chat session")
+    public ResponseEntity<SendMessageResponseDTO> sendMessage(
+            @PathVariable Long sessionId,
+            @RequestBody String userMessage,
+            @RequestHeader("Authorization") String token
+    ){
+        return ResponseEntity.ok(chatSessionService.sendMessage(sessionId, userMessage, token));
+    }
 }

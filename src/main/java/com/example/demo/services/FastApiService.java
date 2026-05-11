@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.demo.dtos.internal.VideoIndexRequestDTO;
+import com.example.demo.dtos.internal.BotQueryRequestDTO;
+import com.example.demo.dtos.internal.BotQueryResponseDTO;
 
 import java.util.Map;
 
@@ -47,6 +49,16 @@ public class FastApiService {
                 .bodyToMono(Void.class)
                 .doOnError(error -> System.err.println("Failed to call FastAPI indexing for batch videos. " + error.getMessage()))
                 .subscribe();
+    }
+
+    public BotQueryResponseDTO processChat(BotQueryRequestDTO botQueryRequestDTO) {
+        return webClient.post()
+                .uri("/chat/process")
+                .header("X-INTERNAL-TOKEN", X_TOKEN)
+                .bodyValue(botQueryRequestDTO)
+                .retrieve()
+                .bodyToMono(BotQueryResponseDTO.class)
+                .block();
     }
 
 }
