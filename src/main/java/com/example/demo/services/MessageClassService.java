@@ -195,4 +195,9 @@ public class MessageClassService {
             messageClassRepo.delete(messageClass);
         }
     }
+
+    public MessageClass getMessageClassById(Long messageClassId) {
+        return messageClassRepo.findById(messageClassId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + messageClassId));
+    }
 }

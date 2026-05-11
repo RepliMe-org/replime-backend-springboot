@@ -19,4 +19,6 @@ public interface MessageClassRepo extends JpaRepository<MessageClass, Long> {
     boolean existsByCategoryIdAndName(Long id, String name);
 
     List<MessageClass> findByCategoryId(Long id);
+
+    MessageClass getMessageClassById(Long id);
 }
