@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
+import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.services.MessageService;
 import com.example.demo.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +34,11 @@ public class InternalController {
     }
 
     @PutMapping("messages/{messageId}")
-    public ResponseEntity<String> updateMessageClasses(
+    public ResponseEntity<MessageDto> updateMessageClasses(
             @PathVariable Long messageId,
             @RequestBody Long messageClassId
     ){
-        messageService.classifyMessage(messageId,messageClassId);
-        return ResponseEntity.ok("Message classified successfully");
+
+        return ResponseEntity.ok(messageService.classifyMessage(messageId,messageClassId));
     }
 }

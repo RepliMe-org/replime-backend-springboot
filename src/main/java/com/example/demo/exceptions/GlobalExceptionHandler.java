@@ -76,5 +76,15 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(InvalidClassificationException.class)
+    public ResponseEntity<?> handleInvalidClassificationException(InvalidClassificationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "success", false,
+                        "error", ex.getMessage())
+                );
+    }
+
 
 }

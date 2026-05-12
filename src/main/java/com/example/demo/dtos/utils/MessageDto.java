@@ -17,4 +17,5 @@ public class MessageDto {
     private MessageSender sender;
     private LocalDateTime sentAt;
     private MessageStatus messageStatus;
+    private String messageClass;
 }

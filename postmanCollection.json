@@ -500,12 +500,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/message-class",
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "message-class"
+                "influencer",
+                "chatbot",
+                "message-classes"
               ]
             }
           },
@@ -527,15 +529,74 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"FAQ\"\n}"
+              "raw": "[\n  \"Custom FAQ\"\n]"
             },
             "url": {
-              "raw": "{{baseUrl}}/message-class",
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "message-class"
+                "influencer",
+                "chatbot",
+                "message-classes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Choose Message Classes",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  1,\n  2\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Message Class",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/{{classId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "influencer",
+                "chatbot",
+                "message-classes",
+                "{{classId}}"
               ]
             }
           },
@@ -1718,6 +1779,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "X-Internal-Token",
+                "value": "{{X_INTERNAL_TOKEN}}"
               }
             ],
             "url": {
@@ -1742,7 +1807,12 @@
           "name": "Test WebSocket",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{X_INTERNAL_TOKEN}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/internal/ws-test",
               "host": [
@@ -1752,6 +1822,38 @@
                 "internal",
                 "ws-test"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Message Classes",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Internal-Token",
+                "value": "{{X_INTERNAL_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/internal/messages/{{messageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "internal",
+                "messages",
+                "{{messageId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "1"
             }
           },
           "response": []
@@ -1821,6 +1923,10 @@
     {
       "key": "categoryId",
       "value": ""
+    },
+    {
+      "key": "X_INTERNAL_TOKEN",
+      "value": "qp-G96zC2Z9-p7dQtl6QfoMKivP2o5Mks7FhrF5ta7Q"
     }
   ]
 }
