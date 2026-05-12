@@ -292,6 +292,21 @@ public class ChatSessionService {
                 .sender(message.getSender())
                 .messageStatus(message.getStatus())
                 .sentAt(message.getSentAt())
+                .messageClass(message.getMessageClass() != null ? message.getMessageClass().getName() : null)
                 .build();
+    }
+
+    public List<MessageDto> getSessionMessages(Long sessionId, String token) {
+        User user = jwtService.extractUser(token);
+        ChatSession chatSession = chatSessionRepo.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chat session not found"));
+        if (!chatSession.getUser().getId().equals(user.getId())) {
+            throw new AuthenticationException("Unauthorized access to chat session");
+        }
+        List<MessageDto> messageDtos = new ArrayList<>();
+        for (Message message : chatSession.getMessages()) {
+            messageDtos.add(mapToMessageDto(message));
+        }
+        return messageDtos;
     }
 }

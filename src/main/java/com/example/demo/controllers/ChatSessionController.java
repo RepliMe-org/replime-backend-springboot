@@ -4,6 +4,7 @@ import com.example.demo.dtos.SendMessageResponseDTO;
 import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
 import com.example.demo.dtos.CreateSessionRequestDTO;
+import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.services.ChatSessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -60,5 +62,14 @@ public class ChatSessionController {
             @RequestHeader("Authorization") String token
     ){
         return ResponseEntity.ok(chatSessionService.sendMessage(sessionId, userMessage, token));
+    }
+
+    @GetMapping("/{sessionId}/messages")
+    @Operation(description = "Get messages of a specific chat session")
+    public ResponseEntity<List<MessageDto>> getSessionMessages(
+            @PathVariable Long sessionId,
+            @RequestHeader("Authorization") String token
+    ){
+        return ResponseEntity.ok(chatSessionService.getSessionMessages(sessionId, token));
     }
 }
