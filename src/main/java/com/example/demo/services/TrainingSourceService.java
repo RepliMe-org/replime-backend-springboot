@@ -11,12 +11,14 @@ import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.repos.TrainingSourceRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -74,4 +76,12 @@ public class TrainingSourceService {
         videoService.indexSavedVideos(channelVideos, chatbot);
     }
 
+    public int getTotalNumberOfVideosOfChatbot(UUID id) {
+        List<TrainingSource> trainingSources = trainingSourceRepository.findByChatbotId(id);
+        int totalNumberOfVideosOfChatbot = 0;
+        for (TrainingSource trainingSource : trainingSources) {
+            totalNumberOfVideosOfChatbot += trainingSource.getVideos().size();
+        }
+        return totalNumberOfVideosOfChatbot;
+    }
 }

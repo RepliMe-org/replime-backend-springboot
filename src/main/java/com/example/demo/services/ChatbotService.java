@@ -135,12 +135,16 @@ public class ChatbotService {
         ChatbotConfig config = chatbot.getConfig();
         return AdminChatbotResponseDTO.builder()
             .id(chatbot.getId())
-            .influencerUsername(chatbot.getInfluencer().getUsername())
             .chatbotName(config != null ? config.getName() : "")
+            .chatbotCategory(chatbot.getCategory() != null ? chatbot.getCategory().getName() : "")
+            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+            .numberOfIngestedVideos(trainingSourceService.getTotalNumberOfVideosOfChatbot(chatbot.getId()))
+            .channelHandle(influencerVerificationRepo.findByUser(chatbot.getInfluencer()).getHandle())
+            .influencerUsername(chatbot.getInfluencer().getUsername())
             .chatbotDescription(config != null ? config.getDescription() : "")
             .greetingMessage(config != null ? config.getGreetingMessage() : "")
             .status(chatbot.getStatus())
-            .isPublic(chatbot.isPublic())
+            .publicChatbot(chatbot.isPublic())
             .build();
     }
 
