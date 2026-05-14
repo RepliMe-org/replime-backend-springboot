@@ -6,9 +6,7 @@ import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
-import com.example.demo.exceptions.InvalidSourceException;
-import com.example.demo.exceptions.ResourceNotFoundException;
-import com.example.demo.exceptions.TrainingSourceException;
+import com.example.demo.exceptions.*;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
@@ -259,13 +257,22 @@ public class ChatbotService {
         return messageClassService.getAllMessageClassesByUserChatbot(chatbot);
     }
 
-    public void chooseMessageClassesForChatbot(
+    public List<MessageClassResponseDTO> chooseMessageClassesForChatbot(
         List<Long> messageClassIds,
         String token
     ) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
-        messageClassService.assignClassesToChatbot(messageClassIds, chatbot);
+        for (Long messageClassId : messageClassIds) {
+            if (chatbot.getMessageClasses().stream().anyMatch(mc -> mc.getId().equals(messageClassId))) {
+                throw new ResourceConflictException("Message class with id " + messageClassId + " is already assigned to the chatbot");
+            }
+
+            if (!messageClassService.isMessageClassIdValidForChatbot(messageClassId, chatbot)) {
+                throw new InvalidClassificationException("Message class with id " + messageClassId + " is not valid for the chatbot's category");
+            }
+        }
+        return messageClassService.assignClassesToChatbot(messageClassIds, chatbot);
     }
 
     public void createMessageClassesForSpecificChatbot(

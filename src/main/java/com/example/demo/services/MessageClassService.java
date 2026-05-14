@@ -20,9 +20,6 @@ public class MessageClassService {
     private MessageClassRepo messageClassRepo;
 
     @Autowired
-    private JwtService jwtService;
-
-    @Autowired
     private ChatbotRepo chatbotRepo;
 
     @Autowired
@@ -36,24 +33,9 @@ public class MessageClassService {
                 id,
                 MessageClassType.SYSTEM
             );
-        return MapToMessageClassResponseDTO(messageClasses);
+        return mapToMessageClassResponseDTO(messageClasses);
     }
 
-    private List<MessageClassResponseDTO> MapToMessageClassResponseDTO(
-        List<MessageClass> messageClasses
-    ) {
-        List<MessageClassResponseDTO> messageClassResponseDTOS =
-            new ArrayList<>();
-        for (MessageClass messageClass : messageClasses) {
-            MessageClassResponseDTO messageClassResponseDTO =
-                MessageClassResponseDTO.builder()
-                    .id(messageClass.getId())
-                    .name(messageClass.getName())
-                    .build();
-            messageClassResponseDTOS.add(messageClassResponseDTO);
-        }
-        return messageClassResponseDTOS;
-    }
 
     public List<MessageClassResponseDTO> getAllMessageClassesByUserChatbot(
         Chatbot chatbot
@@ -78,7 +60,7 @@ public class MessageClassService {
         }
 
         List<MessageClass> messageClasses = new ArrayList<>(merged.values());
-        return MapToMessageClassResponseDTO(messageClasses);
+        return mapToMessageClassResponseDTO(messageClasses);
     }
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(
@@ -106,7 +88,7 @@ public class MessageClassService {
         return getAllSystemMessageClassesForCategory(category.getId());
     }
 
-    public void assignClassesToChatbot(
+    public List<MessageClassResponseDTO> assignClassesToChatbot(
         List<Long> messageClassIds,
         Chatbot chatbot
     ) {
@@ -122,6 +104,8 @@ public class MessageClassService {
         chatbot.getMessageClasses().addAll(messageClasses);
 
         chatbotRepo.save(chatbot);
+
+        return mapToMessageClassResponseDTO(messageClasses);
     }
 
     public void createCustomMessageClassesForChatbot(
@@ -196,8 +180,30 @@ public class MessageClassService {
         }
     }
 
+    private List<MessageClassResponseDTO> mapToMessageClassResponseDTO(
+            List<MessageClass> messageClasses
+    ) {
+        List<MessageClassResponseDTO> messageClassResponseDTOS =
+                new ArrayList<>();
+        for (MessageClass messageClass : messageClasses) {
+            MessageClassResponseDTO messageClassResponseDTO =
+                    MessageClassResponseDTO.builder()
+                            .id(messageClass.getId())
+                            .name(messageClass.getName())
+                            .build();
+            messageClassResponseDTOS.add(messageClassResponseDTO);
+        }
+        return messageClassResponseDTOS;
+    }
+
     public MessageClass getMessageClassById(Long messageClassId) {
         return messageClassRepo.findById(messageClassId)
                 .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + messageClassId));
+    }
+
+    public boolean isMessageClassIdValidForChatbot(Long messageClassId, Chatbot chatbot) {
+        MessageClass messageClass = messageClassRepo.findById(messageClassId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + messageClassId));
+        return messageClass.getCategory() == chatbot.getCategory();
     }
 }
