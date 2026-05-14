@@ -2,6 +2,8 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.MessageClassResponseDTO;
+import com.example.demo.dtos.ChatbotCategoryResponseDTO;
+import com.example.demo.dtos.InfluencerMessageClassesDTO;
 import com.example.demo.entities.*;
 import com.example.demo.entities.utils.MessageClassType;
 import com.example.demo.exceptions.ResourceNotFoundException;
@@ -61,6 +63,41 @@ public class MessageClassService {
 
         List<MessageClass> messageClasses = new ArrayList<>(merged.values());
         return mapToMessageClassResponseDTO(messageClasses);
+    }
+
+    public InfluencerMessageClassesDTO getInfluencerClassificationContext(Chatbot chatbot) {
+        ChatbotCategory category = chatbot.getCategory();
+        ChatbotCategoryResponseDTO categoryDTO = null;
+        if (category != null) {
+            categoryDTO = ChatbotCategoryResponseDTO.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
+        }
+
+        List<MessageClass> allSystemClasses = category != null ?
+            messageClassRepo.findByCategoryIdAndTypeAndIsActiveTrue(category.getId(), MessageClassType.SYSTEM) :
+            new ArrayList<>();
+
+        List<MessageClass> pickedSystemClasses = new ArrayList<>();
+        List<MessageClass> availableSystemClasses = new ArrayList<>();
+
+        for (MessageClass mc : allSystemClasses) {
+            if (mc.getChatbots().contains(chatbot)) {
+                pickedSystemClasses.add(mc);
+            } else {
+                availableSystemClasses.add(mc);
+            }
+        }
+
+        List<MessageClass> customClasses = messageClassRepo.findByChatbotsContainingAndType(chatbot, MessageClassType.CUSTOM);
+
+        return InfluencerMessageClassesDTO.builder()
+            .category(categoryDTO)
+            .pickedClasses(mapToMessageClassResponseDTO(pickedSystemClasses))
+            .customClasses(mapToMessageClassResponseDTO(customClasses))
+            .availableClasses(mapToMessageClassResponseDTO(availableSystemClasses))
+            .build();
     }
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(

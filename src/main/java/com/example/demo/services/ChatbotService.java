@@ -257,6 +257,19 @@ public class ChatbotService {
         return messageClassService.getAllMessageClassesByUserChatbot(chatbot);
     }
 
+    public InfluencerMessageClassesDTO getInfluencerClassificationContext(String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+
+        if (chatbot.getCategory() == null) {
+            throw new ResourceNotFoundException(
+                "Chatbot category not yet set for influencer"
+            );
+        }
+
+        return messageClassService.getInfluencerClassificationContext(chatbot);
+    }
+
     public List<MessageClassResponseDTO> chooseMessageClassesForChatbot(
         List<Long> messageClassIds,
         String token

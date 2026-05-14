@@ -65,7 +65,7 @@ public class InfluencerChatbotController {
     ) {
         return chatbotConfigService.updateChatbotConfig(requestDTO, token);
     }
-    //TODO: add message confirms that the category assigned successfully
+
     @PatchMapping("/category/{categoryId}")
     @Operation(description = "Assign a category to the influencer's chatbot")
     public ResponseEntity<ApiResponseDTO> assignCategory(
@@ -85,11 +85,11 @@ public class InfluencerChatbotController {
     @Operation(
         description = "Get all message classes available for the influencer's chatbot category"
     )
-    public ResponseEntity<List<MessageClassResponseDTO>> getAllMessageClasses(
+    public ResponseEntity<InfluencerMessageClassesDTO> getAllMessageClasses(
         @RequestHeader("Authorization") String token
     ) {
         return ResponseEntity.ok(
-            chatbotService.getAllMessageClassesAssignedToChatbot(token)
+            chatbotService.getInfluencerClassificationContext(token)
         );
     }
 

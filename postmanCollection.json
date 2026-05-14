@@ -168,7 +168,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -196,7 +196,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -355,7 +355,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -382,7 +382,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -414,7 +414,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -442,7 +442,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -466,7 +466,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -496,7 +496,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -524,7 +524,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -556,7 +556,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -584,7 +584,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1053,7 +1053,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -1081,7 +1081,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1109,7 +1109,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -1141,7 +1141,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -1183,7 +1183,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1206,7 +1206,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1230,7 +1230,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1255,7 +1255,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1283,7 +1283,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -1315,7 +1315,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "body": {
@@ -1343,7 +1343,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1560,7 +1560,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               },
               {
                 "key": "Content-Type",
@@ -1592,7 +1592,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1616,7 +1616,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{influencerToken}}"
+                "value": "Bearer {{influencer_token}}"
               }
             ],
             "url": {
@@ -1951,6 +1951,11 @@
     {
       "key": "X_INTERNAL_TOKEN",
       "value": "qp-G96zC2Z9-p7dQtl6QfoMKivP2o5Mks7FhrF5ta7Q"
+    },
+    {
+      "key": "influencer_token",
+      "value": "",
+      "type": "string"
     }
   ]
 }
