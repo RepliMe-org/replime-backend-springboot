@@ -200,6 +200,10 @@ public class ChatSessionService {
         if (!chatSession.getUser().getId().equals(user.getId())) {
             throw new AuthenticationException("Unauthorized access to chat session");
         }
+
+        if (chatSession.getStatus() == ChatSessionStatus.DELETED) {
+            throw new ResourceNotFoundException("Chat session not found");
+        }
         
         chatSession.setLastMessageAt(LocalDateTime.now());
 
