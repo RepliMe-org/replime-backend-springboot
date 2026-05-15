@@ -56,7 +56,7 @@ public class ChatbotConfig {
     @PreUpdate
     private void validateAttributes() {
         if (talkLikeMe) {
-            verbosity = null;
+            tone = null;
             formality = null;
         } else {
             if (tone == null || verbosity == null || formality == null) {

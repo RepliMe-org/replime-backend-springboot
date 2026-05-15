@@ -34,7 +34,7 @@ public class Chatbot {
     @PastOrPresent(message = "Created date cannot be in the future")
     private LocalDateTime createdAt;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private ChatbotConfig config;
 
     @ManyToOne(fetch = FetchType.LAZY)

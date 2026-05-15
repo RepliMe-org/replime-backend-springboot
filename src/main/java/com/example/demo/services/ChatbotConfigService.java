@@ -73,7 +73,9 @@ public class ChatbotConfigService {
     }
 
     public ResponseEntity<ChatbotConfigResponseDTO> updateChatbotConfig(ChatbotConfigUpdateDTO requestDTO, String token) {
+        System.out.println("Received update request: " + requestDTO.getVerbosity());
         User user = jwtService.extractUser(token);
+
         Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
         if (chatbot == null) {
             return ResponseEntity.badRequest().build();
@@ -81,13 +83,42 @@ public class ChatbotConfigService {
         if (chatbot.getConfig() == null) {
             return ResponseEntity.badRequest().build();
         }
+
         ChatbotConfig config = chatbot.getConfig();
 
-        applyConfigUpdates(requestDTO, config);
-        chatbotConfigRepo.save(config);
-        chatbot.setConfig(config);
-        chatbotRepo.save(chatbot);
+        if (requestDTO.getName() != null) {
+            config.setName(requestDTO.getName());
+        }
+        if (requestDTO.getDescription() != null) {
+            config.setDescription(requestDTO.getDescription());
+        }
+        if (requestDTO.getGreetingMessage() != null) {
+            config.setGreetingMessage(requestDTO.getGreetingMessage());
+        }
+        if (requestDTO.getTalkLikeMe() != null) {
+            config.setTalkLikeMe(requestDTO.getTalkLikeMe());
+        }
 
+        if (config.isTalkLikeMe()) {
+            config.setTone(null);
+            config.setFormality(null);
+        } else {
+            if (requestDTO.getTone() != null) {
+                config.setTone(requestDTO.getTone());
+            }
+            if (requestDTO.getFormality() != null) {
+                config.setFormality(requestDTO.getFormality());
+            }
+        }
+
+        if (requestDTO.getVerbosity() != null) {
+            config.setVerbosity(requestDTO.getVerbosity());
+        }
+        if (requestDTO.getAvatarNumber() != null) {
+            config.setAvatarNumber(requestDTO.getAvatarNumber());
+        }
+
+        config = chatbotConfigRepo.save(config);
         return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config));
     }
 
@@ -110,39 +141,11 @@ public class ChatbotConfigService {
                 .build();
     }
 
-    private void applyConfigUpdates(ChatbotConfigUpdateDTO requestDTO, ChatbotConfig config) {
+    private ChatbotConfig applyConfigUpdates(ChatbotConfigUpdateDTO requestDTO, ChatbotConfig config) {
         if (requestDTO == null || config == null) {
-            return;
+            return null;
         }
 
-        if (requestDTO.getName() != null) {
-            config.setName(requestDTO.getName());
-        }
-        if (requestDTO.getDescription() != null) {
-            config.setDescription(requestDTO.getDescription());
-        }
-        if (requestDTO.getGreetingMessage() != null) {
-            config.setGreetingMessage(requestDTO.getGreetingMessage());
-        }
-        if (requestDTO.getTalkLikeMe() != null) {
-            config.setTalkLikeMe(requestDTO.getTalkLikeMe());
-            if (requestDTO.getTalkLikeMe()) { // if get talkLikeMe switched on
-                config.setTone(null);
-                config.setFormality(null);
-            }
-        }
-        if (requestDTO.getTone() != null) {
-            config.setTone(requestDTO.getTone());
-        }
-        if (requestDTO.getFormality() != null) {
-            config.setFormality(requestDTO.getFormality());
-        }
-        if (requestDTO.getTone() != null) {
-            config.setTone(requestDTO.getTone());
-        }
-
-        if (requestDTO.getAvatarNumber() != null) {
-            config.setAvatarNumber(requestDTO.getAvatarNumber());
-        }
+        return config;
     }
 }
