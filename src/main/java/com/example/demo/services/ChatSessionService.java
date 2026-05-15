@@ -12,6 +12,7 @@ import com.example.demo.entities.ChatSession;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.Message;
 import com.example.demo.entities.User;
+import com.example.demo.entities.utils.ChatSessionStatus;
 import com.example.demo.entities.utils.MessageSender;
 import com.example.demo.entities.MessageClass;
 import com.example.demo.exceptions.AuthenticationException;
@@ -72,6 +73,7 @@ public class ChatSessionService {
                 .greetingMessage(chatSession.getChatbot().getConfig().getGreetingMessage())
                 .startedAt(chatSession.getStartedAt())
                 .messageCount(chatSession.getMessages().size())
+                .sessionTopic(chatSession.getSessionTopic())
                 .build();
     }
 
@@ -201,16 +203,17 @@ public class ChatSessionService {
         
         chatSession.setLastMessageAt(LocalDateTime.now());
 
-        Message message = messageService.createMessage(chatSession, userMessage, MessageSender.USER);
-
         List<Message> messages = chatSession.getMessages();
         boolean isFirstMessage = messages.isEmpty();
+        Message message = messageService.createMessage(chatSession, userMessage, MessageSender.USER);
+
         BotQueryRequestDTO botQueryRequestDTO = mapToBotQueryRequestDTO(chatSession, message, isFirstMessage);
 
         System.out.println("Sending BotQueryRequestDTO to FastAPI: " + botQueryRequestDTO);
 
         BotQueryResponseDTO botQueryResponseDTO = fastApiService.processChat(botQueryRequestDTO);
 
+        System.out.println("session title: " + botQueryResponseDTO.getSessionTitle());
         if (isFirstMessage && botQueryResponseDTO.getSessionTitle() != null) {
             chatSession.setSessionTopic(botQueryResponseDTO.getSessionTitle());
         }
@@ -308,5 +311,16 @@ public class ChatSessionService {
             messageDtos.add(mapToMessageDto(message));
         }
         return messageDtos;
+    }
+
+    public void deleteSession(String token, Long sessionId) {
+        User user = jwtService.extractUser(token);
+        ChatSession session = chatSessionRepo.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chat session not found"));
+        if (!session.getUser().getId().equals(user.getId())) {
+            throw new AuthenticationException("Unauthorized access to chat session");
+        }
+        session.setStatus(ChatSessionStatus.DELETED);
+        chatSessionRepo.save(session);
     }
 }

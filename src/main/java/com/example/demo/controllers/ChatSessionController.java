@@ -1,9 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.SendMessageResponseDTO;
-import com.example.demo.dtos.SessionListResponseDTO;
-import com.example.demo.dtos.SessionResponseDTO;
-import com.example.demo.dtos.CreateSessionRequestDTO;
+import com.example.demo.dtos.*;
 import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.services.ChatSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,5 +68,20 @@ public class ChatSessionController {
             @RequestHeader("Authorization") String token
     ){
         return ResponseEntity.ok(chatSessionService.getSessionMessages(sessionId, token));
+    }
+
+    @DeleteMapping("{sessionId}")
+    @Operation(description = "Delete a specific chat session by its ID.")
+    public ResponseEntity<ApiResponseDTO> deleteSession(
+            @PathVariable Long sessionId,
+            @RequestHeader("Authorization") String token
+    ){
+        chatSessionService.deleteSession(token,sessionId);
+        return ResponseEntity.ok(
+                ApiResponseDTO.builder()
+                        .success(true)
+                        .message("Session deleted successfully")
+                        .build()
+        );
     }
 }

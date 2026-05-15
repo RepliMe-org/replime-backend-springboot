@@ -19,6 +19,7 @@ public interface ChatSessionRepo extends JpaRepository<ChatSession, Long> {
     FROM ChatSession s
     WHERE s.user.id = :userId
     AND s.chatbot.id = :chatbotId
+    AND s.status != 'DELETED'
     ORDER BY s.lastMessageAt DESC, s.id DESC
 """)
     List<ChatSession> findFirstPage( // without cursor
@@ -32,6 +33,7 @@ public interface ChatSessionRepo extends JpaRepository<ChatSession, Long> {
         SELECT * FROM chat_session s
         WHERE s.user_id    = :userId
         AND   s.chatbot_id = :chatbotId
+        AND   s.status != 'DELETED'
         AND (
             s.last_message_at < :cursorTime
             OR (
