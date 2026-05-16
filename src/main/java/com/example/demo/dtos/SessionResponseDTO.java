@@ -17,4 +17,5 @@ public class SessionResponseDTO {
     String greetingMessage;
     LocalDateTime startedAt;
     Integer messageCount;
+    String sessionTopic;
 }

@@ -213,11 +213,8 @@ public class ChatSessionService {
 
         BotQueryRequestDTO botQueryRequestDTO = mapToBotQueryRequestDTO(chatSession, message, isFirstMessage);
 
-        System.out.println("Sending BotQueryRequestDTO to FastAPI: " + botQueryRequestDTO);
-
         BotQueryResponseDTO botQueryResponseDTO = fastApiService.processChat(botQueryRequestDTO);
 
-        System.out.println("session title: " + botQueryResponseDTO.getSessionTitle());
         if (isFirstMessage && botQueryResponseDTO.getSessionTitle() != null) {
             chatSession.setSessionTopic(botQueryResponseDTO.getSessionTitle());
         }
