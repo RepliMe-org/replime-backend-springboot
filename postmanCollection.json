@@ -1,1961 +1,2009 @@
 {
-  "info": {
-    "_postman_id": "f7a29b73-7f5b-4dbd-9c2c-92931b593e4e",
-    "name": "replime",
-    "description": "RepliMe Backend APIs",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "36644295",
-    "_collection_link": "https://go.postman.co/collection/36644295-f7a29b73-7f5b-4dbd-9c2c-92931b593e4e?source=collection_link"
-  },
-  "item": [
-    {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Signup",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "pm.collectionVariables.set(\"token\", jsonData.token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"testuser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/signup",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "signup"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "pm.collectionVariables.set(\"token\", jsonData.token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Admin Signup",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "pm.collectionVariables.set(\"token\", jsonData.token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"admin\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"123456\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/signup/admin",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "signup",
-                "admin"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logged In Test",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/loggedin",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "loggedin"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
+    "info": {
+        "_postman_id": "f7a29b73-7f5b-4dbd-9c2c-92931b593e4e",
+        "name": "replime",
+        "description": "RepliMe Backend APIs",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "36644295",
+        "_collection_link": "https://go.postman.co/collection/36644295-f7a29b73-7f5b-4dbd-9c2c-92931b593e4e?source=collection_link"
     },
-    {
-      "name": "Influencer Verification",
-      "item": [
+    "item": [
         {
-          "name": "Request Verification",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"channelUrl\": \"https://youtube.com/@example\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/verify/request",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "verify",
-                "request"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Confirm Verification",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/verify/confirm",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "verify",
-                "confirm"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Public Chatbot",
-      "item": [
-        {
-          "name": "Get All Public Chatbots",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbots",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbots"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Chatbot By Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbots",
-                "{{chatbotId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin Chatbot",
-      "item": [
-        {
-          "name": "Get All Chatbots (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "chatbots"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Chatbot Status",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/status?status=ACTIVE",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "chatbots",
-                "{{chatbotId}}",
-                "status"
-              ],
-              "query": [
+            "name": "Auth",
+            "item": [
                 {
-                  "key": "status",
-                  "value": "ACTIVE"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Chatbot Visibility",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "chatbots",
-                "{{chatbotId}}",
-                "visibility"
-              ],
-              "query": [
-                {
-                  "key": "isPublic",
-                  "value": "true"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Influencer Chatbot",
-      "item": [
-        {
-          "name": "Get Chatbot Config",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Save Chatbot Config",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"My Chatbot\",\n  \"description\": \"A test chatbot\",\n  \"greetingMessage\": \"Hi! Welcome to my channel.\",\n  \"systemPrompt\": \"You are a helpful assistant for my audience.\",\n  \"temperature\": 0.7\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "config"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Chatbot Config",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Chatbot\",\n  \"description\": \"Updated description\",\n  \"greetingMessage\": \"Hello again!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "config"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Chatbot Status",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "status"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Assign Chatbot Category",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "category",
-                "{{categoryId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Influencer Message Class",
-      "item": [
-        {
-          "name": "Get My Message Classes",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create My Message Class",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "[\n  \"Custom FAQ\"\n]"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Choose Message Classes",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "[\n  1,\n  2\n]"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Message Class",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/{{classId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes",
-                "{{classId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Chatbot Category",
-      "item": [
-        {
-          "name": "Create Category (Admin)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"New Category\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Categories",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Category (Admin)",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Message Classes for Category",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Message Class for Category",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}",
-                "message-classes"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "[\n  \"faq\",\n  \"support\"\n]"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Message Class from Category",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes/{{classId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}",
-                "message-classes",
-                "{{classId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Runner Sequence - Full API Flow",
-      "item": [
-        {
-          "name": "1) Signup Influencer",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.collectionVariables.set('influencerEmail', 'influencer+' + Date.now() + '@test.com');",
-                  "pm.collectionVariables.set('password', '12345678');"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('signup influencer success', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "  pm.collectionVariables.set('influencerToken', jsonData.token);",
-                  "  pm.collectionVariables.set('token', jsonData.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Influencer User\",\n  \"email\": \"{{influencerEmail}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/signup",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "signup"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "2) Login Influencer",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('login influencer success', function () { pm.expect(pm.response.code).to.equal(200); });",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "  pm.collectionVariables.set('influencerToken', jsonData.token);",
-                  "  pm.collectionVariables.set('token', jsonData.token);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{influencerEmail}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "3) Signup Admin",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.collectionVariables.set('adminEmail', 'admin+' + Date.now() + '@test.com');"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('signup admin success', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "  pm.collectionVariables.set('adminToken', jsonData.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/signup/admin",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "signup",
-                "admin"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "4) Login Admin",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('login admin success', function () { pm.expect(pm.response.code).to.equal(200); });",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "  pm.collectionVariables.set('adminToken', jsonData.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "5) Create Chatbot Category (Admin)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set('testCategoryName', 'Category-' + Date.now());"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Tech\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "7) Get Chatbot Categories + Capture categoryId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('get categories success', function () { pm.expect(pm.response.code).to.equal(200); });",
-                  "var data = pm.response.json();",
-                  "if (Array.isArray(data) && data.length) {",
-                  "  var desiredName = pm.collectionVariables.get('testCategoryName');",
-                  "  var target = data.find(function (x) { return x.name === desiredName; }) || data[0];",
-                  "  if (target && target.id != null) pm.collectionVariables.set('categoryId', target.id);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "8) Influencer Verification Request",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"channelUrl\": \"https://www.youtube.com/@salmanahmed6763\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/verify/request",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "verify",
-                "request"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "9) Influencer Verification Confirm",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/verify/confirm",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "verify",
-                "confirm"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "10) Save Chatbot Config (Influencer)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Chatbot1\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "config"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "11) Update Chatbot Config (Influencer)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Runner Chatbot Updated\",\n  \"description\": \"Updated by API runner\",\n  \"greetingMessage\": \"Welcome back!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/config",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "config"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "12) Get Influencer Chatbot + Capture chatbotId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('get influencer chatbot success', function () { pm.expect(pm.response.code).to.equal(200); });",
-                  "var jsonData = pm.response.json();",
-                  "var id = jsonData.id || jsonData.chatbotId;",
-                  "if (id) pm.collectionVariables.set('chatbotId', id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "13) Get Influencer Chatbot Status",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "status"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "14) Assign Influencer Chatbot Category",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "category",
-                "{{categoryId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "15) Get Assigned Message Classes (Influencer)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "16) Choose Message Classes (Influencer)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "[1, 2, 3]"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "16.1) Create Custom Message Classes (Influencer)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "[\"Custom Class 1\", \"Custom Class 2\"]"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "16.2) Delete Message Class (Influencer)",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "message-classes",
-                "5"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "17) Create Message Class (Admin)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "[\n    \"system class1\",\n    \"system class2\",\n    \"system class3\"\n]"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "18) Get Message Classes by Category (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}",
-                "message-classes"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "19) Get All Chatbots (Admin) + Capture chatbotId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('get all chatbots success', function () { pm.expect(pm.response.code).to.equal(200); });",
-                  "var data = pm.response.json();",
-                  "if (Array.isArray(data) && data.length && !pm.collectionVariables.get('chatbotId')) {",
-                  "  var id = data[0].id || data[0].chatbotId;",
-                  "  if (id) pm.collectionVariables.set('chatbotId', id);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "chatbots"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "20) Update Chatbot Visibility (Admin)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "chatbots",
-                "{{chatbotId}}",
-                "visibility"
-              ],
-              "query": [
-                {
-                  "key": "isPublic",
-                  "value": "true"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "21) Get All Public Chatbots",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbots",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbots"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "22) Get Public Chatbot By Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbots",
-                "{{chatbotId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "24) Delete Chatbot Category (Admin)",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chatbot",
-                "categories",
-                "{{categoryId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Ingest Content",
-      "item": [
-        {
-          "name": "Add Training Source",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/training-sources",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "training-sources"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"playlistUrl\": \"https://youtube.com/playlist?list=123\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Videos",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/videos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "videos"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Video",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{influencer_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/influencer/chatbot/videos/{{videoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "influencer",
-                "chatbot",
-                "videos",
-                "{{videoId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Chat Sessions",
-      "item": [
-        {
-          "name": "Create Session",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/sessions",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "sessions"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"chatbotId\": 1\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Session Details",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/sessions/:sessionId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "sessions",
-                ":sessionId"
-              ],
-              "variable": [
-                {
-                  "key": "sessionId",
-                  "value": "1"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Sessions",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/sessions?chatbotId={{chatbotId}}&limit=20&cursor=",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "sessions"
-              ],
-              "query": [
-                {
-                  "key": "chatbotId",
-                  "value": "{{chatbotId}}"
+                    "name": "Signup",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set(\"token\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"testuser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "signup"
+                            ]
+                        }
+                    },
+                    "response": []
                 },
                 {
-                  "key": "limit",
-                  "value": "20"
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set(\"token\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"test@test.com\",\n  \"password\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    },
+                    "response": []
                 },
                 {
-                  "key": "cursor",
-                  "value": ""
+                    "name": "Admin Signup",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set(\"token\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"admin\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup/admin",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "signup",
+                                "admin"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logged In Test",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/loggedin",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "loggedin"
+                            ]
+                        }
+                    },
+                    "response": []
                 }
-              ]
-            }
-          },
-          "response": []
+            ]
         },
         {
-          "name": "Send Message",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "text/plain"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "Hello!"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/sessions/{{sessionId}}/messages",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "sessions",
-                "{{sessionId}}",
-                "messages"
-              ]
-            }
-          },
-          "response": []
+            "name": "Influencer Verification",
+            "item": [
+                {
+                    "name": "Request Verification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"channelUrl\": \"https://youtube.com/@example\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/verify/request",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "verify",
+                                "request"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Confirm Verification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/verify/confirm",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "verify",
+                                "confirm"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
         },
         {
-          "name": "Get Session Messages",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/sessions/{{sessionId}}/messages",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "sessions",
-                "{{sessionId}}",
-                "messages"
-              ]
-            }
-          },
-          "response": []
+            "name": "Public Chatbot",
+            "item": [
+                {
+                    "name": "Get All Public Chatbots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Chatbot By Id",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbots",
+                                "{{chatbotId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Chatbot",
+            "item": [
+                {
+                    "name": "Get All Chatbots (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Chatbot Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/status?status=ACTIVE",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots",
+                                "{{chatbotId}}",
+                                "status"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "ACTIVE"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Chatbot Visibility",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots",
+                                "{{chatbotId}}",
+                                "visibility"
+                            ],
+                            "query": [
+                                {
+                                    "key": "isPublic",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Influencer Chatbot",
+            "item": [
+                {
+                    "name": "Get Chatbot Config",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Save Chatbot Config",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"My Chatbot\",\n  \"description\": \"A test chatbot\",\n  \"greetingMessage\": \"Hi! Welcome to my channel.\",\n  \"systemPrompt\": \"You are a helpful assistant for my audience.\",\n  \"temperature\": 0.7\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/config",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "config"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Chatbot Config",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Chatbot\",\n  \"description\": \"Updated description\",\n  \"greetingMessage\": \"Hello again!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/config",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "config"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Chatbot Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "status"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Assign Chatbot Category",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "category",
+                                "{{categoryId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Influencer Message Class",
+            "item": [
+                {
+                    "name": "Get My Message Classes",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create My Message Class",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n  \"Custom FAQ\"\n]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Choose Message Classes",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n  1,\n  2\n]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Message Class",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes/{{classId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes",
+                                "{{classId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Chatbot Category",
+            "item": [
+                {
+                    "name": "Create Category (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New Category\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Category (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Message Classes for Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Message Class for Category",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}",
+                                "message-classes"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n  \"faq\",\n  \"support\"\n]"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Message Class from Category",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes/{{classId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}",
+                                "message-classes",
+                                "{{classId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Runner Sequence - Full API Flow",
+            "item": [
+                {
+                    "name": "1) Signup Influencer",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.collectionVariables.set('influencerEmail', 'influencer+' + Date.now() + '@test.com');",
+                                    "pm.collectionVariables.set('password', '12345678');"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('signup influencer success', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.token) {",
+                                    "  pm.collectionVariables.set('influencerToken', jsonData.token);",
+                                    "  pm.collectionVariables.set('token', jsonData.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Influencer User\",\n  \"email\": \"{{influencerEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "signup"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "2) Login Influencer",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('login influencer success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.token) {",
+                                    "  pm.collectionVariables.set('influencerToken', jsonData.token);",
+                                    "  pm.collectionVariables.set('token', jsonData.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{influencerEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3) Signup Admin",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.collectionVariables.set('adminEmail', 'admin+' + Date.now() + '@test.com');"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('signup admin success', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.token) {",
+                                    "  pm.collectionVariables.set('adminToken', jsonData.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup/admin",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "signup",
+                                "admin"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "4) Login Admin",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('login admin success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.token) {",
+                                    "  pm.collectionVariables.set('adminToken', jsonData.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "5) Create Chatbot Category (Admin)",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "pm.collectionVariables.set('testCategoryName', 'Category-' + Date.now());"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Tech\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "7) Get Chatbot Categories + Capture categoryId",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('get categories success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "if (Array.isArray(data) && data.length) {",
+                                    "  var desiredName = pm.collectionVariables.get('testCategoryName');",
+                                    "  var target = data.find(function (x) { return x.name === desiredName; }) || data[0];",
+                                    "  if (target && target.id != null) pm.collectionVariables.set('categoryId', target.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "8) Influencer Verification Request",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"channelUrl\": \"https://www.youtube.com/@salmanahmed6763\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/verify/request",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "verify",
+                                "request"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "9) Influencer Verification Confirm",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/verify/confirm",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "verify",
+                                "confirm"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "10) Save Chatbot Config (Influencer)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Chatbot1\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/config",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "config"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "11) Update Chatbot Config (Influencer)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Runner Chatbot Updated\",\n  \"description\": \"Updated by API runner\",\n  \"greetingMessage\": \"Welcome back!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/config",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "config"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "12) Get Influencer Chatbot + Capture chatbotId",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get influencer chatbot success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var jsonData = pm.response.json();",
+                                    "var id = jsonData.id || jsonData.chatbotId;",
+                                    "if (id) pm.collectionVariables.set('chatbotId', id);"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "13) Get Influencer Chatbot Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "status"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "14) Assign Influencer Chatbot Category",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/category/{{categoryId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "category",
+                                "{{categoryId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "15) Get Assigned Message Classes (Influencer)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "16) Choose Message Classes (Influencer)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[1, 2, 3]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "16.1) Create Custom Message Classes (Influencer)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\"Custom Class 1\", \"Custom Class 2\"]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "16.2) Delete Message Class (Influencer)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/message-classes/5",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "message-classes",
+                                "5"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "17) Create Message Class (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n    \"system class1\",\n    \"system class2\",\n    \"system class3\"\n]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "18) Get Message Classes by Category (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}/message-classes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}",
+                                "message-classes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "19) Get All Chatbots (Admin) + Capture chatbotId",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get all chatbots success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "if (Array.isArray(data) && data.length && !pm.collectionVariables.get('chatbotId')) {",
+                                    "  var id = data[0].id || data[0].chatbotId;",
+                                    "  if (id) pm.collectionVariables.set('chatbotId', id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "20) Update Chatbot Visibility (Admin)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}/visibility?isPublic=true",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots",
+                                "{{chatbotId}}",
+                                "visibility"
+                            ],
+                            "query": [
+                                {
+                                    "key": "isPublic",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "21) Get All Public Chatbots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "22) Get Public Chatbot By Id",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbots/{{chatbotId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbots",
+                                "{{chatbotId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "24) Delete Chatbot Category (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/chatbot/categories/{{categoryId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "chatbot",
+                                "categories",
+                                "{{categoryId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Ingest Content",
+            "item": [
+                {
+                    "name": "Add Training Source",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/training-sources",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "training-sources"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"playlistUrl\": \"https://youtube.com/playlist?list=123\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Videos",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/videos",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "videos"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Video",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/videos/{{videoId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "videos",
+                                "{{videoId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Chat Sessions",
+            "item": [
+                {
+                    "name": "Create Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"chatbotId\": 1\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Session Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/:sessionId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                ":sessionId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "sessionId",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions?chatbotId={{chatbotId}}&limit=20&cursor=",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "chatbotId",
+                                    "value": "{{chatbotId}}"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "cursor",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "text/plain"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "Hello!"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/{{sessionId}}/messages",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                "{{sessionId}}",
+                                "messages"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Session Messages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/{{sessionId}}/messages",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                "{{sessionId}}",
+                                "messages"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Session",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/{{sessionId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                "{{sessionId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Internal",
+            "item": [
+                {
+                    "name": "Update Video Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Internal-Token",
+                                "value": "{{X_INTERNAL_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/internal/update-video-status/{{videoId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "internal",
+                                "update-video-status",
+                                "{{videoId}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"PROCESSED\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Test WebSocket",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-Internal-Token",
+                                "value": "{{X_INTERNAL_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/internal/ws-test",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "internal",
+                                "ws-test"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Message Classes",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Internal-Token",
+                                "value": "{{X_INTERNAL_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/internal/messages/{{messageId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "internal",
+                                "messages",
+                                "{{messageId}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "1"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Test",
+            "item": [
+                {
+                    "name": "Test FastAPI",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/test-fastapi",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "test-fastapi"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        }
+                    }
+                }
+            ]
         }
-      ]
-    },
-    {
-      "name": "Internal",
-      "item": [
+    ],
+    "variable": [
         {
-          "name": "Update Video Status",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-Internal-Token",
-                "value": "{{X_INTERNAL_TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/internal/update-video-status/{{videoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "internal",
-                "update-video-status",
-                "{{videoId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"PROCESSED\"\n}"
-            }
-          },
-          "response": []
+            "key": "baseUrl",
+            "value": "http://localhost:8080/api/v1"
         },
         {
-          "name": "Test WebSocket",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "X-Internal-Token",
-                "value": "{{X_INTERNAL_TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/internal/ws-test",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "internal",
-                "ws-test"
-              ]
-            }
-          },
-          "response": []
+            "key": "token",
+            "value": ""
         },
         {
-          "name": "Update Message Classes",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-Internal-Token",
-                "value": "{{X_INTERNAL_TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/internal/messages/{{messageId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "internal",
-                "messages",
-                "{{messageId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "1"
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Test",
-      "item": [
+            "key": "influencerToken",
+            "value": ""
+        },
         {
-          "name": "Test FastAPI",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/test-fastapi",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "test-fastapi"
-              ]
-            }
-          },
-          "response": []
+            "key": "adminToken",
+            "value": ""
+        },
+        {
+            "key": "influencerEmail",
+            "value": ""
+        },
+        {
+            "key": "adminEmail",
+            "value": ""
+        },
+        {
+            "key": "password",
+            "value": "12345678"
+        },
+        {
+            "key": "testCategoryName",
+            "value": ""
+        },
+        {
+            "key": "chatbotId",
+            "value": ""
+        },
+        {
+            "key": "categoryId",
+            "value": ""
+        },
+        {
+            "key": "X_INTERNAL_TOKEN",
+            "value": "qp-G96zC2Z9-p7dQtl6QfoMKivP2o5Mks7FhrF5ta7Q"
+        },
+        {
+            "key": "influencer_token",
+            "value": "",
+            "type": "string"
         }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080/api/v1"
-    },
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "influencerToken",
-      "value": ""
-    },
-    {
-      "key": "adminToken",
-      "value": ""
-    },
-    {
-      "key": "influencerEmail",
-      "value": ""
-    },
-    {
-      "key": "adminEmail",
-      "value": ""
-    },
-    {
-      "key": "password",
-      "value": "12345678"
-    },
-    {
-      "key": "testCategoryName",
-      "value": ""
-    },
-    {
-      "key": "chatbotId",
-      "value": ""
-    },
-    {
-      "key": "categoryId",
-      "value": ""
-    },
-    {
-      "key": "X_INTERNAL_TOKEN",
-      "value": "qp-G96zC2Z9-p7dQtl6QfoMKivP2o5Mks7FhrF5ta7Q"
-    },
-    {
-      "key": "influencer_token",
-      "value": "",
-      "type": "string"
-    }
-  ]
+    ]
 }
