@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -18,4 +19,5 @@ public class MessageDto {
     private LocalDateTime sentAt;
     private MessageStatus messageStatus;
     private String messageClass;
+    private List<MessageSourceDto> sources;
 }

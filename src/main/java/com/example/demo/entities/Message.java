@@ -7,6 +7,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,14 +17,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-        name = "message",
-        indexes = {
-                @Index(name = "idx_message_session_id", columnList = "session_id"),
-                @Index(name = "idx_message_session_sent", columnList = "session_id, sent_at ASC"),
-                @Index(name = "idx_message_class_id", columnList = "message_class_id")
-        }
-)
+@Table(name = "message", indexes = {
+        @Index(name = "idx_message_session_id", columnList = "session_id"),
+        @Index(name = "idx_message_session_sent", columnList = "session_id, sent_at ASC"),
+        @Index(name = "idx_message_class_id", columnList = "message_class_id")
+})
 public class Message {
 
     @Id
@@ -57,6 +56,10 @@ public class Message {
 
     // Populated only for BOT messages to track AI processing time
     private LocalDateTime processedAt;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<MessageSource> sources = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

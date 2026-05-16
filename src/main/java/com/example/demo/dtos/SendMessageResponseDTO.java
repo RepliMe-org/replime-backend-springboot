@@ -2,8 +2,6 @@ package com.example.demo.dtos;
 
 
 import com.example.demo.dtos.utils.MessageDto;
-import com.example.demo.dtos.internal.BotQueryResponseDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,18 +19,6 @@ public class SendMessageResponseDTO {
 
     private MessageDto aiResponse;
 
-    private List<Source> sources;
-
     private LocalDateTime updatedAt;
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Source {
-        private String videoId;
-        private String videoTitle;
-        private String youtubeUrl;
-        private String thumbnailUrl;
-    }
 }
