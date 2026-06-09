@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
 
@@ -16,10 +17,22 @@ public class AdminChatbotResponseDTO {
     private UUID id;
 
     @NotNull
-    private String influencerUsername;
+    private String chatbotName;
 
     @NotNull
-    private String chatbotName;
+    private String chatbotCategory;
+
+    @NotNull
+    private Integer avatarNumber;
+
+    @NotNull
+    private int numberOfIngestedVideos;
+
+    @NotNull
+    private String channelHandle;
+
+    @NotNull
+    private String influencerUsername;
 
     private String chatbotDescription;
 
@@ -29,5 +42,6 @@ public class AdminChatbotResponseDTO {
     private ChatbotStatus status;
 
     @NotNull
-    private boolean isPublic;
+    @JsonProperty("isPublic")
+    private boolean publicChatbot;
 }

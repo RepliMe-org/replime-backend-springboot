@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.ChatbotCategoryResponseDTO;
-import com.example.demo.dtos.ChatbotCategoryRequest;
 import com.example.demo.dtos.MessageClassResponseDTO;
 import com.example.demo.services.ChatbotCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,8 +20,8 @@ public class ChatbotCategoryController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> addChatbotCategory(
-            @RequestBody ChatbotCategoryRequest chatbotCategoryRequest) {
-        chatbotCategoryService.addCategory(chatbotCategoryRequest);
+            @RequestBody List<String> chatbotCategoryNames) {
+        chatbotCategoryService.addCategories(chatbotCategoryNames);
         return ResponseEntity.ok("Chatbot category added successfully");
     }
 
@@ -60,6 +59,17 @@ public class ChatbotCategoryController {
         return ResponseEntity.ok(
                 chatbotCategoryService.createMessageClassForCategory(
                         categoryId,messageClassesNames));
+    }
+
+    @DeleteMapping("{categoryId}/message-classes/{classId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(description = "Admin delete system message classes for a specific category.")
+    public ResponseEntity<String> DeleteMessageClassForAdmin(
+            @PathVariable Long categoryId,
+            @PathVariable Long classId
+    ){
+        chatbotCategoryService.deleteMessageClassForCategory(categoryId,classId);
+        return ResponseEntity.ok("Message class got deleted for a specific category.");
     }
 
 }

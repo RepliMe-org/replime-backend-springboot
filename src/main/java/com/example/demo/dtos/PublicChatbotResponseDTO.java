@@ -26,6 +26,12 @@ public class PublicChatbotResponseDTO {
 
     private String greetingMessage;
 
+    private Integer avatarNumber;
+
+    private String channelHandle;
+
+    private String categoryName;
+
     @NotNull
     private ChatbotStatus status;
 }

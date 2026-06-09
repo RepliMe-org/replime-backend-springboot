@@ -2,6 +2,8 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.MessageClassResponseDTO;
+import com.example.demo.dtos.ChatbotCategoryResponseDTO;
+import com.example.demo.dtos.InfluencerMessageClassesDTO;
 import com.example.demo.entities.*;
 import com.example.demo.entities.utils.MessageClassType;
 import com.example.demo.exceptions.ResourceNotFoundException;
@@ -20,37 +22,22 @@ public class MessageClassService {
     private MessageClassRepo messageClassRepo;
 
     @Autowired
-    private JwtService jwtService;
+    private ChatbotRepo chatbotRepo;
 
     @Autowired
-    private ChatbotRepo chatbotRepo;
+    private MessageService messageService;
 
     public List<MessageClassResponseDTO> getAllSystemMessageClassesForCategory(
         Long id
     ) {
         List<MessageClass> messageClasses =
-            messageClassRepo.findByCategoryIdAndType(
+            messageClassRepo.findByCategoryIdAndTypeAndIsActiveTrue(
                 id,
                 MessageClassType.SYSTEM
             );
-        return MapToMessageClassResponseDTO(messageClasses);
+        return mapToMessageClassResponseDTO(messageClasses);
     }
 
-    private List<MessageClassResponseDTO> MapToMessageClassResponseDTO(
-        List<MessageClass> messageClasses
-    ) {
-        List<MessageClassResponseDTO> messageClassResponseDTOS =
-            new ArrayList<>();
-        for (MessageClass messageClass : messageClasses) {
-            MessageClassResponseDTO messageClassResponseDTO =
-                MessageClassResponseDTO.builder()
-                    .id(messageClass.getId())
-                    .name(messageClass.getName())
-                    .build();
-            messageClassResponseDTOS.add(messageClassResponseDTO);
-        }
-        return messageClassResponseDTOS;
-    }
 
     public List<MessageClassResponseDTO> getAllMessageClassesByUserChatbot(
         Chatbot chatbot
@@ -75,7 +62,42 @@ public class MessageClassService {
         }
 
         List<MessageClass> messageClasses = new ArrayList<>(merged.values());
-        return MapToMessageClassResponseDTO(messageClasses);
+        return mapToMessageClassResponseDTO(messageClasses);
+    }
+
+    public InfluencerMessageClassesDTO getInfluencerClassificationContext(Chatbot chatbot) {
+        ChatbotCategory category = chatbot.getCategory();
+        ChatbotCategoryResponseDTO categoryDTO = null;
+        if (category != null) {
+            categoryDTO = ChatbotCategoryResponseDTO.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
+        }
+
+        List<MessageClass> allSystemClasses = category != null ?
+            messageClassRepo.findByCategoryIdAndTypeAndIsActiveTrue(category.getId(), MessageClassType.SYSTEM) :
+            new ArrayList<>();
+
+        List<MessageClass> pickedSystemClasses = new ArrayList<>();
+        List<MessageClass> availableSystemClasses = new ArrayList<>();
+
+        for (MessageClass mc : allSystemClasses) {
+            if (mc.getChatbots().contains(chatbot)) {
+                pickedSystemClasses.add(mc);
+            } else {
+                availableSystemClasses.add(mc);
+            }
+        }
+
+        List<MessageClass> customClasses = messageClassRepo.findByChatbotsContainingAndType(chatbot, MessageClassType.CUSTOM);
+
+        return InfluencerMessageClassesDTO.builder()
+            .category(categoryDTO)
+            .pickedClasses(mapToMessageClassResponseDTO(pickedSystemClasses))
+            .customClasses(mapToMessageClassResponseDTO(customClasses))
+            .availableClasses(mapToMessageClassResponseDTO(availableSystemClasses))
+            .build();
     }
 
     public List<MessageClassResponseDTO> createMessageClassForCategory(
@@ -103,7 +125,7 @@ public class MessageClassService {
         return getAllSystemMessageClassesForCategory(category.getId());
     }
 
-    public void assignClassesToChatbot(
+    public List<MessageClassResponseDTO> assignClassesToChatbot(
         List<Long> messageClassIds,
         Chatbot chatbot
     ) {
@@ -119,6 +141,8 @@ public class MessageClassService {
         chatbot.getMessageClasses().addAll(messageClasses);
 
         chatbotRepo.save(chatbot);
+
+        return mapToMessageClassResponseDTO(messageClasses);
     }
 
     public void createCustomMessageClassesForChatbot(
@@ -138,7 +162,7 @@ public class MessageClassService {
         chatbotRepo.save(chatbot);
     }
 
-    public void deleteMessageClassfromChatbot(Long messageClassId, Chatbot chatbot) {
+    public void removeMessageClassFromChatbot(Long messageClassId, Chatbot chatbot) {
         MessageClass messageClass = messageClassRepo.findById(messageClassId)
             .orElseThrow(() -> new ResourceNotFoundException(
                 "Message class not found with id: " + messageClassId
@@ -149,8 +173,74 @@ public class MessageClassService {
             messageClassRepo.save(messageClass);
         }else { // CUSTOM message class, delete it entirely
             chatbot.getMessageClasses().remove(messageClass);
-            messageClassRepo.delete(messageClass);
+            if (messageService.existsByMessageClassId(messageClass.getId())){
+                messageClass.setActive(false);
+                messageClassRepo.save(messageClass);
+            }else{
+                messageClassRepo.delete(messageClass);
+            }
         }
          chatbotRepo.save(chatbot);
+    }
+
+    public void deleteAllMessageClassesByCategory(Long id) {
+        List<MessageClass> messageClasses = messageClassRepo.findByCategoryId(id);
+        for (MessageClass messageClass : messageClasses) {
+            if (messageService.existsByMessageClassId(messageClass.getId())){
+                messageClass.setActive(false);
+                messageClassRepo.save(messageClass);
+            }else{
+                for (Chatbot chatbot : messageClass.getChatbots()) {
+                    chatbot.getMessageClasses().remove(messageClass);
+                    chatbotRepo.save(chatbot);
+                }
+                messageClass.getChatbots().clear();
+                messageClassRepo.delete(messageClass);
+            }
+
+        }
+    }
+
+    public void deleteMessageClassFromCategory(Long classId) {
+        MessageClass messageClass = messageClassRepo.findById(classId)
+            .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + classId));
+        if (messageService.existsByMessageClassId(messageClass.getId())){
+            messageClass.setActive(false);
+            messageClassRepo.save(messageClass);
+        }else{
+            for (Chatbot chatbot : messageClass.getChatbots()) {
+                chatbot.getMessageClasses().remove(messageClass);
+                chatbotRepo.save(chatbot);
+            }
+            messageClass.getChatbots().clear();
+            messageClassRepo.delete(messageClass);
+        }
+    }
+
+    private List<MessageClassResponseDTO> mapToMessageClassResponseDTO(
+            List<MessageClass> messageClasses
+    ) {
+        List<MessageClassResponseDTO> messageClassResponseDTOS =
+                new ArrayList<>();
+        for (MessageClass messageClass : messageClasses) {
+            MessageClassResponseDTO messageClassResponseDTO =
+                    MessageClassResponseDTO.builder()
+                            .id(messageClass.getId())
+                            .name(messageClass.getName())
+                            .build();
+            messageClassResponseDTOS.add(messageClassResponseDTO);
+        }
+        return messageClassResponseDTOS;
+    }
+
+    public MessageClass getMessageClassById(Long messageClassId) {
+        return messageClassRepo.findById(messageClassId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + messageClassId));
+    }
+
+    public boolean isMessageClassIdValidForChatbot(Long messageClassId, Chatbot chatbot) {
+        MessageClass messageClass = messageClassRepo.findById(messageClassId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message class not found with id: " + messageClassId));
+        return messageClass.getCategory() == chatbot.getCategory();
     }
 }

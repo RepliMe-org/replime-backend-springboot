@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
+import com.example.demo.dtos.ChatbotConfigResponseDTO;
 import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.entities.Chatbot;
@@ -67,31 +68,23 @@ public class ChatbotConfigService {
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .fetchChannel(requestDTO.getFetchChannel())
+                .avatarNumber(requestDTO.getAvatarNumber())
                 .build();
     }
 
-    public ResponseEntity<String> updateChatbotConfig(ChatbotConfigUpdateDTO requestDTO, String token) {
+    public ResponseEntity<ChatbotConfigResponseDTO> updateChatbotConfig(ChatbotConfigUpdateDTO requestDTO, String token) {
+        System.out.println("Received update request: " + requestDTO.getVerbosity());
         User user = jwtService.extractUser(token);
+
         Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
         if (chatbot == null) {
-            return ResponseEntity.badRequest().body("No chatbot found for user");
+            return ResponseEntity.badRequest().build();
         }
         if (chatbot.getConfig() == null) {
-            return ResponseEntity.badRequest().body("Chatbot config does not exist");
+            return ResponseEntity.badRequest().build();
         }
+
         ChatbotConfig config = chatbot.getConfig();
-
-        applyConfigUpdates(requestDTO, config);
-        chatbotConfigRepo.save(config);
-        chatbot.setConfig(config);
-        chatbotRepo.save(chatbot);
-        return ResponseEntity.ok("Chatbot config updated successfully");
-    }
-
-    private void applyConfigUpdates(ChatbotConfigUpdateDTO requestDTO, ChatbotConfig config) {
-        if (requestDTO == null || config == null) {
-            return;
-        }
 
         if (requestDTO.getName() != null) {
             config.setName(requestDTO.getName());
@@ -104,20 +97,55 @@ public class ChatbotConfigService {
         }
         if (requestDTO.getTalkLikeMe() != null) {
             config.setTalkLikeMe(requestDTO.getTalkLikeMe());
-            if (requestDTO.getTalkLikeMe()) { // if get talkLikeMe switched on
-                config.setTone(null);
-                config.setVerbosity(null);
-                config.setFormality(null);
+        }
+
+        if (config.isTalkLikeMe()) {
+            config.setTone(null);
+            config.setFormality(null);
+        } else {
+            if (requestDTO.getTone() != null) {
+                config.setTone(requestDTO.getTone());
+            }
+            if (requestDTO.getFormality() != null) {
+                config.setFormality(requestDTO.getFormality());
             }
         }
-        if (requestDTO.getTone() != null) {
-            config.setTone(requestDTO.getTone());
+
+        if (requestDTO.getVerbosity() != null) {
+            config.setVerbosity(requestDTO.getVerbosity());
         }
-        if (requestDTO.getFormality() != null) {
-            config.setFormality(requestDTO.getFormality());
+        if (requestDTO.getAvatarNumber() != null) {
+            config.setAvatarNumber(requestDTO.getAvatarNumber());
         }
-        if (requestDTO.getTone() != null) {
-            config.setTone(requestDTO.getTone());
+
+        config = chatbotConfigRepo.save(config);
+        return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config));
+    }
+
+    private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config) {
+        if (config == null) {
+            return null;
         }
+        return ChatbotConfigResponseDTO.builder()
+                .id(config.getId())
+                .name(config.getName())
+                .description(config.getDescription())
+                .greetingMessage(config.getGreetingMessage())
+                .talkLikeMe(config.isTalkLikeMe()) // actually isTalkLikeMe since it's boolean, let's verify if lombok generates isTalkLikeMe
+                .tone(config.getTone())
+                .verbosity(config.getVerbosity())
+                .formality(config.getFormality())
+                .fetchChannel(config.isFetchChannel())
+                .avatarNumber(config.getAvatarNumber())
+                .createdAt(config.getCreatedAt())
+                .build();
+    }
+
+    private ChatbotConfig applyConfigUpdates(ChatbotConfigUpdateDTO requestDTO, ChatbotConfig config) {
+        if (requestDTO == null || config == null) {
+            return null;
+        }
+
+        return config;
     }
 }

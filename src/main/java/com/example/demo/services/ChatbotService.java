@@ -6,9 +6,7 @@ import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
-import com.example.demo.exceptions.InvalidSourceException;
-import com.example.demo.exceptions.ResourceNotFoundException;
-import com.example.demo.exceptions.TrainingSourceException;
+import com.example.demo.exceptions.*;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
@@ -78,6 +76,7 @@ public class ChatbotService {
     private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(
         Chatbot chatbot
     ) {
+        InfluencerVerification influencerVerification = influencerVerificationRepo.findByUser(chatbot.getInfluencer());
         return PublicChatbotResponseDTO.builder()
             .id(chatbot.getId())
             .influencerUsername(chatbot.getInfluencer().getUsername())
@@ -94,6 +93,9 @@ public class ChatbotService {
                     ? chatbot.getConfig().getGreetingMessage()
                     : ""
             )
+            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+                .channelHandle(influencerVerification.getHandle())
+                .categoryName(chatbot.getCategory() != null ? chatbot.getCategory().getName() : null)
             .status(chatbot.getStatus())
             .build();
     }
@@ -103,20 +105,25 @@ public class ChatbotService {
     ) {
         ChatbotConfig config = chatbot.getConfig();
         return InfluencerChatbotResponseDTO.builder()
-            .id(chatbot.getId())
-            .influencerUsername(chatbot.getInfluencer().getUsername())
-            .status(chatbot.getStatus())
-            .isPublic(chatbot.isPublic())
-            .createdAt(chatbot.getCreatedAt())
-            .configId(config != null ? config.getId() : null)
-            .chatbotName(config != null ? config.getName() : "")
-            .greetingMessage(config != null ? config.getGreetingMessage() : "")
-            .chatbotDescription(config != null ? config.getDescription() : "")
-            .tone(config != null ? config.getTone() : null)
-            .verbosity(config != null ? config.getVerbosity() : null)
-            .formality(config != null ? config.getFormality() : null)
-            .talkLikeMe(config != null && config.isTalkLikeMe())
-            .configCreatedAt(config != null ? config.getCreatedAt() : null)
+            .chatbotInfo(InfluencerChatbotResponseDTO.ChatbotInfo.builder()
+                .id(chatbot.getId())
+                .influencerUsername(chatbot.getInfluencer().getUsername())
+                .status(chatbot.getStatus())
+                .isPublic(chatbot.isPublic())
+                .createdAt(chatbot.getCreatedAt())
+                .build())
+            .configInfo(InfluencerChatbotResponseDTO.ConfigInfo.builder()
+                .configId(config != null ? config.getId() : null)
+                .chatbotName(config != null ? config.getName() : "")
+                .chatbotDescription(config != null ? config.getDescription() : "")
+                .greetingMessage(config != null ? config.getGreetingMessage() : "")
+                .avatarNumber(config != null ? config.getAvatarNumber() : null)
+                .talkLikeMe(config != null && config.isTalkLikeMe())
+                .tone(config != null ? config.getTone() : null)
+                .verbosity(config != null ? config.getVerbosity() : null)
+                .formality(config != null ? config.getFormality() : null)
+                .configCreatedAt(config != null ? config.getCreatedAt() : null)
+                .build())
             .build();
     }
 
@@ -126,12 +133,16 @@ public class ChatbotService {
         ChatbotConfig config = chatbot.getConfig();
         return AdminChatbotResponseDTO.builder()
             .id(chatbot.getId())
-            .influencerUsername(chatbot.getInfluencer().getUsername())
             .chatbotName(config != null ? config.getName() : "")
+            .chatbotCategory(chatbot.getCategory() != null ? chatbot.getCategory().getName() : "")
+            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+            .numberOfIngestedVideos(trainingSourceService.getTotalNumberOfVideosOfChatbot(chatbot.getId()))
+            .channelHandle(influencerVerificationRepo.findByUser(chatbot.getInfluencer()).getHandle())
+            .influencerUsername(chatbot.getInfluencer().getUsername())
             .chatbotDescription(config != null ? config.getDescription() : "")
             .greetingMessage(config != null ? config.getGreetingMessage() : "")
             .status(chatbot.getStatus())
-            .isPublic(chatbot.isPublic())
+            .publicChatbot(chatbot.isPublic())
             .build();
     }
 
@@ -246,13 +257,35 @@ public class ChatbotService {
         return messageClassService.getAllMessageClassesByUserChatbot(chatbot);
     }
 
-    public void chooseMessageClassesForChatbot(
+    public InfluencerMessageClassesDTO getInfluencerClassificationContext(String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+
+        if (chatbot.getCategory() == null) {
+            throw new ResourceNotFoundException(
+                "Chatbot category not yet set for influencer"
+            );
+        }
+
+        return messageClassService.getInfluencerClassificationContext(chatbot);
+    }
+
+    public List<MessageClassResponseDTO> chooseMessageClassesForChatbot(
         List<Long> messageClassIds,
         String token
     ) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
-        messageClassService.assignClassesToChatbot(messageClassIds, chatbot);
+        for (Long messageClassId : messageClassIds) {
+            if (chatbot.getMessageClasses().stream().anyMatch(mc -> mc.getId().equals(messageClassId))) {
+                throw new ResourceConflictException("Message class with id " + messageClassId + " is already assigned to the chatbot");
+            }
+
+            if (!messageClassService.isMessageClassIdValidForChatbot(messageClassId, chatbot)) {
+                throw new InvalidClassificationException("Message class with id " + messageClassId + " is not valid for the chatbot's category");
+            }
+        }
+        return messageClassService.assignClassesToChatbot(messageClassIds, chatbot);
     }
 
     public void createMessageClassesForSpecificChatbot(
@@ -263,10 +296,10 @@ public class ChatbotService {
         messageClassService.createCustomMessageClassesForChatbot(chatbot, messageClassesNames);
     }
 
-    public void deleteMessageClassFromChatbot(Long messageClassId, String token) {
+    public void removeMessageClassFromChatbot(Long messageClassId, String token) {
         User user = jwtService.extractUser(token.substring(7));
         Chatbot chatbot = getChatbotByUser(user);
-        messageClassService.deleteMessageClassfromChatbot(messageClassId,chatbot);
+        messageClassService.removeMessageClassFromChatbot(messageClassId,chatbot);
     }
 
     @Transactional
@@ -345,4 +378,3 @@ public class ChatbotService {
         return videoService.getAllVideosOfChatbot(chatbot);
     }
 }
-

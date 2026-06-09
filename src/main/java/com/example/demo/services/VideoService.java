@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.Video;
+import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.TrainingSourceException;
@@ -11,10 +12,12 @@ import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.User;
 import com.example.demo.entities.utils.SourceType;
 import com.example.demo.entities.utils.VerificationStatus;
+import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
 import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,8 @@ public class VideoService {
     private InfluencerVerificationRepo influencerVerificationRepo;
     @Autowired
     private TrainingSourceRepository trainingSourceRepository;
+    @Autowired
+    private ChatbotRepo chatbotRepo;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -192,6 +198,9 @@ public class VideoService {
             if (allFinished && trainingSource.getSyncStatus() == SyncStatus.PROCESSING) {
                 trainingSource.setSyncStatus(SyncStatus.COMPLETED);
                 trainingSourceRepository.save(trainingSource);
+                trainingSource.getChatbot().setStatus(ChatbotStatus.ACTIVE);
+                trainingSource.getChatbot().setPublic(true);
+                chatbotRepo.save(trainingSource.getChatbot());
                 // System out for notification (or real notification logic)
                 System.out.println("Notification: Ingestion finished for training source ID "
                         + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
@@ -237,5 +246,11 @@ public class VideoService {
             allVideosOfChatbot.addAll(videosOfSource);
         }
         return mapToVideoResponseDTO(allVideosOfChatbot);
+    }
+
+    public String getThumbnailByYoutubeVideoId(String videoId) {
+        Video video = videoRepository.findByYoutubeVideoId(videoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+        return video.getThumbnailUrl();
     }
 }

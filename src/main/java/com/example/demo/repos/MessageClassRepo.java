@@ -10,10 +10,15 @@ import java.util.List;
 @Repository
 public interface MessageClassRepo extends JpaRepository<MessageClass, Long> {
     List<MessageClass> findByCategoryIdAndType(Long categoryId, MessageClassType type);
+    List<MessageClass> findByCategoryIdAndTypeAndIsActiveTrue(Long categoryId, MessageClassType type);
     List<MessageClass> findByChatbotsContaining(Chatbot chatbot);
     List<MessageClass> findByChatbotsContainingAndType(Chatbot chatbot, MessageClassType type);
 
     List<MessageClass> findByIdIn(List<Long> messageClassIds);
 
     boolean existsByCategoryIdAndName(Long id, String name);
+
+    List<MessageClass> findByCategoryId(Long id);
+
+    MessageClass getMessageClassById(Long id);
 }

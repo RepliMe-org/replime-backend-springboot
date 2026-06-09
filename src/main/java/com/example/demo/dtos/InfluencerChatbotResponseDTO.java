@@ -17,44 +17,33 @@ import java.util.UUID;
 @Builder
 public class InfluencerChatbotResponseDTO {
 
-    @NotNull
-    private UUID id;
+    private ChatbotInfo chatbotInfo;
+    private ConfigInfo configInfo;
 
-    @NotNull
-    private String influencerUsername;
+    @Getter
+    @Setter
+    @Builder
+    public static class ChatbotInfo {
+        private UUID id;
+        private String influencerUsername;
+        private ChatbotStatus status;
+        private boolean isPublic;
+        private LocalDateTime createdAt;
+    }
 
-    @NotNull
-    private ChatbotStatus status;
-
-    @NotNull
-    private boolean isPublic;
-
-    @NotNull
-    private LocalDateTime createdAt;
-
-    @NotNull
-    private String greetingMessage;
-
-    // ChatbotConfig fields
-    @NotNull
-    private Long configId;
-
-    @NotNull
-    private String chatbotName;
-
-    @NotNull
-    private String chatbotDescription;
-
-    @NotNull
-    private boolean talkLikeMe;
-
-    private Tone tone;
-
-    private Verbosity verbosity;
-
-    private Formality formality;
-
-    @NotNull
-    private LocalDateTime configCreatedAt;
+    @Getter
+    @Setter
+    @Builder
+    public static class ConfigInfo {
+        private Long configId;
+        private String chatbotName;
+        private String chatbotDescription;
+        private String greetingMessage;
+        private Integer avatarNumber;
+        private boolean talkLikeMe;
+        private Tone tone;
+        private Verbosity verbosity;
+        private Formality formality;
+        private LocalDateTime configCreatedAt;
+    }
 }
-

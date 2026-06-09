@@ -1,6 +1,8 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
+import com.example.demo.dtos.utils.MessageDto;
+import com.example.demo.services.MessageService;
 import com.example.demo.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ public class InternalController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private MessageService messageService;
 
     @PatchMapping("/update-video-status/{videoId}")
     public ResponseEntity<String> updateVideoStatus(
@@ -27,5 +31,14 @@ public class InternalController {
     @GetMapping("/ws-test")
     public void testWs() {
         messagingTemplate.convertAndSend("/topic/test", "HELLO");
+    }
+
+    @PutMapping("messages/{messageId}")
+    public ResponseEntity<MessageDto> updateMessageClasses(
+            @PathVariable Long messageId,
+            @RequestBody Long messageClassId
+    ){
+
+        return ResponseEntity.ok(messageService.classifyMessage(messageId,messageClassId));
     }
 }
