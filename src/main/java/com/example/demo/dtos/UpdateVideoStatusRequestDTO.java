@@ -9,5 +9,7 @@ import lombok.Setter;
 public class UpdateVideoStatusRequestDTO {
     @NotNull
     private String status;
-    private String error;
+    private String failedStage;
+    private String failureReason;
+    private Boolean retryable;
 }

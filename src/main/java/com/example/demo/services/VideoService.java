@@ -179,7 +179,7 @@ public class VideoService {
                     .sourceId(trainingSource.getId())
                     .videoId(updateVideo.getId())
                     .status(parsedStatus.name())
-                    .errorMessage(request.getError())
+                    .errorMessage(request.getFailureReason())
                     .build();
             messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
 
