@@ -57,15 +57,19 @@ public class Video {
     @Builder.Default
     private Integer maxRetries = 3;
 
-    @Column(name = "idempotency_token")
-    private String idempotencyToken;
-
-    // Convenience methods
-    public boolean canRetry() {
+    public boolean hasRetriesLeft() {
         return retryCount < maxRetries;
     }
 
     public boolean isPermanentlyFailed() {
         return syncStatus == SyncStatus.DEAD;
+    }
+
+    //exponential backoff strategy for retrying failed videos first 1min, sec: 4min, third: 9min
+    public OffsetDateTime nextRetryEligibleAt() {
+        long minutes = (long) Math.pow(retryCount, 2);
+        return lastRetryAt != null
+                ? lastRetryAt.plusMinutes(Math.max(minutes, 1))
+                : OffsetDateTime.now();
     }
 }

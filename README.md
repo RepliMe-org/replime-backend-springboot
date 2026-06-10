@@ -50,6 +50,21 @@ Do NOT commit `.env` to GitHub.
 
 ## 🗄 Database Setup
 
+### Using Docker (Recommended)
+You can run the required databases (PostgreSQL and RabbitMQ) easily using Docker.
+
+1. Ensure Docker and Docker Compose are installed.
+2. Run the following command in the project root:
+
+```bash
+docker-compose up -d
+```
+
+This will start:
+- PostgreSQL on port `5433`
+- RabbitMQ on port `5672` (Management UI available at `http://localhost:15672`)
+
+### Manual Setup
 1. Install PostgreSQL
 2. Create database:
 
@@ -103,4 +118,4 @@ http://localhost:8080/api/v1/v3/api-docs
 
 - Testing endpoints directly
 - Viewing request/response schemas
-- Exploring secured endpoints  
+- Exploring secured endpoints
