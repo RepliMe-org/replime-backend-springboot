@@ -1,4 +1,4 @@
-package com.example.demo.dtos;
+package com.example.demo.dtos.internal;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -12,4 +12,5 @@ public class UpdateVideoStatusRequestDTO {
     private String failedStage;
     private String failureReason;
     private Boolean retryable;
+    private Integer attemptsMade;
 }

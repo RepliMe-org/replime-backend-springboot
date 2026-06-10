@@ -1,37 +1,37 @@
 package com.example.demo.services;
 
 import com.example.demo.dtos.*;
+import com.example.demo.dtos.internal.UpdateVideoStatusRequestDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.Video;
-import com.example.demo.entities.utils.ChatbotStatus;
-import com.example.demo.entities.utils.SyncStatus;
+import com.example.demo.entities.utils.*;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.TrainingSourceException;
 import com.example.demo.dtos.internal.VideoIndexRequestDTO;
 import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.User;
-import com.example.demo.entities.utils.SourceType;
-import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
 import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
+import com.example.demo.services.rabbitMQService.VideoIndexPublisher;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoService {
     @Autowired
     private VideoRepository videoRepository;
@@ -48,6 +48,9 @@ public class VideoService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private VideoIndexPublisher videoIndexPublisher;
 
     public List<Video> fetchAndSaveVideosForTrainingSource(
             TrainingSourceRequestDTO sourceRequest,
@@ -105,20 +108,23 @@ public class VideoService {
 
     public void indexSavedVideos(List<Video> successfullySavedVideos, Chatbot chatbot) {
         if (successfullySavedVideos.isEmpty()) return;
+        if (true) { // TODO: just toggle until all message broker concept is implemented
+            List<VideoIndexRequestDTO.VideoItem> videoItems = successfullySavedVideos.stream()
+                    .map(video -> VideoIndexRequestDTO.VideoItem.builder()
+                            .youtubeVideoId(video.getYoutubeVideoId())
+                            .videoTitle(video.getTitle())
+                            .build())
+                    .toList();
 
-        List<VideoIndexRequestDTO.VideoItem> videoItems = successfullySavedVideos.stream()
-                .map(video -> VideoIndexRequestDTO.VideoItem.builder()
-                        .youtubeVideoId(video.getYoutubeVideoId())
-                        .videoTitle(video.getTitle())
-                        .build())
-                .toList();
+            VideoIndexRequestDTO videoIndexRequestDTO = VideoIndexRequestDTO.builder()
+                    .chatbotId(chatbot.getId().toString())
+                    .videos(videoItems)
+                    .build();
 
-        VideoIndexRequestDTO videoIndexRequestDTO = VideoIndexRequestDTO.builder()
-                .chatbotId(chatbot.getId().toString())
-                .videos(videoItems)
-                .build();
-
-        fastApiService.indexVideos(videoIndexRequestDTO);
+            fastApiService.indexVideos(videoIndexRequestDTO);
+        }else{
+            videoIndexPublisher.publishForIndexing(successfullySavedVideos);
+        }
     }
 
     @Transactional
@@ -160,64 +166,122 @@ public class VideoService {
     }
 
     public void updateVideoStatus(String youtubeVideoId, UpdateVideoStatusRequestDTO request) {
-        Video updateVideo = videoRepository.findByYoutubeVideoId(youtubeVideoId)
+        Video video = videoRepository.findByYoutubeVideoId(youtubeVideoId)
                 .orElseThrow(() -> new ResourceNotFoundException("video not found with id: " + youtubeVideoId));
-        System.out.println(updateVideo);
+        System.out.println(video);
         try {
-            SyncStatus parsedStatus = SyncStatus.valueOf(request.getStatus().toUpperCase());
-            updateVideo.setSyncStatus(parsedStatus);
-            videoRepository.save(updateVideo);
+            SyncStatus newStatus = SyncStatus.valueOf(request.getStatus());
 
-            TrainingSource trainingSource = updateVideo.getTrainingSource();
+            // ── NEW: populate failure tracking fields ────────────────────
+            if (newStatus == SyncStatus.FAILED || newStatus == SyncStatus.DEAD) {
 
-            System.out.println("Sending to topic: /topic/chatbot/"
-                    + trainingSource.getChatbot().getId() + "/sync-status");
-
-            // Send websocket notification for single video update
-            SyncStatusMessageDTO videoUpdateMsg = SyncStatusMessageDTO.builder()
-                    .type("VIDEO_UPDATE")
-                    .sourceId(trainingSource.getId())
-                    .videoId(updateVideo.getId())
-                    .status(parsedStatus.name())
-                    .errorMessage(request.getFailureReason())
-                    .build();
-            messagingTemplate.convertAndSend("/topic/chatbot/" + trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
-
-            System.out.println("Sync status updated successfully");
-
-            boolean allFinished = true;
-            for (Video v : trainingSource.getVideos()) {
-                // If it's this video, use the new status
-                SyncStatus currentStatus = v.getId().equals(updateVideo.getId()) ? parsedStatus : v.getSyncStatus();
-                if (currentStatus == SyncStatus.PROCESSING) {
-                    allFinished = false;
-                    break;
+                // Map the stage string to your enum safely
+                if (request.getFailedStage() != null) {
+                    try {
+                        video.setFailedStage(
+                                FailedStage.valueOf(request.getFailedStage()));
+                    } catch (IllegalArgumentException e) {
+                        log.warn("Unknown failedStage value: {}",
+                                request.getFailedStage());
+                    }
                 }
+
+                if (request.getFailureReason() != null) {
+                    video.setFailureReason(request.getFailureReason());
+                }
+
+                if (request.getAttemptsMade() != null) {
+                    video.setRetryCount(request.getAttemptsMade());
+                }
+
+                video.setLastRetryAt(OffsetDateTime.now());
+
+                // If FastAPI says non-retryable → force DEAD regardless of count
+                boolean isRetryable = request.getRetryable() == null
+                        || Boolean.TRUE.equals(request.getRetryable());
+
+                if (!isRetryable || !video.hasRetriesLeft()) {
+                    // Permanently dead — user must manually retry
+                    newStatus = SyncStatus.DEAD;
+                    log.warn("Video {} permanently failed at stage {}. Reason: {}",
+                            youtubeVideoId, video.getFailedStage(),
+                            video.getFailureReason());
+                } else {
+                    // Transient failure — RetryScheduler will pick it up
+                    newStatus = SyncStatus.FAILED;
+                    log.warn("Video {} failed (attempt {}/{}). Will retry at {}",
+                            youtubeVideoId, video.getRetryCount(),
+                            video.getMaxRetries(),
+                            video.nextRetryEligibleAt());
+                }
+
+            } else if (newStatus == SyncStatus.COMPLETED) {
+                // Clear stale failure data on success
+                video.setFailureReason(null);
+                video.setFailedStage(null);
             }
 
-            if (allFinished && trainingSource.getSyncStatus() == SyncStatus.PROCESSING) {
-                trainingSource.setSyncStatus(SyncStatus.COMPLETED);
-                trainingSourceRepository.save(trainingSource);
-                trainingSource.getChatbot().setStatus(ChatbotStatus.ACTIVE);
-                trainingSource.getChatbot().setPublic(true);
-                chatbotRepo.save(trainingSource.getChatbot());
-                // System out for notification (or real notification logic)
-                System.out.println("Notification: Ingestion finished for training source ID "
-                        + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
-
-                // Send websocket notification for entire source
-                SyncStatusMessageDTO sourceUpdateMsg = SyncStatusMessageDTO.builder()
-                        .type("SOURCE_COMPLETE")
-                        .sourceId(trainingSource.getId())
-                        .status(SyncStatus.COMPLETED.name())
-                        .build();
-                messagingTemplate.convertAndSend("/topic/chatbot/" +
-                        trainingSource.getChatbot().getId() + "/sync-status", sourceUpdateMsg);
-            }
+            video.setSyncStatus(newStatus);
+            videoRepository.save(video);
+            sendVideoUpdateWebsocket(video);
+            checkAndFinalizeTrainingSource(video);
 
         } catch (IllegalArgumentException e) {
             throw new TrainingSourceException("INVALID_STATUS",
                     "Invalid sync status value: " + request.getStatus(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void sendVideoUpdateWebsocket(Video video) {
+        TrainingSource trainingSource = video.getTrainingSource();
+
+        System.out.println("Sending to topic: /topic/chatbot/"
+                + trainingSource.getChatbot().getId() + "/sync-status");
+
+        // Send websocket notification for single video update
+        SyncStatusMessageDTO videoUpdateMsg = SyncStatusMessageDTO.builder()
+                .type("VIDEO_UPDATE")
+                .sourceId(trainingSource.getId())
+                .videoId(video.getId())
+                .status(video.getSyncStatus().name())
+                .errorMessage(video.getFailureReason())
+                .build();
+        messagingTemplate.convertAndSend("/topic/chatbot/" +
+                trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
+
+        System.out.println("Sync status updated successfully");
+    }
+
+    private void checkAndFinalizeTrainingSource(Video video) {
+        TrainingSource trainingSource = video.getTrainingSource();
+        boolean allFinished = true;
+        for (Video v : trainingSource.getVideos()) {
+            // If it's this video, use the new status
+            SyncStatus currentStatus = v.getId().equals(video.getId()) ? video.getSyncStatus() : v.getSyncStatus();
+            if (currentStatus == SyncStatus.PROCESSING) {
+                allFinished = false;
+                break;
+            }
+        }
+
+        if (allFinished && trainingSource.getSyncStatus() == SyncStatus.PROCESSING) {
+            trainingSource.setSyncStatus(SyncStatus.COMPLETED);
+            trainingSourceRepository.save(trainingSource);
+            trainingSource.getChatbot().setStatus(ChatbotStatus.ACTIVE);
+            trainingSource.getChatbot().setPublic(true);
+            chatbotRepo.save(trainingSource.getChatbot());
+            // System out for notification (or real notification logic)
+            System.out.println("Notification: Ingestion finished for training source ID "
+                    + trainingSource.getId() + " of user " + trainingSource.getChatbot().getInfluencer().getUsername());
+
+            // Send websocket notification for entire source
+            SyncStatusMessageDTO sourceUpdateMsg = SyncStatusMessageDTO.builder()
+                    .type("SOURCE_COMPLETE")
+                    .sourceId(trainingSource.getId())
+                    .status(SyncStatus.COMPLETED.name())
+                    .build();
+            messagingTemplate.convertAndSend("/topic/chatbot/" +
+                    trainingSource.getChatbot().getId() + "/sync-status", sourceUpdateMsg);
         }
     }
 

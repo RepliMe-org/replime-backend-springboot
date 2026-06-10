@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
+import com.example.demo.dtos.internal.UpdateVideoStatusRequestDTO;
 import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.services.MessageService;
 import com.example.demo.services.VideoService;
