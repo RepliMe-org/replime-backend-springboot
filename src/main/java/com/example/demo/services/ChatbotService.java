@@ -367,6 +367,13 @@ public class ChatbotService {
         videoService.deleteVideoFromChatbot(youtubeVideoId, chatbot);
     }
 
+    @Transactional
+    public VideoResponseDTO retryVideo(Long videoId, String token) {
+        User user = jwtService.extractUser(token.substring(7));
+        Chatbot chatbot = getChatbotByUser(user);
+        return videoService.retryVideo(videoId, chatbot);
+    }
+
     public void fetchChannelVideosToChatbot(Chatbot chatbot, User influencer) {
         String channelId = influencerVerificationRepo.findByUser(influencer).getChannelId();
         trainingSourceService.addInitialTrainingSource(chatbot,channelId);

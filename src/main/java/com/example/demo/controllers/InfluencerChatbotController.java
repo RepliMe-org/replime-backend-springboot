@@ -166,6 +166,15 @@ public class InfluencerChatbotController {
         return ResponseEntity.ok("Video removed successfully");
     }
 
+    @PostMapping("/videos/{videoId}/retry")
+    @Operation(description = "Retry a failed or dead video ingestion")
+    public ResponseEntity<VideoResponseDTO> retryVideo(
+            @PathVariable Long videoId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return ResponseEntity.ok(chatbotService.retryVideo(videoId, token));
+    }
+
     @GetMapping("/videos")
     @Operation(description = "Get all videos associated with the chatbot's training sources")
     public ResponseEntity<List<VideoResponseDTO>> getAllVideos(

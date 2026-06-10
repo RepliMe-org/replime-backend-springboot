@@ -153,6 +153,45 @@ public class VideoService {
         videoRepository.delete(video);
     }
 
+    @Transactional
+    public VideoResponseDTO retryVideo(Long videoId, Chatbot chatbot) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
+
+        if (!video.getTrainingSource().getChatbot().getId().equals(chatbot.getId())) {
+            throw new TrainingSourceException("FORBIDDEN", "You do not own this video", HttpStatus.FORBIDDEN);
+        }
+
+        if (video.getSyncStatus() == SyncStatus.PROCESSING ||
+            video.getSyncStatus() == SyncStatus.COMPLETED) {
+            throw new TrainingSourceException("INVALID_STATE", "Video is already " + video.getSyncStatus() + " — cannot retry", HttpStatus.BAD_REQUEST);
+        }
+
+        video.setRetryCount(0);
+        video.setSyncStatus(SyncStatus.PROCESSING);
+        video.setFailureReason(null);
+        video.setFailedStage(null);
+        video.setLastRetryAt(OffsetDateTime.now());
+        videoRepository.save(video);
+
+        Chatbot videoChatbot = video.getTrainingSource().getChatbot();
+        if (videoChatbot.getStatus() != ChatbotStatus.TRAINING) {
+            videoChatbot.setStatus(ChatbotStatus.TRAINING);
+            videoChatbot.setPublic(false);
+            chatbotRepo.save(videoChatbot);
+        }
+
+        TrainingSource trainingSource = video.getTrainingSource();
+        if(trainingSource.getSyncStatus() != SyncStatus.PROCESSING){
+            trainingSource.setSyncStatus(SyncStatus.PROCESSING);
+            trainingSourceRepository.save(trainingSource);
+        }
+
+        videoIndexPublisher.publishForIndexing(List.of(video));
+
+        return mapToVideoResponseDTO(List.of(video)).get(0);
+    }
+
     public List<VideoResponseDTO> mapToVideoResponseDTO(List<Video> videos) {
         return videos.stream().map(video -> VideoResponseDTO.builder()
                 .videoId(video.getId())
