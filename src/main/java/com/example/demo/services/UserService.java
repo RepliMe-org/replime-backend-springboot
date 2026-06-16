@@ -5,6 +5,7 @@ import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.User;
 import com.example.demo.entities.utils.ChatSessionStatus;
 import com.example.demo.entities.utils.Role;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,14 @@ public class UserService {
             userDTOs.add(userDTO);
         }
         return userDTOs;
+    }
+
+    public void promoteToAdmin(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with email: " + email));
+
+        user.setRole(Role.ADMIN);
+        userRepo.save(user);
     }
 }
