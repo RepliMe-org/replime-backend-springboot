@@ -9,7 +9,6 @@ import com.example.demo.entities.ChatbotConfig;
 import com.example.demo.entities.InfluencerVerification;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
-import com.example.demo.entities.utils.AvatarSource;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
@@ -19,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ChatbotConfigService {
@@ -83,14 +83,8 @@ public class ChatbotConfigService {
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .fetchChannel(requestDTO.getFetchChannel())
+                .avatarUrl(getYoutubeProfilePictureUrl(user))
                 .build();
-
-        applyAvatarSelection(
-                config,
-                requestDTO.getFetchYoutubeProfilePicture(),
-                requestDTO.getAvatarNumber(),
-                user
-        );
         return config;
     }
 
@@ -136,52 +130,20 @@ public class ChatbotConfigService {
         if (requestDTO.getVerbosity() != null) {
             config.setVerbosity(requestDTO.getVerbosity());
         }
-        if (requestDTO.getAvatarNumber() != null) {
-            config.setAvatarNumber(requestDTO.getAvatarNumber());
-        }
-        if (requestDTO.getFetchYoutubeProfilePicture() != null) {
-            try {
-                applyAvatarSelection(
-                        config,
-                        requestDTO.getFetchYoutubeProfilePicture(),
-                        requestDTO.getAvatarNumber(),
-                        user
-                );
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().build();
-            }
-        } else if (requestDTO.getAvatarNumber() != null) {
-            config.setAvatarSource(AvatarSource.STATIC);
-            config.setAvatarUrl(null);
+
+        try {
+            config.setAvatarUrl(getYoutubeProfilePictureUrl(user));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
 
         config = chatbotConfigRepo.save(config);
         return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config));
     }
 
-    private void applyAvatarSelection(ChatbotConfig config, Boolean fetchYoutubeProfilePicture, Integer avatarNumber, User user) {
-        if (Boolean.TRUE.equals(fetchYoutubeProfilePicture)) {
-            String avatarUrl = getYoutubeProfilePictureUrl(user);
-            if (avatarUrl == null || avatarUrl.isBlank()) {
-                throw new IllegalArgumentException("YouTube channel profile picture could not be fetched");
-            }
-            config.setAvatarSource(AvatarSource.YOUTUBE);
-            config.setAvatarUrl(avatarUrl);
-            config.setAvatarNumber(null);
-            return;
-        }
-
-        config.setAvatarSource(AvatarSource.STATIC);
-        config.setAvatarUrl(null);
-        if (avatarNumber == null) {
-            throw new IllegalArgumentException("avatarNumber is required when fetchYoutubeProfilePicture is false");
-        }
-        config.setAvatarNumber(avatarNumber);
-    }
-
     private String getYoutubeProfilePictureUrl(User user) {
         InfluencerVerification verification = influencerVerificationRepo
-                .findByUserAndStatusIn(user, java.util.List.of(VerificationStatus.VERIFIED))
+                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
                 .orElseThrow(() -> new IllegalArgumentException("No verified YouTube channel found for user"));
 
         String channelIdentifier = verification.getChannelId() != null
@@ -191,7 +153,11 @@ public class ChatbotConfigService {
             throw new IllegalArgumentException("No verified YouTube channel found for user");
         }
 
-        return youtubeClientService.getChannelProfilePictureUrl(channelIdentifier);
+        String avatarUrl = youtubeClientService.getChannelProfilePictureUrl(channelIdentifier);
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            throw new IllegalArgumentException("YouTube channel profile picture could not be fetched");
+        }
+        return avatarUrl;
     }
 
     private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config) {
@@ -208,10 +174,7 @@ public class ChatbotConfigService {
                 .verbosity(config.getVerbosity())
                 .formality(config.getFormality())
                 .fetchChannel(config.isFetchChannel())
-                .fetchYoutubeProfilePicture(config.getAvatarSource() == AvatarSource.YOUTUBE)
-                .avatarNumber(config.getAvatarNumber())
                 .avatarUrl(config.getAvatarUrl())
-                .avatarSource(config.getAvatarSource())
                 .createdAt(config.getCreatedAt())
                 .build();
     }

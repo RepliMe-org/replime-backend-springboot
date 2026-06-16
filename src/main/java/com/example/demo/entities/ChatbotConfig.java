@@ -1,6 +1,5 @@
 package com.example.demo.entities;
 
-import com.example.demo.entities.utils.AvatarSource;
 import com.example.demo.entities.utils.Formality;
 import com.example.demo.entities.utils.Tone;
 import com.example.demo.entities.utils.Verbosity;
@@ -46,12 +45,7 @@ public class ChatbotConfig {
 
     private boolean fetchChannel;
 
-    private Integer avatarNumber;
-
     private String avatarUrl;
-
-    @Enumerated(EnumType.STRING)
-    private AvatarSource avatarSource; // STATIC, YOUTUBE
 
 //    @Column(columnDefinition = "TEXT")
 //    private String systemPrompt;

@@ -3,7 +3,6 @@ package com.example.demo.services;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
-import com.example.demo.entities.utils.AvatarSource;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
@@ -94,7 +93,7 @@ public class ChatbotService {
                     ? chatbot.getConfig().getGreetingMessage()
                     : ""
             )
-            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+            .avatarUrl(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarUrl() : null)
                 .channelHandle(influencerVerification.getHandle())
                 .categoryName(chatbot.getCategory() != null ? chatbot.getCategory().getName() : null)
             .status(chatbot.getStatus())
@@ -118,10 +117,7 @@ public class ChatbotService {
                 .chatbotName(config != null ? config.getName() : "")
                 .chatbotDescription(config != null ? config.getDescription() : "")
                 .greetingMessage(config != null ? config.getGreetingMessage() : "")
-                .avatarNumber(config != null ? config.getAvatarNumber() : null)
                 .avatarUrl(config != null ? config.getAvatarUrl() : null)
-                .avatarSource(config != null ? config.getAvatarSource() : null)
-                .fetchYoutubeProfilePicture(config != null && config.getAvatarSource() == AvatarSource.YOUTUBE)
                 .talkLikeMe(config != null && config.isTalkLikeMe())
                 .tone(config != null ? config.getTone() : null)
                 .verbosity(config != null ? config.getVerbosity() : null)
@@ -139,7 +135,7 @@ public class ChatbotService {
             .id(chatbot.getId())
             .chatbotName(config != null ? config.getName() : "")
             .chatbotCategory(chatbot.getCategory() != null ? chatbot.getCategory().getName() : "")
-            .avatarNumber(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarNumber() : null)
+            .avatarUrl(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarUrl() : null)
             .numberOfIngestedVideos(trainingSourceService.getTotalNumberOfVideosOfChatbot(chatbot.getId()))
             .channelHandle(influencerVerificationRepo.findByUser(chatbot.getInfluencer()).getHandle())
             .influencerUsername(chatbot.getInfluencer().getUsername())
