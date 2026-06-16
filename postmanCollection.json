@@ -387,7 +387,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"My Chatbot\",\n  \"description\": \"A test chatbot\",\n  \"greetingMessage\": \"Hi! Welcome to my channel.\",\n  \"systemPrompt\": \"You are a helpful assistant for my audience.\",\n  \"temperature\": 0.7\n}"
+                            "raw": "{\n  \"name\": \"My Chatbot\",\n  \"description\": \"A test chatbot\",\n  \"greetingMessage\": \"Hi! Welcome to my channel.\",\n  \"talkLikeMe\": false,\n  \"tone\": \"FRIENDLY\",\n  \"verbosity\": \"BALANCED\",\n  \"formality\": \"CASUAL\",\n  \"avatarNumber\": 1,\n  \"fetchYoutubeProfilePicture\": false,\n  \"fetchChannel\": true\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/influencer/chatbot/config",
@@ -419,7 +419,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated Chatbot\",\n  \"description\": \"Updated description\",\n  \"greetingMessage\": \"Hello again!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
+                            "raw": "{\n  \"name\": \"Updated Chatbot\",\n  \"description\": \"Updated description\",\n  \"greetingMessage\": \"Hello again!\",\n  \"talkLikeMe\": false,\n  \"tone\": \"FRIENDLY\",\n  \"verbosity\": \"BALANCED\",\n  \"formality\": \"CASUAL\",\n  \"avatarNumber\": 2,\n  \"fetchYoutubeProfilePicture\": false\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/influencer/chatbot/config",
@@ -1114,7 +1114,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"Chatbot1\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"systemPrompt\": \"You are a helpful assistant.\",\n  \"temperature\": 0.7\n}"
+                            "raw": "{\n  \"name\": \"Chatbot1\",\n  \"description\": \"Created by API runner\",\n  \"greetingMessage\": \"Hello from runner!\",\n  \"talkLikeMe\": false,\n  \"tone\": \"FRIENDLY\",\n  \"verbosity\": \"BALANCED\",\n  \"formality\": \"CASUAL\",\n  \"avatarNumber\": 1,\n  \"fetchYoutubeProfilePicture\": false,\n  \"fetchChannel\": true\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/influencer/chatbot/config",
@@ -1146,7 +1146,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"Runner Chatbot Updated\",\n  \"description\": \"Updated by API runner\",\n  \"greetingMessage\": \"Welcome back!\",\n  \"systemPrompt\": \"You are an updated assistant.\",\n  \"temperature\": 0.9\n}"
+                            "raw": "{\n  \"name\": \"Runner Chatbot Updated\",\n  \"description\": \"Updated by API runner\",\n  \"greetingMessage\": \"Welcome back!\",\n  \"talkLikeMe\": false,\n  \"tone\": \"FRIENDLY\",\n  \"verbosity\": \"BALANCED\",\n  \"formality\": \"CASUAL\",\n  \"avatarNumber\": 2,\n  \"fetchYoutubeProfilePicture\": false\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/influencer/chatbot/config",
@@ -1951,6 +1951,30 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Promote User To Admin",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userEmail}}/promote",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "{{userEmail}}",
+                                "promote"
+                            ]
+                        }
+                    },
+                    "response": []
                 }
             ]
         }
@@ -1978,6 +2002,10 @@
         },
         {
             "key": "adminEmail",
+            "value": ""
+        },
+        {
+            "key": "userEmail",
             "value": ""
         },
         {

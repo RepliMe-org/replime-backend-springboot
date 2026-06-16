@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
+import com.example.demo.entities.utils.AvatarSource;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
@@ -118,6 +119,9 @@ public class ChatbotService {
                 .chatbotDescription(config != null ? config.getDescription() : "")
                 .greetingMessage(config != null ? config.getGreetingMessage() : "")
                 .avatarNumber(config != null ? config.getAvatarNumber() : null)
+                .avatarUrl(config != null ? config.getAvatarUrl() : null)
+                .avatarSource(config != null ? config.getAvatarSource() : null)
+                .fetchYoutubeProfilePicture(config != null && config.getAvatarSource() == AvatarSource.YOUTUBE)
                 .talkLikeMe(config != null && config.isTalkLikeMe())
                 .tone(config != null ? config.getTone() : null)
                 .verbosity(config != null ? config.getVerbosity() : null)

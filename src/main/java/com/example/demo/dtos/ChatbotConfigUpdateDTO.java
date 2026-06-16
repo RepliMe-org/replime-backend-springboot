@@ -25,4 +25,6 @@ public class ChatbotConfigUpdateDTO {
     private Formality formality;
 
     private Integer avatarNumber;
+
+    private Boolean fetchYoutubeProfilePicture;
 }

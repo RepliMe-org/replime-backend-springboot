@@ -4,6 +4,7 @@ import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.Formality;
 import com.example.demo.entities.utils.Tone;
 import com.example.demo.entities.utils.Verbosity;
+import com.example.demo.entities.utils.AvatarSource;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,6 +41,9 @@ public class InfluencerChatbotResponseDTO {
         private String chatbotDescription;
         private String greetingMessage;
         private Integer avatarNumber;
+        private String avatarUrl;
+        private AvatarSource avatarSource;
+        private boolean fetchYoutubeProfilePicture;
         private boolean talkLikeMe;
         private Tone tone;
         private Verbosity verbosity;

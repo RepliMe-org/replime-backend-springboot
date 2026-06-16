@@ -51,7 +51,7 @@ public class InfluencerChatbotController {
     @PostMapping("/config")
     @Operation(description = "Create and save initial chatbot configuration")
     public ResponseEntity<String> saveChatbotConfig(
-        @RequestBody ChatbotConfigRequestDTO requestDTO,
+        @Valid @RequestBody ChatbotConfigRequestDTO requestDTO,
         @RequestHeader("Authorization") String token
     ) {
         return chatbotConfigService.saveChatbotConfig(requestDTO, token);

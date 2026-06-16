@@ -31,6 +31,9 @@ public class ChatbotConfigRequestDTO {
 
     private Integer avatarNumber;
 
+    @NotNull(message = "fetchYoutubeProfilePicture is required")
+    private Boolean fetchYoutubeProfilePicture;
+
     @NotNull
     private Boolean fetchChannel;
 }
