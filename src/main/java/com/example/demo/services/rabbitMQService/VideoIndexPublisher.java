@@ -60,7 +60,7 @@ public class VideoIndexPublisher {
 
         VideoIndexMessage message = VideoIndexMessage.builder()
                 .youtubeVideoId(video.getYoutubeVideoId())
-                .video_title(video.getTitle())
+                .videoTitle(video.getTitle())
                 .chatbotId(video.getTrainingSource().getChatbot().getId().toString())
                 .trainingSourceId(video.getTrainingSource().getId())
                 .idempotencyKey(idempotencyKey)

@@ -16,7 +16,7 @@ public class VideoIndexMessage {
 
     private String chatbotId;
 
-    private String video_title;
+    private String videoTitle;
 
     private Long trainingSourceId;
 
