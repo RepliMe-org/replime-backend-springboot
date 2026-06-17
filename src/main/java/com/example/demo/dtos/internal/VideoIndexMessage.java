@@ -11,9 +11,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VideoIndexMessage {
-    private Long videoId;
 
     private String youtubeVideoId;
+
+    private String chatbotId;
+
+    private String video_title;
 
     private Long trainingSourceId;
 

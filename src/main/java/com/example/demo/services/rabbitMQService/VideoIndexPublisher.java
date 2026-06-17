@@ -59,8 +59,9 @@ public class VideoIndexPublisher {
                 + ":attempt:" + attemptNumber;
 
         VideoIndexMessage message = VideoIndexMessage.builder()
-                .videoId(video.getId())
                 .youtubeVideoId(video.getYoutubeVideoId())
+                .video_title(video.getTitle())
+                .chatbotId(video.getTrainingSource().getChatbot().getId().toString())
                 .trainingSourceId(video.getTrainingSource().getId())
                 .idempotencyKey(idempotencyKey)
                 .attemptNumber(attemptNumber)
