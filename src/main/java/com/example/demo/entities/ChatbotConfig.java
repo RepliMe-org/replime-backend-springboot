@@ -45,8 +45,6 @@ public class ChatbotConfig {
 
     private boolean fetchChannel;
 
-    private String avatarUrl;
-
 //    @Column(columnDefinition = "TEXT")
 //    private String systemPrompt;
 

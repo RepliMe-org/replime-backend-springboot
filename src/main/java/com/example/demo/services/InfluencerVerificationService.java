@@ -65,6 +65,7 @@ public class InfluencerVerificationService {
                 // Update existing record
                 existing.setVerificationToken(newToken.getVerificationToken());
                 existing.setTokenExpirationAt(newToken.getExpirationDateAt());
+                refreshAvatarUrl(existing);
 
                 influencerVerificationRepo.save(existing);
 
@@ -90,6 +91,7 @@ public class InfluencerVerificationService {
 
         String actualChannelId = items.get(0).path("id").asText();
         String handle = items.get(0).path("snippet").path("customUrl").asText();
+        String avatarUrl = youtubeClientService.extractChannelProfilePictureUrl(items.get(0));
 
         InfluencerVerification isFoundChannel = influencerVerificationRepo.findByChannelId(actualChannelId);
         if (isFoundChannel != null){
@@ -118,6 +120,7 @@ public class InfluencerVerificationService {
                 .channelId(actualChannelId)
                 .handle(handle)
                 .channelUrl(channelUrl)
+                .avatarUrl(avatarUrl)
                 .subscriberCount(subscriberCount)
                 .verificationToken(verificationTokenAndExpiry.getVerificationToken())
                 .tokenExpirationAt(verificationTokenAndExpiry.getExpirationDateAt())
@@ -145,6 +148,20 @@ public class InfluencerVerificationService {
                 .verificationToken(verificationToken)
                 .expirationDateAt(expirationDate)
                 .build();
+    }
+
+    private void refreshAvatarUrl(InfluencerVerification verification) {
+        String channelIdentifier = verification.getChannelId() != null
+                ? verification.getChannelId()
+                : verification.getHandle();
+        if (channelIdentifier == null || channelIdentifier.isBlank()) {
+            return;
+        }
+
+        String avatarUrl = youtubeClientService.getChannelProfilePictureUrl(channelIdentifier);
+        if (avatarUrl != null && !avatarUrl.isBlank()) {
+            verification.setAvatarUrl(avatarUrl);
+        }
     }
 
     @Transactional

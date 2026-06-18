@@ -6,7 +6,6 @@ import com.example.demo.dtos.ChatbotConfigRequestDTO;
 import com.example.demo.dtos.ChatbotConfigUpdateDTO;
 import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
-import com.example.demo.entities.InfluencerVerification;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
 import com.example.demo.entities.utils.VerificationStatus;
@@ -33,9 +32,6 @@ public class ChatbotConfigService {
 
     @Autowired
     private ChatbotRepo chatbotRepo;
-
-    @Autowired
-    private YoutubeClientService youtubeClientService;
 
     @Autowired
     private InfluencerVerificationRepo influencerVerificationRepo;
@@ -83,7 +79,6 @@ public class ChatbotConfigService {
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .fetchChannel(requestDTO.getFetchChannel())
-                .avatarUrl(getYoutubeProfilePictureUrl(user))
                 .build();
         return config;
     }
@@ -131,39 +126,18 @@ public class ChatbotConfigService {
             config.setVerbosity(requestDTO.getVerbosity());
         }
 
-        try {
-            config.setAvatarUrl(getYoutubeProfilePictureUrl(user));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-
         config = chatbotConfigRepo.save(config);
-        return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config));
+        return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config, user));
     }
 
-    private String getYoutubeProfilePictureUrl(User user) {
-        InfluencerVerification verification = influencerVerificationRepo
-                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
-                .orElseThrow(() -> new IllegalArgumentException("No verified YouTube channel found for user"));
-
-        String channelIdentifier = verification.getChannelId() != null
-                ? verification.getChannelId()
-                : verification.getHandle();
-        if (channelIdentifier == null || channelIdentifier.isBlank()) {
-            throw new IllegalArgumentException("No verified YouTube channel found for user");
-        }
-
-        String avatarUrl = youtubeClientService.getChannelProfilePictureUrl(channelIdentifier);
-        if (avatarUrl == null || avatarUrl.isBlank()) {
-            throw new IllegalArgumentException("YouTube channel profile picture could not be fetched");
-        }
-        return avatarUrl;
-    }
-
-    private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config) {
+    private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config, User user) {
         if (config == null) {
             return null;
         }
+        String avatarUrl = influencerVerificationRepo
+                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
+                .map(verification -> verification.getAvatarUrl())
+                .orElse(null);
         return ChatbotConfigResponseDTO.builder()
                 .id(config.getId())
                 .name(config.getName())
@@ -174,7 +148,7 @@ public class ChatbotConfigService {
                 .verbosity(config.getVerbosity())
                 .formality(config.getFormality())
                 .fetchChannel(config.isFetchChannel())
-                .avatarUrl(config.getAvatarUrl())
+                .avatarUrl(avatarUrl)
                 .createdAt(config.getCreatedAt())
                 .build();
     }

@@ -60,7 +60,15 @@ public class YoutubeClientService {
             return null;
         }
 
-        JsonNode thumbnails = items.get(0).path("snippet").path("thumbnails");
+        return extractChannelProfilePictureUrl(items.get(0));
+    }
+
+    public String extractChannelProfilePictureUrl(JsonNode channelItem) {
+        if (channelItem == null || channelItem.isMissingNode()) {
+            return null;
+        }
+
+        JsonNode thumbnails = channelItem.path("snippet").path("thumbnails");
         if (thumbnails.has("high")) {
             return thumbnails.path("high").path("url").asText(null);
         }

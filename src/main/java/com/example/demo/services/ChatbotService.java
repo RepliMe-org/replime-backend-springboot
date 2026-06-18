@@ -93,8 +93,8 @@ public class ChatbotService {
                     ? chatbot.getConfig().getGreetingMessage()
                     : ""
             )
-            .avatarUrl(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarUrl() : null)
-                .channelHandle(influencerVerification.getHandle())
+            .avatarUrl(influencerVerification != null ? influencerVerification.getAvatarUrl() : null)
+                .channelHandle(influencerVerification != null ? influencerVerification.getHandle() : null)
                 .categoryName(chatbot.getCategory() != null ? chatbot.getCategory().getName() : null)
             .status(chatbot.getStatus())
             .build();
@@ -104,6 +104,7 @@ public class ChatbotService {
         Chatbot chatbot
     ) {
         ChatbotConfig config = chatbot.getConfig();
+        InfluencerVerification influencerVerification = influencerVerificationRepo.findByUser(chatbot.getInfluencer());
         return InfluencerChatbotResponseDTO.builder()
             .chatbotInfo(InfluencerChatbotResponseDTO.ChatbotInfo.builder()
                 .id(chatbot.getId())
@@ -117,7 +118,7 @@ public class ChatbotService {
                 .chatbotName(config != null ? config.getName() : "")
                 .chatbotDescription(config != null ? config.getDescription() : "")
                 .greetingMessage(config != null ? config.getGreetingMessage() : "")
-                .avatarUrl(config != null ? config.getAvatarUrl() : null)
+                .avatarUrl(influencerVerification != null ? influencerVerification.getAvatarUrl() : null)
                 .talkLikeMe(config != null && config.isTalkLikeMe())
                 .tone(config != null ? config.getTone() : null)
                 .verbosity(config != null ? config.getVerbosity() : null)
@@ -131,13 +132,14 @@ public class ChatbotService {
         Chatbot chatbot
     ) {
         ChatbotConfig config = chatbot.getConfig();
+        InfluencerVerification influencerVerification = influencerVerificationRepo.findByUser(chatbot.getInfluencer());
         return AdminChatbotResponseDTO.builder()
             .id(chatbot.getId())
             .chatbotName(config != null ? config.getName() : "")
             .chatbotCategory(chatbot.getCategory() != null ? chatbot.getCategory().getName() : "")
-            .avatarUrl(chatbot.getConfig() != null ? chatbot.getConfig().getAvatarUrl() : null)
+            .avatarUrl(influencerVerification != null ? influencerVerification.getAvatarUrl() : null)
             .numberOfIngestedVideos(trainingSourceService.getTotalNumberOfVideosOfChatbot(chatbot.getId()))
-            .channelHandle(influencerVerificationRepo.findByUser(chatbot.getInfluencer()).getHandle())
+            .channelHandle(influencerVerification != null ? influencerVerification.getHandle() : null)
             .influencerUsername(chatbot.getInfluencer().getUsername())
             .chatbotDescription(config != null ? config.getDescription() : "")
             .greetingMessage(config != null ? config.getGreetingMessage() : "")
