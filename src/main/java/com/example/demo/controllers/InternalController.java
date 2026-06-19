@@ -33,7 +33,7 @@ public class InternalController {
         messagingTemplate.convertAndSend("/topic/test", "HELLO");
     }
 
-    @PutMapping("messages/{messageId}")
+    @PutMapping("/messages/{messageId}")
     public ResponseEntity<MessageDto> updateMessageClasses(
             @PathVariable Long messageId,
             @RequestBody Long messageClassId
