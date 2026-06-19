@@ -14,4 +14,6 @@ public interface ChatbotRepo extends JpaRepository<Chatbot, UUID> {
     Chatbot findByInfluencerId(Long id);
 
     boolean existsByCategoryId(Long categoryId);
+
+    long countByCategoryId(Long categoryId);
 }

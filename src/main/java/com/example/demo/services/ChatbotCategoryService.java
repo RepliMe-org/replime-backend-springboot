@@ -48,6 +48,7 @@ public class ChatbotCategoryService {
             ChatbotCategoryResponseDTO categoryDTO = ChatbotCategoryResponseDTO.builder()
                     .id(category.getId())
                     .name(category.getName())
+                    .chatbotCount(Math.toIntExact(chatbotRepo.countByCategoryId(category.getId())))
                     .build();
             chatbotCategoryDTOs.add(categoryDTO);
         }
