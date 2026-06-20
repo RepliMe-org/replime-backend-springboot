@@ -8,13 +8,16 @@ import com.example.demo.entities.Chatbot;
 import com.example.demo.entities.ChatbotConfig;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
+import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
+import com.example.demo.repos.InfluencerVerificationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ChatbotConfigService {
@@ -30,6 +33,9 @@ public class ChatbotConfigService {
     @Autowired
     private ChatbotRepo chatbotRepo;
 
+    @Autowired
+    private InfluencerVerificationRepo influencerVerificationRepo;
+
     public ResponseEntity<String> saveChatbotConfig(ChatbotConfigRequestDTO requestDTO, String token) {
         User user = jwtService.extractUser(token);
         Chatbot chatbot = chatbotRepo.findByInfluencerId(user.getId());
@@ -39,25 +45,30 @@ public class ChatbotConfigService {
         if (chatbot.getConfig() != null) {
             return ResponseEntity.badRequest().body("Chatbot config already exists");
         }
-        ChatbotConfig config = mapToChatbotConfig(requestDTO, chatbot);
+        ChatbotConfig config;
+        try {
+            config = mapToChatbotConfig(requestDTO, chatbot, user);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
         chatbotConfigRepo.save(config);
         chatbot.setConfig(config);
         chatbot.setStatus(ChatbotStatus.TRAINING);
         chatbotRepo.save(chatbot);
 
-        if (requestDTO.getFetchChannel()) {
+        if (Boolean.TRUE.equals(requestDTO.getFetchChannel())) {
             chatbotService.fetchChannelVideosToChatbot(chatbot,user);
         }
         return ResponseEntity.ok("Chatbot config saved successfully");
     }
 
 
-    private ChatbotConfig mapToChatbotConfig(ChatbotConfigRequestDTO requestDTO, Chatbot chatbot) {
+    private ChatbotConfig mapToChatbotConfig(ChatbotConfigRequestDTO requestDTO, Chatbot chatbot, User user) {
         if (requestDTO == null) {
             return null;
         }
 
-        return ChatbotConfig.builder()
+        ChatbotConfig config = ChatbotConfig.builder()
                 .chatbot(chatbot)
                 .name(requestDTO.getName())
                 .description(requestDTO.getDescription())
@@ -68,8 +79,8 @@ public class ChatbotConfigService {
                 .formality(requestDTO.getFormality())
                 .createdAt(LocalDateTime.now())
                 .fetchChannel(requestDTO.getFetchChannel())
-                .avatarNumber(requestDTO.getAvatarNumber())
                 .build();
+        return config;
     }
 
     public ResponseEntity<ChatbotConfigResponseDTO> updateChatbotConfig(ChatbotConfigUpdateDTO requestDTO, String token) {
@@ -114,18 +125,19 @@ public class ChatbotConfigService {
         if (requestDTO.getVerbosity() != null) {
             config.setVerbosity(requestDTO.getVerbosity());
         }
-        if (requestDTO.getAvatarNumber() != null) {
-            config.setAvatarNumber(requestDTO.getAvatarNumber());
-        }
 
         config = chatbotConfigRepo.save(config);
-        return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config));
+        return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config, user));
     }
 
-    private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config) {
+    private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config, User user) {
         if (config == null) {
             return null;
         }
+        String avatarUrl = influencerVerificationRepo
+                .findByUserAndStatusIn(user, List.of(VerificationStatus.VERIFIED))
+                .map(verification -> verification.getAvatarUrl())
+                .orElse(null);
         return ChatbotConfigResponseDTO.builder()
                 .id(config.getId())
                 .name(config.getName())
@@ -136,7 +148,7 @@ public class ChatbotConfigService {
                 .verbosity(config.getVerbosity())
                 .formality(config.getFormality())
                 .fetchChannel(config.isFetchChannel())
-                .avatarNumber(config.getAvatarNumber())
+                .avatarUrl(avatarUrl)
                 .createdAt(config.getCreatedAt())
                 .build();
     }

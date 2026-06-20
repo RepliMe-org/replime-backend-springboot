@@ -4,7 +4,6 @@ import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.utils.Formality;
 import com.example.demo.entities.utils.Tone;
 import com.example.demo.entities.utils.Verbosity;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +38,7 @@ public class InfluencerChatbotResponseDTO {
         private String chatbotName;
         private String chatbotDescription;
         private String greetingMessage;
-        private Integer avatarNumber;
+        private String avatarUrl;
         private boolean talkLikeMe;
         private Tone tone;
         private Verbosity verbosity;

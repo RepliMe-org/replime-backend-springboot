@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.UpdateVideoStatusRequestDTO;
+import com.example.demo.dtos.internal.UpdateVideoStatusRequestDTO;
 import com.example.demo.dtos.utils.MessageDto;
 import com.example.demo.services.MessageService;
 import com.example.demo.services.VideoService;
@@ -23,7 +23,7 @@ public class InternalController {
     @PatchMapping("/update-video-status/{videoId}")
     public ResponseEntity<String> updateVideoStatus(
             @PathVariable String videoId, @RequestBody UpdateVideoStatusRequestDTO request) {
-        System.out.println(" ingest video error: "+request.getError());
+        System.out.println(" ingest video error: "+request.getFailureReason());
         videoService.updateVideoStatus(videoId,request);
         return ResponseEntity.ok("Video status updated successfully");
     }
@@ -33,7 +33,7 @@ public class InternalController {
         messagingTemplate.convertAndSend("/topic/test", "HELLO");
     }
 
-    @PutMapping("messages/{messageId}")
+    @PutMapping("/messages/{messageId}")
     public ResponseEntity<MessageDto> updateMessageClasses(
             @PathVariable Long messageId,
             @RequestBody Long messageClassId

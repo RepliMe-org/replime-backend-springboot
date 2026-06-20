@@ -1,4 +1,4 @@
-package com.example.demo.dtos;
+package com.example.demo.dtos.internal;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,5 +9,8 @@ import lombok.Setter;
 public class UpdateVideoStatusRequestDTO {
     @NotNull
     private String status;
-    private String error;
+    private String failedStage;
+    private String failureReason;
+    private Boolean retryable;
+    private Integer attemptsMade;
 }

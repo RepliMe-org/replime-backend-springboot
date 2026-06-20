@@ -24,7 +24,6 @@ public class ChatbotConfigResponseDTO {
     private Verbosity verbosity;
     private Formality formality;
     private boolean fetchChannel;
-    private Integer avatarNumber;
+    private String avatarUrl;
     private LocalDateTime createdAt;
 }
-

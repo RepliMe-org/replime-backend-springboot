@@ -51,7 +51,7 @@ public class InfluencerChatbotController {
     @PostMapping("/config")
     @Operation(description = "Create and save initial chatbot configuration")
     public ResponseEntity<String> saveChatbotConfig(
-        @RequestBody ChatbotConfigRequestDTO requestDTO,
+        @Valid @RequestBody ChatbotConfigRequestDTO requestDTO,
         @RequestHeader("Authorization") String token
     ) {
         return chatbotConfigService.saveChatbotConfig(requestDTO, token);
@@ -164,6 +164,15 @@ public class InfluencerChatbotController {
     ){
         chatbotService.deleteVideoFromChatbot(youtubeVideoId, token);
         return ResponseEntity.ok("Video removed successfully");
+    }
+
+    @PostMapping("/videos/{videoId}/retry")
+    @Operation(description = "Retry a failed or dead video ingestion")
+    public ResponseEntity<VideoResponseDTO> retryVideo(
+            @PathVariable Long videoId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return ResponseEntity.ok(chatbotService.retryVideo(videoId, token));
     }
 
     @GetMapping("/videos")

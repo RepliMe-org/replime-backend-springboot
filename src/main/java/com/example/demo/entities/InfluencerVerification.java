@@ -30,6 +30,8 @@ public class InfluencerVerification {
 
     private String channelUrl;
 
+    private String avatarUrl;
+
     private long subscriberCount;
 
     private String verificationToken;

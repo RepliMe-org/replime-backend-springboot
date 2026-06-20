@@ -29,8 +29,6 @@ public class ChatbotConfigRequestDTO {
 
     private Formality formality;
 
-    private Integer avatarNumber;
-
     @NotNull
     private Boolean fetchChannel;
 }

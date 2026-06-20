@@ -53,6 +53,34 @@ public class YoutubeClientService {
         }
     }
 
+    public String getChannelProfilePictureUrl(String identifier) {
+        JsonNode channelData = getChannelData(identifier);
+        JsonNode items = channelData.path("items");
+        if (!items.isArray() || items.isEmpty()) {
+            return null;
+        }
+
+        return extractChannelProfilePictureUrl(items.get(0));
+    }
+
+    public String extractChannelProfilePictureUrl(JsonNode channelItem) {
+        if (channelItem == null || channelItem.isMissingNode()) {
+            return null;
+        }
+
+        JsonNode thumbnails = channelItem.path("snippet").path("thumbnails");
+        if (thumbnails.has("high")) {
+            return thumbnails.path("high").path("url").asText(null);
+        }
+        if (thumbnails.has("medium")) {
+            return thumbnails.path("medium").path("url").asText(null);
+        }
+        if (thumbnails.has("default")) {
+            return thumbnails.path("default").path("url").asText(null);
+        }
+        return null;
+    }
+
     public String extractChannelId(String url) {
 
         url = url.trim();

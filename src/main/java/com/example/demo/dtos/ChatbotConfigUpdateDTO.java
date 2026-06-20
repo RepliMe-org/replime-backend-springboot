@@ -23,6 +23,4 @@ public class ChatbotConfigUpdateDTO {
     private Verbosity verbosity;
 
     private Formality formality;
-
-    private Integer avatarNumber;
 }

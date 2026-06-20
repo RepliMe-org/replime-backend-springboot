@@ -22,8 +22,8 @@ public class AdminChatbotResponseDTO {
     @NotNull
     private String chatbotCategory;
 
-    @NotNull
-    private Integer avatarNumber;
+    private String avatarUrl;
+
 
     @NotNull
     private int numberOfIngestedVideos;
