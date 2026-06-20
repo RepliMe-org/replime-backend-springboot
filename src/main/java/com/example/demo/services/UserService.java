@@ -37,7 +37,7 @@ public class UserService {
                     .username(user.getUsername())
                     .email(user.getEmail())
                     .role(user.getRole())
-                    .chatbotName(chatbot != null ? chatbot.getConfig().getName() : null)
+                    .chatbotName(chatbot != null && chatbot.getConfig() != null ? chatbot.getConfig().getName() : null)
                     .conversationsCount(sessionCount)
                     .build();
             userDTOs.add(userDTO);

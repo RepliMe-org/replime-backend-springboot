@@ -20,7 +20,6 @@ public class UserController {
     @Autowired
     private  UserService userService;
 
-    //TODO: get all users
     @GetMapping
     public List<UserInfoResponseDTO> getUsers(
     ){
