@@ -55,6 +55,8 @@ public class BotQueryRequestDTO {
         @JsonProperty("chatbot_name")
         private String chatbotName;
 
+        private String description;
+
         @JsonProperty("talk_like_me")
         private Boolean talkLikeMe;
 

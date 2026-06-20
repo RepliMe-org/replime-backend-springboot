@@ -605,6 +605,123 @@
             ]
         },
         {
+            "name": "Influencer Chatbot Analytics",
+            "item": [
+                {
+                    "name": "Generate Analytics Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Example Response",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": 1,\n  \"generatedAt\": \"2026-06-20T18:00:00\",\n  \"classificationBreakdown\": [\n    { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 42, \"percentage\": 70.0 },\n    { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 16.67 },\n    { \"messageClass\": \"UNCLASSIFIED\", \"count\": 8, \"percentage\": 13.33 }\n  ],\n  \"mostAskedClusters\": [\n    { \"cluster\": \"video editing tips\", \"count\": 15 },\n    { \"cluster\": \"camera gear recommendations\", \"count\": 12 }\n  ],\n  \"executiveSummary\": \"Users are most interested in video editing and gear topics. 78% of content questions were answered with cited sources. Consider adding more videos about color grading.\",\n  \"contentGaps\": [\n    { \"topic\": \"color grading tutorials\", \"frequency\": 8 },\n    { \"topic\": \"audio setup guides\", \"frequency\": 5 }\n  ],\n  \"mostCitedVideos\": [\n    { \"videoId\": \"dQw4w9WgXcQ\", \"title\": \"My Best Editing Tutorial\", \"count\": 22 },\n    { \"videoId\": \"abc123XYZ\", \"title\": \"Camera Gear 2024\", \"count\": 14 }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get All Analytics Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Example Response",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "[\n  {\n    \"id\": 2,\n    \"generatedAt\": \"2026-06-20T18:00:00\",\n    \"classificationBreakdown\": [\n      { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 42, \"percentage\": 70.0 },\n      { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 16.67 }\n    ],\n    \"mostAskedClusters\": [ { \"cluster\": \"video editing tips\", \"count\": 15 } ],\n    \"executiveSummary\": \"Users are most interested in video editing topics.\",\n    \"contentGaps\": [ { \"topic\": \"color grading tutorials\", \"frequency\": 8 } ],\n    \"mostCitedVideos\": [ { \"videoId\": \"dQw4w9WgXcQ\", \"title\": \"My Best Editing Tutorial\", \"count\": 22 } ]\n  },\n  {\n    \"id\": 1,\n    \"generatedAt\": \"2026-06-19T10:00:00\",\n    \"classificationBreakdown\": [\n      { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 30, \"percentage\": 75.0 }\n    ],\n    \"mostAskedClusters\": [],\n    \"executiveSummary\": \"Early report — limited data.\",\n    \"contentGaps\": [],\n    \"mostCitedVideos\": []\n  }\n]"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Latest Analytics Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/latest",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "latest"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Example Response",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"id\": 2,\n  \"generatedAt\": \"2026-06-20T18:00:00\",\n  \"classificationBreakdown\": [\n    { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 42, \"percentage\": 70.0 },\n    { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 16.67 },\n    { \"messageClass\": \"UNCLASSIFIED\", \"count\": 8, \"percentage\": 13.33 }\n  ],\n  \"mostAskedClusters\": [\n    { \"cluster\": \"video editing tips\", \"count\": 15 },\n    { \"cluster\": \"camera gear recommendations\", \"count\": 12 }\n  ],\n  \"executiveSummary\": \"Users are most interested in video editing and gear topics. 78% of content questions were answered with cited sources.\",\n  \"contentGaps\": [\n    { \"topic\": \"color grading tutorials\", \"frequency\": 8 }\n  ],\n  \"mostCitedVideos\": [\n    { \"videoId\": \"dQw4w9WgXcQ\", \"title\": \"My Best Editing Tutorial\", \"count\": 22 }\n  ]\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Chatbot Category",
             "item": [
                 {
@@ -1525,6 +1642,115 @@
                     "response": []
                 },
                 {
+                    "name": "23) Generate Analytics Report (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('generate analytics report success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "if (data && data.id) pm.collectionVariables.set('analyticsReportId', data.id);"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "23.1) Get All Analytics Reports (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get analytics reports success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "pm.test('response is array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "23.2) Get Latest Analytics Report (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get latest analytics report success', function () { pm.expect(pm.response.code).to.equal(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/latest",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "latest"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "24) Delete Chatbot Category (Admin)",
                     "request": {
                         "method": "DELETE",
@@ -1844,10 +2070,42 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"status\": \"PROCESSED\"\n}"
+                            "raw": "{\n  \"status\": \"COMPLETED\",\n  \"description\": \"Welcome to my channel! I make videos about tech, coding, and productivity. REPLIME_TOKEN_abc123\",\n  \"failedStage\": null,\n  \"failureReason\": null,\n  \"retryable\": null,\n  \"attemptsMade\": 1\n}"
                         }
                     },
-                    "response": []
+                    "response": [
+                        {
+                            "name": "COMPLETED with description (token stripped)",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [],
+                            "body": ""
+                        },
+                        {
+                            "name": "FAILED example",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [],
+                            "body": "",
+                            "_postman_previewlanguage": "text",
+                            "originalRequest": {
+                                "method": "PATCH",
+                                "header": [
+                                    { "key": "Content-Type", "value": "application/json" },
+                                    { "key": "X-Internal-Token", "value": "{{X_INTERNAL_TOKEN}}" }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"status\": \"FAILED\",\n  \"failedStage\": \"TRANSCRIPT_EXTRACTION\",\n  \"failureReason\": \"YouTube transcript unavailable\",\n  \"retryable\": true,\n  \"attemptsMade\": 1\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/internal/update-video-status/{{videoId}}",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["internal", "update-video-status", "{{videoId}}"]
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "Test WebSocket",
@@ -2032,6 +2290,10 @@
             "key": "influencer_token",
             "value": "",
             "type": "string"
+        },
+        {
+            "key": "analyticsReportId",
+            "value": ""
         }
     ]
 }

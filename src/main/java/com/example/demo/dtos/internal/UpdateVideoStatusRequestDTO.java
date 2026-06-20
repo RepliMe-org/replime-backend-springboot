@@ -13,4 +13,5 @@ public class UpdateVideoStatusRequestDTO {
     private String failureReason;
     private Boolean retryable;
     private Integer attemptsMade;
+    private String description;
 }

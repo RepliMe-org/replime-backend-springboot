@@ -16,6 +16,7 @@ import com.example.demo.entities.MessageSource;
 import com.example.demo.entities.User;
 import com.example.demo.entities.Video;
 import com.example.demo.entities.utils.ChatSessionStatus;
+import com.example.demo.entities.utils.MessageIntent;
 import com.example.demo.entities.utils.MessageSender;
 import com.example.demo.entities.MessageClass;
 import com.example.demo.exceptions.AuthenticationException;
@@ -25,6 +26,7 @@ import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.VideoRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ import java.util.List;
 import com.example.demo.dtos.utils.CursorData;
 
 @Service
+@Slf4j
 public class ChatSessionService {
 
     @Autowired
@@ -225,6 +228,10 @@ public class ChatSessionService {
         List<MessageSource> messageSources = buildMessageSources(botQueryResponseDTO.getSources(), response);
         response.getSources().addAll(messageSources);
 
+        message.setIntent(parseIntent(botQueryResponseDTO.getIntent()));
+        message.setAnsweredWithSources(
+                botQueryResponseDTO.getSources() != null && !botQueryResponseDTO.getSources().isEmpty());
+
         messages.add(message);
         messages.add(response);
         chatSession.setMessages(messages);
@@ -264,6 +271,7 @@ public class ChatSessionService {
                 .config(
                         BotQueryRequestDTO.ConfigDTO.builder()
                                 .chatbotName(chatSession.getChatbot().getConfig().getName())
+                                .description(chatSession.getChatbot().getConfig().getDescription())
                                 .talkLikeMe(chatSession.getChatbot().getConfig().isTalkLikeMe())
                                 .tone(chatSession.getChatbot().getConfig().getTone() != null
                                         ? chatSession.getChatbot().getConfig().getTone().name()
@@ -279,6 +287,16 @@ public class ChatSessionService {
                 .build();
     }
 
+
+    private MessageIntent parseIntent(String intent) {
+        if (intent == null || intent.isBlank()) return null;
+        try {
+            return MessageIntent.valueOf(intent.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.warn("Unknown message intent value from AI server: {}", intent);
+            return null;
+        }
+    }
 
     private List<MessageSource> buildMessageSources(
             List<BotQueryResponseDTO.SourceDTO> sources, Message botMessage) {

@@ -16,6 +16,9 @@ public class VideoIndexRequestDTO {
     @JsonProperty("chatbot_id")
     private String chatbotId;
 
+    @JsonProperty("description")
+    private String description;
+
     @JsonProperty("videos")
     private List<VideoItem> videos;
 
