@@ -31,6 +31,8 @@ public class AnalyticsReport {
     @Column(nullable = false)
     private LocalDateTime generatedAt;
 
+    private int contentGapCount;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<ClassificationCount> classificationBreakdown;

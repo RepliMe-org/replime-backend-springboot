@@ -271,7 +271,7 @@ public class ChatSessionService {
                 .config(
                         BotQueryRequestDTO.ConfigDTO.builder()
                                 .chatbotName(chatSession.getChatbot().getConfig().getName())
-                                .description(chatSession.getChatbot().getConfig().getDescription())
+                                .description(chatSession.getChatbot().getConfig().getAiGeneratedDescription())
                                 .talkLikeMe(chatSession.getChatbot().getConfig().isTalkLikeMe())
                                 .tone(chatSession.getChatbot().getConfig().getTone() != null
                                         ? chatSession.getChatbot().getConfig().getTone().name()

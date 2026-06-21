@@ -20,13 +20,15 @@ public class AnalyticsReportResponseDTO {
 
     private LocalDateTime generatedAt;
 
+    private List<LocalDateTime> generatedAtHistory;
+
+    private List<Integer> contentGapCountHistory;
+
     private List<AnalyticsReport.ClassificationCount> classificationBreakdown;
 
     private JsonNode mostAskedClusters;
 
     private String executiveSummary;
-
-    private JsonNode contentGaps;
 
     private List<AnalyticsReport.CitedVideo> mostCitedVideos;
 }

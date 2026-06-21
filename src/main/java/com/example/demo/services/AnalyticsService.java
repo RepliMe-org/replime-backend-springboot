@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.AnalyticsReportResponseDTO;
+import com.example.demo.dtos.ContentGapResponseDTO;
 import com.example.demo.dtos.internal.AnalyticsProcessRequestDTO;
 import com.example.demo.dtos.internal.AnalyticsProcessResponseDTO;
 import com.example.demo.entities.AnalyticsReport;
@@ -11,6 +12,7 @@ import com.example.demo.entities.User;
 import com.example.demo.entities.utils.MessageIntent;
 import com.example.demo.entities.utils.MessageSender;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.exceptions.TooManyRequestsException;
 import com.example.demo.repos.AnalyticsReportRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.MessageRepo;
@@ -31,6 +33,9 @@ import java.util.UUID;
 @Slf4j
 public class AnalyticsService {
 
+    private static final long COOLDOWN_MINUTES = 1;
+    private static final LocalDateTime EPOCH = LocalDateTime.of(2000, 1, 1, 0, 0);
+
     private final AnalyticsReportRepo analyticsReportRepo;
     private final ChatbotRepo chatbotRepo;
     private final MessageRepo messageRepo;
@@ -42,17 +47,35 @@ public class AnalyticsService {
         Chatbot chatbot = resolveChatbot(token);
         UUID chatbotId = chatbot.getId();
 
-        List<Message> contentQuestions = messageRepo.findByChatbotAndSenderAndIntent(
+        AnalyticsReport previous = analyticsReportRepo
+                .findFirstByChatbotIdOrderByGeneratedAtDesc(chatbotId)
+                .orElse(null);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (previous != null) {
+            LocalDateTime nextAvailableAt = previous.getGeneratedAt().plusMinutes(COOLDOWN_MINUTES);
+            if (now.isBefore(nextAvailableAt)) {
+                throw new TooManyRequestsException(
+                        "Analytics can only be generated once every " + COOLDOWN_MINUTES + " minute(s)",
+                        nextAvailableAt);
+            }
+        }
+
+        LocalDateTime since = previous != null ? previous.getGeneratedAt() : EPOCH;
+
+        // Cumulative: all-time data for stable proportions
+        List<Message> allContentQuestions = messageRepo.findByChatbotAndSenderAndIntent(
                 chatbotId, MessageSender.USER, MessageIntent.CONTENT_QUESTION);
-
         List<AnalyticsReport.ClassificationCount> classificationBreakdown =
-                computeClassificationBreakdown(contentQuestions);
+                computeClassificationBreakdown(allContentQuestions);
+        List<AnalyticsReport.CitedVideo> mostCitedVideos = computeMostCitedVideos(chatbotId);
 
-        List<AnalyticsReport.CitedVideo> mostCitedVideos =
-                computeMostCitedVideos(chatbotId);
-
+        // Incremental: only messages since last report for actionable insights
+        List<Message> recentQuestions = messageRepo.findByChatbotAndSenderAndIntentSince(
+                chatbotId, MessageSender.USER, MessageIntent.CONTENT_QUESTION, since);
         List<AnalyticsProcessRequestDTO.QuestionDTO> questions = new ArrayList<>();
-        for (Message message : contentQuestions) {
+        for (Message message : recentQuestions) {
             questions.add(AnalyticsProcessRequestDTO.QuestionDTO.builder()
                     .text(message.getContent())
                     .answeredWithSources(message.getAnsweredWithSources())
@@ -61,40 +84,57 @@ public class AnalyticsService {
 
         AnalyticsProcessRequestDTO requestDTO = AnalyticsProcessRequestDTO.builder()
                 .chatbotId(chatbotId.toString())
-                .description(chatbot.getConfig() != null ? chatbot.getConfig().getDescription() : null)
+                .description(chatbot.getConfig() != null ? chatbot.getConfig().getAiGeneratedDescription() : null)
                 .questions(questions)
                 .build();
 
         AnalyticsProcessResponseDTO aiResponse = fastApiService.processAnalytics(requestDTO);
 
+        int contentGapCount = aiResponse != null && aiResponse.getContentGaps() != null
+                ? aiResponse.getContentGaps().size() : 0;
+
         AnalyticsReport report = AnalyticsReport.builder()
                 .chatbot(chatbot)
-                .generatedAt(LocalDateTime.now())
+                .generatedAt(now)
                 .classificationBreakdown(classificationBreakdown)
                 .mostAskedClusters(aiResponse != null ? aiResponse.getMostAskedClusters() : null)
                 .executiveSummary(aiResponse != null ? aiResponse.getExecutiveSummary() : null)
                 .contentGaps(aiResponse != null ? aiResponse.getContentGaps() : null)
+                .contentGapCount(contentGapCount)
                 .mostCitedVideos(mostCitedVideos)
                 .build();
 
         analyticsReportRepo.save(report);
 
-        return mapToResponseDTO(report);
-    }
-
-    public List<AnalyticsReportResponseDTO> getReports(String token) {
-        UUID chatbotId = resolveChatbot(token).getId();
-        return analyticsReportRepo.findByChatbotIdOrderByGeneratedAtDesc(chatbotId)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        return mapToResponseDTO(report, getHistory(chatbotId));
     }
 
     public AnalyticsReportResponseDTO getLatestReport(String token) {
         UUID chatbotId = resolveChatbot(token).getId();
-        return analyticsReportRepo.findFirstByChatbotIdOrderByGeneratedAtDesc(chatbotId)
-                .map(this::mapToResponseDTO)
+        AnalyticsReport report = analyticsReportRepo
+                .findFirstByChatbotIdOrderByGeneratedAtDesc(chatbotId)
                 .orElse(null);
+        if (report == null) return null;
+        return mapToResponseDTO(report, getHistory(chatbotId));
+    }
+
+    public AnalyticsReportResponseDTO getReportByGeneratedAt(String token, LocalDateTime generatedAt) {
+        UUID chatbotId = resolveChatbot(token).getId();
+        AnalyticsReport report = analyticsReportRepo
+                .findByChatbotIdAndGeneratedAt(chatbotId, generatedAt)
+                .orElseThrow(() -> new ResourceNotFoundException("No analytics report found for the given timestamp"));
+        return mapToResponseDTO(report, getHistory(chatbotId));
+    }
+
+    public ContentGapResponseDTO getContentGaps(String token, LocalDateTime generatedAt) {
+        UUID chatbotId = resolveChatbot(token).getId();
+        AnalyticsReport report = analyticsReportRepo
+                .findByChatbotIdAndGeneratedAt(chatbotId, generatedAt)
+                .orElseThrow(() -> new ResourceNotFoundException("No analytics report found for the given timestamp"));
+        return ContentGapResponseDTO.builder()
+                .generatedAt(report.getGeneratedAt())
+                .contentGaps(report.getContentGaps())
+                .build();
     }
 
     private Chatbot resolveChatbot(String token) {
@@ -106,6 +146,29 @@ public class AnalyticsService {
         return chatbot;
     }
 
+    private List<Object[]> getHistory(UUID chatbotId) {
+        return analyticsReportRepo.findHistoryByChatbotId(chatbotId);
+    }
+
+    private AnalyticsReportResponseDTO mapToResponseDTO(AnalyticsReport report, List<Object[]> history) {
+        List<LocalDateTime> generatedAtHistory = history.stream()
+                .map(row -> (LocalDateTime) row[0])
+                .toList();
+        List<Integer> contentGapCountHistory = history.stream()
+                .map(row -> ((Number) row[1]).intValue())
+                .toList();
+        return AnalyticsReportResponseDTO.builder()
+                .id(report.getId())
+                .generatedAt(report.getGeneratedAt())
+                .generatedAtHistory(generatedAtHistory)
+                .contentGapCountHistory(contentGapCountHistory)
+                .classificationBreakdown(report.getClassificationBreakdown())
+                .mostAskedClusters(report.getMostAskedClusters())
+                .executiveSummary(report.getExecutiveSummary())
+                .mostCitedVideos(report.getMostCitedVideos())
+                .build();
+    }
+
     private List<AnalyticsReport.ClassificationCount> computeClassificationBreakdown(List<Message> messages) {
         Map<String, Long> counts = new LinkedHashMap<>();
         for (Message message : messages) {
@@ -114,7 +177,6 @@ public class AnalyticsService {
                     : "UNCLASSIFIED";
             counts.merge(key, 1L, Long::sum);
         }
-
         long total = messages.size();
         List<AnalyticsReport.ClassificationCount> breakdown = new ArrayList<>();
         for (Map.Entry<String, Long> entry : counts.entrySet()) {
@@ -140,17 +202,5 @@ public class AnalyticsService {
                     .build());
         }
         return citedVideos;
-    }
-
-    private AnalyticsReportResponseDTO mapToResponseDTO(AnalyticsReport report) {
-        return AnalyticsReportResponseDTO.builder()
-                .id(report.getId())
-                .generatedAt(report.getGeneratedAt())
-                .classificationBreakdown(report.getClassificationBreakdown())
-                .mostAskedClusters(report.getMostAskedClusters())
-                .executiveSummary(report.getExecutiveSummary())
-                .contentGaps(report.getContentGaps())
-                .mostCitedVideos(report.getMostCitedVideos())
-                .build();
     }
 }

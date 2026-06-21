@@ -18,8 +18,6 @@ public class VideoIndexMessage {
 
     private String videoTitle;
 
-    private String description;
-
     private Long trainingSourceId;
 
     /**

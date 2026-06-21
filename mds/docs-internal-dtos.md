@@ -15,6 +15,7 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
 | `youtubeVideoId` | `String` | |
 | `chatbotId` | `String` | |
 | `videoTitle` | `String` | |
+| `description` | `String` | Chatbot config description at time of indexing |
 | `trainingSourceId` | `Long` | |
 | `idempotencyKey` | `String` | Format: `video:{id}:attempt:{n}` |
 | `attemptNumber` | `Integer` | |
@@ -27,7 +28,7 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
 | `youtubeVideoId` | `String` | |
 | `chatbotId` | `String` | |
 | `videoTitle` | `String` | |
-| `description` | `String` | **ADDED** — chatbot config description at time of indexing |
+| ~~`description`~~ | ~~`String`~~ | **REMOVED** — FastAPI now generates the description itself during ingestion; it does not need it from Spring Boot |
 | `trainingSourceId` | `Long` | |
 | `idempotencyKey` | `String` | Format: `video:{id}:attempt:{n}` |
 | `attemptNumber` | `Integer` | |
@@ -45,6 +46,7 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
 ```json
 {
   "chatbot_id": "string",
+  "description": "string",
   "videos": [
     {
       "youtube_video_id": "string",
@@ -58,7 +60,6 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
 ```json
 {
   "chatbot_id": "string",
-  "description": "string",
   "videos": [
     {
       "youtube_video_id": "string",
@@ -70,7 +71,7 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
 
 | Field | Change | Notes |
 |---|---|---|
-| `description` | **ADDED** | Chatbot config description — allows FastAPI to have context during indexing |
+| ~~`description`~~ | **REMOVED** | FastAPI generates `aiGeneratedDescription` from video content during ingestion — no input description needed |
 
 ---
 
@@ -86,25 +87,17 @@ These DTOs are in `dtos/internal/` and are used exclusively for communication be
   "failedStage": "string | null",
   "failureReason": "string | null",
   "retryable": "boolean | null",
-  "attemptsMade": "integer | null"
-}
-```
-
-### New
-```json
-{
-  "status": "string",
-  "failedStage": "string | null",
-  "failureReason": "string | null",
-  "retryable": "boolean | null",
   "attemptsMade": "integer | null",
   "description": "string | null"
 }
 ```
 
+### New
+_Shape unchanged._ Behaviour of the `description` field changed:
+
 | Field | Change | Notes |
 |---|---|---|
-| `description` | **ADDED** | YouTube channel description fetched by FastAPI. When `status = COMPLETED`, Spring Boot rewrites `ChatbotConfig.description` with this value and strips the influencer's verification token from it. If `null`, the config description is left untouched. |
+| `description` | **Behaviour changed** | FastAPI-generated description of the chatbot content. When `status = COMPLETED`, Spring Boot saves this to `ChatbotConfig.aiGeneratedDescription` (not `description`). No token stripping. The user's manually written `ChatbotConfig.description` is never touched. |
 
 **`status` values:** `COMPLETED` · `FAILED` · `DEAD`
 
@@ -121,17 +114,6 @@ Only the nested `ConfigDTO` changed; the top-level shape is unchanged.
 ```json
 {
   "chatbot_name": "string",
-  "talk_like_me": "boolean",
-  "tone": "string | null",
-  "verbosity": "string",
-  "formality": "string | null"
-}
-```
-
-### New — `ConfigDTO`
-```json
-{
-  "chatbot_name": "string",
   "description": "string",
   "talk_like_me": "boolean",
   "tone": "string | null",
@@ -140,9 +122,12 @@ Only the nested `ConfigDTO` changed; the top-level shape is unchanged.
 }
 ```
 
+### New — `ConfigDTO`
+_Shape unchanged._ Source of `description` changed:
+
 | Field | Change | Notes |
 |---|---|---|
-| `description` | **ADDED** to `config` | Chatbot config description passed on every chat request so the AI can use it as persona/context |
+| `description` | **Source changed** | Now populated from `ChatbotConfig.aiGeneratedDescription` (FastAPI-generated). Was previously populated from `ChatbotConfig.description` (user-written). Will be `null` until the first COMPLETED ingestion for this chatbot. |
 
 **Full request shape (unchanged fields shown for reference):**
 ```json
@@ -228,12 +213,12 @@ Did not exist.
 | Field | Type | Notes |
 |---|---|---|
 | `chatbotId` | `String` | UUID of the chatbot |
-| `description` | `String \| null` | Chatbot config description — context for the AI |
-| `questions` | `List<QuestionDTO>` | All USER messages with intent `CONTENT_QUESTION` |
+| `description` | `String \| null` | `ChatbotConfig.aiGeneratedDescription` — FastAPI-generated context. `null` until first COMPLETED ingestion. |
+| `questions` | `List<QuestionDTO>` | **Incremental** — only USER `CONTENT_QUESTION` messages since the previous report's `generatedAt` (or epoch `2000-01-01` for the first report). Used by FastAPI for topic clusters, executive summary, and content gaps. |
 | `questions[].text` | `String` | Message content |
 | `questions[].answeredWithSources` | `Boolean \| null` | Whether the bot replied with cited video sources |
 
-FastAPI uses this payload to compute: topic clusters, executive summary, and content gaps.
+FastAPI uses `questions` (the incremental window) to compute topic clusters, executive summary, and content gaps. Classification breakdown and most-cited videos are computed locally by Spring Boot from **all-time** data and are not sent to FastAPI.
 
 ---
 
@@ -250,7 +235,7 @@ Did not exist.
 {
   "mostAskedClusters": { },
   "executiveSummary": "string",
-  "contentGaps": { }
+  "contentGaps": [ ]
 }
 ```
 
@@ -258,6 +243,4 @@ Did not exist.
 |---|---|---|
 | `mostAskedClusters` | `JsonNode` (free-form JSON) | Topic clusters with frequency — shape defined by FastAPI |
 | `executiveSummary` | `String` | Human-readable paragraph summarising user behaviour |
-| `contentGaps` | `JsonNode` (free-form JSON) | Topics users asked about that have no matching video content — shape defined by FastAPI |
-
-These three fields are persisted as `jsonb` columns on `AnalyticsReport` and forwarded as-is to the frontend.
+| `contentGaps` | `JsonNode` (**must be a JSON array**) | Topics users asked about that have no matching video content. Spring Boot calls `.size()` on this to compute `contentGapCount` — FastAPI must always return an array (empty array `[]` if none). |

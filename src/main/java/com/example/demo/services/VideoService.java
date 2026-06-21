@@ -3,7 +3,6 @@ package com.example.demo.services;
 import com.example.demo.dtos.*;
 import com.example.demo.dtos.internal.UpdateVideoStatusRequestDTO;
 import com.example.demo.entities.Chatbot;
-import com.example.demo.entities.InfluencerVerification;
 import com.example.demo.entities.Video;
 import com.example.demo.entities.utils.*;
 import com.example.demo.exceptions.ResourceNotFoundException;
@@ -119,7 +118,6 @@ public class VideoService {
 
             VideoIndexRequestDTO videoIndexRequestDTO = VideoIndexRequestDTO.builder()
                     .chatbotId(chatbot.getId().toString())
-                    .description(chatbot.getConfig() != null ? chatbot.getConfig().getDescription() : null)
                     .videos(videoItems)
                     .build();
 
@@ -264,8 +262,7 @@ public class VideoService {
                     Chatbot chatbot = video.getTrainingSource().getChatbot();
                     var config = chatbot.getConfig();
                     if (config != null) {
-                        config.setDescription(
-                                stripVerificationToken(request.getDescription(), chatbot.getInfluencer()));
+                        config.setAiGeneratedDescription(request.getDescription());
                         chatbotRepo.save(chatbot);
                     }
                 }
@@ -360,17 +357,6 @@ public class VideoService {
             allVideosOfChatbot.addAll(videosOfSource);
         }
         return mapToVideoResponseDTO(allVideosOfChatbot);
-    }
-
-    private String stripVerificationToken(String description, User influencer) {
-        if (description == null) return null;
-        InfluencerVerification verification = influencerVerificationRepo.findByUser(influencer);
-        String token = verification != null ? verification.getVerificationToken() : null;
-        if (token == null || token.isBlank() || !description.contains(token)) return description;
-        return description.replace(token, "")
-                .replaceAll("[ \\t]+(?=\\n)", "")
-                .replaceAll("\\n{3,}", "\n\n")
-                .trim();
     }
 
     public String getThumbnailByYoutubeVideoId(String videoId) {

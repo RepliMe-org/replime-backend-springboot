@@ -86,5 +86,16 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<?> handleTooManyRequests(TooManyRequestsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "success", false,
+                        "error", ex.getMessage(),
+                        "nextAvailableAt", ex.getNextAvailableAt()
+                ));
+    }
+
 
 }
