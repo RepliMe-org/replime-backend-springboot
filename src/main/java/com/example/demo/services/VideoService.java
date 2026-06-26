@@ -33,6 +33,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class VideoService {
+
+    private static final boolean USE_DIRECT_INDEXING = false;
+
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
@@ -108,7 +111,7 @@ public class VideoService {
 
     public void indexSavedVideos(List<Video> successfullySavedVideos, Chatbot chatbot) {
         if (successfullySavedVideos.isEmpty()) return;
-        if (true) { // TODO: just toggle until all message broker concept is implemented
+        if (USE_DIRECT_INDEXING) {
             List<VideoIndexRequestDTO.VideoItem> videoItems = successfullySavedVideos.stream()
                     .map(video -> VideoIndexRequestDTO.VideoItem.builder()
                             .youtubeVideoId(video.getYoutubeVideoId())

@@ -1,10 +1,12 @@
 package com.example.demo.dtos.internal;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -12,9 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AnalyticsProcessResponseDTO {
 
-    private JsonNode mostAskedClusters;
+    private List<Map<String, Object>> mostAskedClusters;
 
     private String executiveSummary;
 
-    private JsonNode contentGaps;
+    private List<Map<String, Object>> contentGaps;
 }
