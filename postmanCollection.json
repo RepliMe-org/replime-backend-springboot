@@ -2072,6 +2072,39 @@
                     "response": []
                 },
                 {
+                    "name": "Search Sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/search?chatbotId={{chatbotId}}&query={{searchQuery}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "chatbotId",
+                                    "value": "{{chatbotId}}"
+                                },
+                                {
+                                    "key": "query",
+                                    "value": "{{searchQuery}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Send Message",
                     "request": {
                         "method": "POST",
@@ -2388,6 +2421,10 @@
         {
             "key": "chatbotId",
             "value": ""
+        },
+        {
+            "key": "searchQuery",
+            "value": "hello"
         },
         {
             "key": "categoryId",

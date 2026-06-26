@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.MessageClassResponseDTO;
+import com.example.demo.dtos.ChatSessionSearchResponseDTO;
 import com.example.demo.dtos.SendMessageResponseDTO;
 import com.example.demo.dtos.SessionListResponseDTO;
 import com.example.demo.dtos.SessionResponseDTO;
@@ -22,8 +23,10 @@ import com.example.demo.entities.MessageClass;
 import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.InvalidSourceException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.exceptions.TooManyRequestsException;
 import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.ChatbotRepo;
+import com.example.demo.repos.MessageRepo;
 import com.example.demo.repos.VideoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -42,6 +46,14 @@ import com.example.demo.dtos.utils.CursorData;
 @Service
 @Slf4j
 public class ChatSessionService {
+    private static final int MIN_SEARCH_QUERY_LENGTH = 2;
+    private static final int MAX_SEARCHES_PER_MINUTE = 20;
+
+    private static final Comparator<Message> MESSAGE_CONVERSATION_ORDER = Comparator
+            .comparing(Message::getSentAt, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(Message::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+
+    private final Map<Long, Deque<LocalDateTime>> searchRequestsByUser = new HashMap<>();
 
     @Autowired
     private ChatSessionRepo chatSessionRepo;
@@ -61,6 +73,8 @@ public class ChatSessionService {
     private VideoRepository videoRepository;
     @Autowired
     private MessageClassService messageClassService;
+    @Autowired
+    private MessageRepo messageRepo;
 
     public SessionResponseDTO createSession(UUID chatbotId, String token) {
         User user = jwtService.extractUser(token);
@@ -252,7 +266,7 @@ public class ChatSessionService {
     private BotQueryRequestDTO mapToBotQueryRequestDTO(ChatSession chatSession, Message userMessage,
             boolean isFirstMessage) {
         List<BotQueryRequestDTO.ConversationHistoryDTO> conversationHistory = new ArrayList<>();
-        List<Message> allMessages = chatSession.getMessages();
+        List<Message> allMessages = getOrderedMessages(chatSession);
         int startIndex = Math.max(0, allMessages.size() - 10);
         for (int i = startIndex; i < allMessages.size(); i++) {
             Message msg = allMessages.get(i);
@@ -316,6 +330,12 @@ public class ChatSessionService {
         return result;
     }
 
+    private List<Message> getOrderedMessages(ChatSession chatSession) {
+        List<Message> messages = new ArrayList<>(chatSession.getMessages());
+        messages.sort(MESSAGE_CONVERSATION_ORDER);
+        return messages;
+    }
+
     private MessageDto mapToMessageDto(Message message) {
         if (message == null) return null;
 
@@ -339,6 +359,7 @@ public class ChatSessionService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<MessageDto> getSessionMessages(Long sessionId, String token) {
         User user = jwtService.extractUser(token);
         ChatSession chatSession = chatSessionRepo.findById(sessionId)
@@ -347,10 +368,77 @@ public class ChatSessionService {
             throw new AuthenticationException("Unauthorized access to chat session");
         }
         List<MessageDto> messageDtos = new ArrayList<>();
-        for (Message message : chatSession.getMessages()) {
+        for (Message message : messageRepo.findBySessionIdOrderBySentAtAscIdAsc(sessionId)) {
             messageDtos.add(mapToMessageDto(message));
         }
         return messageDtos;
+    }
+
+    @Transactional(readOnly = true)
+    public ChatSessionSearchResponseDTO searchSessions(String token, UUID chatbotId, String query) {
+        User user = jwtService.extractUser(token);
+        String normalizedQuery = normalizeSearchQuery(query);
+        enforceSearchRateLimit(user.getId());
+
+        List<Message> matchingMessages = messageRepo.searchUserChatbotMessages(
+                user.getId(), chatbotId, normalizedQuery);
+
+        List<ChatSessionSearchResponseDTO.SearchMatch> matches = matchingMessages.stream()
+                .map(this::mapToSearchMatch)
+                .toList();
+
+        return ChatSessionSearchResponseDTO.builder()
+                .query(normalizedQuery)
+                .matchCount(matches.size())
+                .data(matches)
+                .build();
+    }
+
+    private String normalizeSearchQuery(String query) {
+        if (query == null || query.isBlank()) {
+            throw new InvalidSourceException("Search query cannot be empty");
+        }
+        String normalizedQuery = query.trim();
+        if (normalizedQuery.length() < MIN_SEARCH_QUERY_LENGTH) {
+            throw new InvalidSourceException(
+                    "Search query must be at least " + MIN_SEARCH_QUERY_LENGTH + " characters");
+        }
+        return normalizedQuery;
+    }
+
+    private void enforceSearchRateLimit(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime windowStart = now.minusMinutes(1);
+
+        synchronized (searchRequestsByUser) {
+            Deque<LocalDateTime> userSearches = searchRequestsByUser.computeIfAbsent(
+                    userId, ignored -> new ArrayDeque<>());
+
+            while (!userSearches.isEmpty() && !userSearches.peekFirst().isAfter(windowStart)) {
+                userSearches.removeFirst();
+            }
+
+            if (userSearches.size() >= MAX_SEARCHES_PER_MINUTE) {
+                LocalDateTime nextAvailableAt = userSearches.peekFirst().plusMinutes(1);
+                throw new TooManyRequestsException(
+                        "Search is limited to " + MAX_SEARCHES_PER_MINUTE + " request(s) per minute",
+                        nextAvailableAt);
+            }
+
+            userSearches.addLast(now);
+        }
+    }
+
+    private ChatSessionSearchResponseDTO.SearchMatch mapToSearchMatch(Message message) {
+        ChatSession session = message.getSession();
+        return ChatSessionSearchResponseDTO.SearchMatch.builder()
+                .sessionId(session.getId())
+                .sessionTitle(session.getSessionTopic())
+                .chatbotId(session.getChatbot().getId())
+                .messageId(message.getId())
+                .matchedMessage(message.getContent())
+                .sender(message.getSender())
+                .sentAt(message.getSentAt()).build();
     }
 
     public void deleteSession(String token, Long sessionId) {

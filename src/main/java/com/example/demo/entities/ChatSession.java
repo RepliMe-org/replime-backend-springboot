@@ -52,6 +52,7 @@ public class ChatSession {
     private LocalDateTime endedAt;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sentAt ASC, id ASC")
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 

@@ -16,6 +16,8 @@ import java.util.UUID;
 public interface MessageRepo extends JpaRepository<Message, Long> {
     List<Message> findByMessageClassId(Long messageClassId);
 
+    List<Message> findBySessionIdOrderBySentAtAscIdAsc(Long sessionId);
+
     @Query("""
             SELECT m FROM Message m
             WHERE m.session.chatbot.id = :chatbotId
@@ -39,4 +41,24 @@ public interface MessageRepo extends JpaRepository<Message, Long> {
             @Param("sender") MessageSender sender,
             @Param("intent") MessageIntent intent,
             @Param("since") LocalDateTime since);
+
+    @Query(value = """
+            SELECT m.*
+            FROM message m
+            JOIN chat_session s ON s.id = m.session_id
+            WHERE s.user_id = :userId
+              AND s.chatbot_id = :chatbotId
+              AND s.status != 'DELETED'
+              AND to_tsvector('simple', coalesce(m.content, '')) @@ plainto_tsquery('simple', :query)
+            ORDER BY ts_rank_cd(
+                    to_tsvector('simple', coalesce(m.content, '')),
+                    plainto_tsquery('simple', :query)
+                ) DESC,
+                m.sent_at DESC,
+                m.id DESC
+            """, nativeQuery = true)
+    List<Message> searchUserChatbotMessages(
+            @Param("userId") Long userId,
+            @Param("chatbotId") UUID chatbotId,
+            @Param("query") String query);
 }
