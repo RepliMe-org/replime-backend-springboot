@@ -34,12 +34,20 @@ public class MessageService {
                 .session(chatSession)
                 .sender(messageSender)
                 .build();
-        return messageRepo.save(message);
+        return messageRepo.saveAndFlush(message);
+    }
+
+    public Message getMessage(Long messageId) {
+        return messageRepo.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException("Message with id " + messageId + " not found"));
+    }
+
+    public Message saveMessage(Message message) {
+        return messageRepo.saveAndFlush(message);
     }
 
     public MessageDto classifyMessage(Long messageId, Long messageClassId) {
-        Message message = messageRepo.findById(messageId)
-                .orElseThrow(() -> new EntityNotFoundException("Message with id " + messageId + " not found"));
+        Message message = getMessage(messageId);
         if (message.getMessageClass() != null) {
             throw new InvalidClassificationException("Message is already classified");
         }

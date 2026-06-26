@@ -25,7 +25,6 @@ import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.VideoRepository;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -195,7 +194,6 @@ public class ChatSessionService {
         }
     }
 
-    @Transactional
     public SendMessageResponseDTO sendMessage(Long sessionId, String userMessage, String token) {
         ChatSession chatSession = chatSessionRepo.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat session not found"));
@@ -209,6 +207,7 @@ public class ChatSessionService {
         }
 
         chatSession.setLastMessageAt(LocalDateTime.now());
+        chatSessionRepo.saveAndFlush(chatSession);
 
         List<Message> messages = chatSession.getMessages();
         boolean isFirstMessage = messages.isEmpty();
@@ -227,15 +226,18 @@ public class ChatSessionService {
 
         List<MessageSource> messageSources = buildMessageSources(botQueryResponseDTO.getSources(), response);
         response.getSources().addAll(messageSources);
+        response = messageService.saveMessage(response);
 
+        message = messageService.getMessage(message.getId());
         message.setIntent(parseIntent(botQueryResponseDTO.getIntent()));
         message.setAnsweredWithSources(
                 botQueryResponseDTO.getSources() != null && !botQueryResponseDTO.getSources().isEmpty());
+        message = messageService.saveMessage(message);
 
         messages.add(message);
         messages.add(response);
         chatSession.setMessages(messages);
-        chatSessionRepo.save(chatSession);
+        chatSessionRepo.saveAndFlush(chatSession);
 
 
         return SendMessageResponseDTO.builder()
