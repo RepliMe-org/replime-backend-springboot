@@ -204,7 +204,12 @@ public class VideoService {
                 .duration(video.getDuration())
                 .thumbnail(video.getThumbnailUrl())
                 .syncStatus(video.getSyncStatus())
+                .failureReason(isFailedVideo(video) ? video.getFailureReason() : null)
                 .build()).toList();
+    }
+
+    private boolean isFailedVideo(Video video) {
+        return video.getSyncStatus() == SyncStatus.FAILED || video.getSyncStatus() == SyncStatus.DEAD;
     }
 
     public void updateVideoStatus(String youtubeVideoId, UpdateVideoStatusRequestDTO request) {
@@ -294,7 +299,7 @@ public class VideoService {
                 .sourceId(trainingSource.getId())
                 .videoId(video.getId())
                 .status(video.getSyncStatus().name())
-                .errorMessage(video.getFailureReason())
+                .errorMessage(isFailedVideo(video) ? video.getFailureReason() : null)
                 .build();
         messagingTemplate.convertAndSend("/topic/chatbot/" +
                 trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);
