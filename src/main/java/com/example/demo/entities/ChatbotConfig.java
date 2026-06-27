@@ -29,6 +29,8 @@ public class ChatbotConfig {
     @NotNull(message = "Description cannot be null")
     private String description;
 
+    private String aiGeneratedDescription;
+
     @NotNull(message = "greeting message cannot be null")
     private String greetingMessage;
 

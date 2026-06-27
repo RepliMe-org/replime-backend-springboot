@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.example.demo.entities.utils.MessageIntent;
 import com.example.demo.entities.utils.MessageSender;
 import com.example.demo.entities.utils.MessageStatus;
 import jakarta.persistence.*;
@@ -20,7 +21,8 @@ import java.util.UUID;
 @Table(name = "message", indexes = {
         @Index(name = "idx_message_session_id", columnList = "session_id"),
         @Index(name = "idx_message_session_sent", columnList = "session_id, sent_at ASC"),
-        @Index(name = "idx_message_class_id", columnList = "message_class_id")
+        @Index(name = "idx_message_class_id", columnList = "message_class_id"),
+        @Index(name = "idx_message_intent", columnList = "intent")
 })
 public class Message {
 
@@ -45,6 +47,11 @@ public class Message {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MessageSender sender;
+
+    @Enumerated(EnumType.STRING)
+    private MessageIntent intent;
+
+    private Boolean answeredWithSources;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

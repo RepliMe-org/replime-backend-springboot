@@ -33,6 +33,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class VideoService {
+
+    private static final boolean USE_DIRECT_INDEXING = false;
+
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
@@ -108,7 +111,7 @@ public class VideoService {
 
     public void indexSavedVideos(List<Video> successfullySavedVideos, Chatbot chatbot) {
         if (successfullySavedVideos.isEmpty()) return;
-        if (true) { // TODO: just toggle until all message broker concept is implemented
+        if (USE_DIRECT_INDEXING) {
             List<VideoIndexRequestDTO.VideoItem> videoItems = successfullySavedVideos.stream()
                     .map(video -> VideoIndexRequestDTO.VideoItem.builder()
                             .youtubeVideoId(video.getYoutubeVideoId())
@@ -151,6 +154,32 @@ public class VideoService {
         }
 
         videoRepository.delete(video);
+    }
+
+    public void deleteIndexedChunksForChatbot(Chatbot chatbot) {
+        List<Video> videos = new ArrayList<>();
+        for (TrainingSource trainingSource : chatbot.getTrainingSources()) {
+            videos.addAll(videoRepository.findByTrainingSource(trainingSource));
+        }
+
+        for (Video video : videos) {
+            if (video.getYoutubeVideoId() == null) {
+                continue;
+            }
+
+            DeleteVideoRequestDTO deleteVideoRequestDTO = DeleteVideoRequestDTO.builder()
+                    .youtube_video_id(video.getYoutubeVideoId())
+                    .chatbot_id(chatbot.getId().toString())
+                    .build();
+
+            try {
+                Map<String, Object> response =
+                        fastApiService.deleteVideoChunks(video.getId().toString(), deleteVideoRequestDTO);
+                System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
+            } catch (Exception e) {
+                throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 
     @Transactional
@@ -201,7 +230,12 @@ public class VideoService {
                 .duration(video.getDuration())
                 .thumbnail(video.getThumbnailUrl())
                 .syncStatus(video.getSyncStatus())
+                .failureReason(isFailedVideo(video) ? video.getFailureReason() : null)
                 .build()).toList();
+    }
+
+    private boolean isFailedVideo(Video video) {
+        return video.getSyncStatus() == SyncStatus.FAILED || video.getSyncStatus() == SyncStatus.DEAD;
     }
 
     public void updateVideoStatus(String youtubeVideoId, UpdateVideoStatusRequestDTO request) {
@@ -258,6 +292,14 @@ public class VideoService {
                 // Clear stale failure data on success
                 video.setFailureReason(null);
                 video.setFailedStage(null);
+                if (request.getDescription() != null) {
+                    Chatbot chatbot = video.getTrainingSource().getChatbot();
+                    var config = chatbot.getConfig();
+                    if (config != null) {
+                        config.setAiGeneratedDescription(request.getDescription());
+                        chatbotRepo.save(chatbot);
+                    }
+                }
             }
 
             video.setSyncStatus(newStatus);
@@ -283,7 +325,7 @@ public class VideoService {
                 .sourceId(trainingSource.getId())
                 .videoId(video.getId())
                 .status(video.getSyncStatus().name())
-                .errorMessage(video.getFailureReason())
+                .errorMessage(isFailedVideo(video) ? video.getFailureReason() : null)
                 .build();
         messagingTemplate.convertAndSend("/topic/chatbot/" +
                 trainingSource.getChatbot().getId() + "/sync-status", videoUpdateMsg);

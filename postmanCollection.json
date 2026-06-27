@@ -605,6 +605,177 @@
             ]
         },
         {
+            "name": "Influencer Chatbot Analytics",
+            "item": [
+                {
+                    "name": "Generate Analytics Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK — Report Generated",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"id\": 2,\n  \"generatedAt\": \"2026-06-21T16:00:00\",\n  \"generatedAtHistory\": [\n    \"2026-06-21T16:00:00\",\n    \"2026-06-20T14:00:00\"\n  ],\n  \"contentGapCountHistory\": [5, 3],\n  \"classificationBreakdown\": [\n    { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 42, \"percentage\": 70.0 },\n    { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 16.67 },\n    { \"messageClass\": \"UNCLASSIFIED\", \"count\": 8, \"percentage\": 13.33 }\n  ],\n  \"mostAskedClusters\": [\n    { \"cluster\": \"video editing tips\", \"count\": 15 },\n    { \"cluster\": \"camera gear recommendations\", \"count\": 12 }\n  ],\n  \"executiveSummary\": \"Users are most interested in video editing and gear topics. 78% of content questions were answered with cited sources. Consider adding more videos about color grading.\",\n  \"mostCitedVideos\": [\n    { \"videoId\": \"dQw4w9WgXcQ\", \"title\": \"My Best Editing Tutorial\", \"count\": 22 },\n    { \"videoId\": \"abc123XYZ\", \"title\": \"Camera Gear 2024\", \"count\": 14 }\n  ]\n}"
+                        },
+                        {
+                            "name": "429 Too Many Requests — cooldown active",
+                            "status": "Too Many Requests",
+                            "code": 429,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"timestamp\": \"2026-06-21T16:00:30\",\n  \"success\": false,\n  \"error\": \"Analytics can only be generated once every 1 minute(s)\",\n  \"nextAvailableAt\": \"2026-06-21T16:01:00\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Latest Analytics Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/latest",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "latest"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK — Latest Report",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"id\": 2,\n  \"generatedAt\": \"2026-06-21T16:00:00\",\n  \"generatedAtHistory\": [\n    \"2026-06-21T16:00:00\",\n    \"2026-06-20T14:00:00\"\n  ],\n  \"contentGapCountHistory\": [5, 3],\n  \"classificationBreakdown\": [\n    { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 42, \"percentage\": 70.0 },\n    { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 16.67 },\n    { \"messageClass\": \"UNCLASSIFIED\", \"count\": 8, \"percentage\": 13.33 }\n  ],\n  \"mostAskedClusters\": [\n    { \"cluster\": \"video editing tips\", \"count\": 15 },\n    { \"cluster\": \"camera gear recommendations\", \"count\": 12 }\n  ],\n  \"executiveSummary\": \"Users are most interested in video editing and gear topics. 78% of content questions were answered with cited sources.\",\n  \"mostCitedVideos\": [\n    { \"videoId\": \"dQw4w9WgXcQ\", \"title\": \"My Best Editing Tutorial\", \"count\": 22 }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Analytics Report by Date",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/report?generatedAt={{analyticsGeneratedAt}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "generatedAt",
+                                    "value": "{{analyticsGeneratedAt}}",
+                                    "description": "ISO datetime e.g. 2026-06-21T16:00:00"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK — Report by Date",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"id\": 1,\n  \"generatedAt\": \"2026-06-20T14:00:00\",\n  \"generatedAtHistory\": [\n    \"2026-06-21T16:00:00\",\n    \"2026-06-20T14:00:00\"\n  ],\n  \"contentGapCountHistory\": [5, 3],\n  \"classificationBreakdown\": [\n    { \"messageClass\": \"CONTENT_QUESTION\", \"count\": 30, \"percentage\": 75.0 },\n    { \"messageClass\": \"GREETING\", \"count\": 10, \"percentage\": 25.0 }\n  ],\n  \"mostAskedClusters\": [\n    { \"cluster\": \"camera gear\", \"count\": 8 }\n  ],\n  \"executiveSummary\": \"Early report — users are exploring camera recommendations.\",\n  \"mostCitedVideos\": [\n    { \"videoId\": \"abc123XYZ\", \"title\": \"Camera Gear 2024\", \"count\": 8 }\n  ]\n}"
+                        },
+                        {
+                            "name": "404 Not Found",
+                            "status": "Not Found",
+                            "code": 404,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"timestamp\": \"2026-06-21T16:05:00\",\n  \"success\": false,\n  \"error\": \"No analytics report found for the given timestamp\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Content Gaps by Date",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/content-gaps?generatedAt={{analyticsGeneratedAt}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "content-gaps"
+                            ],
+                            "query": [
+                                {
+                                    "key": "generatedAt",
+                                    "value": "{{analyticsGeneratedAt}}",
+                                    "description": "ISO datetime e.g. 2026-06-21T16:00:00"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK — Content Gaps",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"generatedAt\": \"2026-06-21T16:00:00\",\n  \"contentGaps\": [\n    { \"topic\": \"color grading tutorials\", \"frequency\": 8 },\n    { \"topic\": \"audio setup guides\", \"frequency\": 5 },\n    { \"topic\": \"lens comparisons\", \"frequency\": 4 },\n    { \"topic\": \"editing software reviews\", \"frequency\": 3 },\n    { \"topic\": \"stabilization gear\", \"frequency\": 2 }\n  ]\n}"
+                        },
+                        {
+                            "name": "404 Not Found",
+                            "status": "Not Found",
+                            "code": 404,
+                            "header": [{ "key": "Content-Type", "value": "application/json" }],
+                            "body": "{\n  \"timestamp\": \"2026-06-21T16:05:00\",\n  \"success\": false,\n  \"error\": \"No analytics report found for the given timestamp\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Chatbot Category",
             "item": [
                 {
@@ -1525,6 +1696,172 @@
                     "response": []
                 },
                 {
+                    "name": "23) Generate Analytics Report (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('generate analytics report success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "if (data && data.generatedAt) pm.collectionVariables.set('analyticsGeneratedAt', data.generatedAt);"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "23.1) Get Analytics Report by Date (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get analytics report by date success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "pm.test('has generatedAtHistory', function () { pm.expect(data.generatedAtHistory).to.be.an('array'); });",
+                                    "pm.test('has contentGapCountHistory', function () { pm.expect(data.contentGapCountHistory).to.be.an('array'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/report?generatedAt={{analyticsGeneratedAt}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "generatedAt",
+                                    "value": "{{analyticsGeneratedAt}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "23.2) Get Latest Analytics Report (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get latest analytics report success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "pm.test('has generatedAtHistory', function () { pm.expect(data.generatedAtHistory).to.be.an('array'); });",
+                                    "pm.test('has contentGapCountHistory', function () { pm.expect(data.contentGapCountHistory).to.be.an('array'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/latest",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "latest"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "23.3) Get Content Gaps by Date (Influencer)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('get content gaps success', function () { pm.expect(pm.response.code).to.equal(200); });",
+                                    "var data = pm.response.json();",
+                                    "pm.test('has generatedAt', function () { pm.expect(data.generatedAt).to.be.a('string'); });",
+                                    "pm.test('has contentGaps array', function () { pm.expect(data.contentGaps).to.be.an('array'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{influencer_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/influencer/chatbot/analytics/content-gaps?generatedAt={{analyticsGeneratedAt}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "influencer",
+                                "chatbot",
+                                "analytics",
+                                "content-gaps"
+                            ],
+                            "query": [
+                                {
+                                    "key": "generatedAt",
+                                    "value": "{{analyticsGeneratedAt}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "24) Delete Chatbot Category (Admin)",
                     "request": {
                         "method": "DELETE",
@@ -1735,6 +2072,39 @@
                     "response": []
                 },
                 {
+                    "name": "Search Sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/search?chatbotId={{chatbotId}}&query={{searchQuery}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "sessions",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "chatbotId",
+                                    "value": "{{chatbotId}}"
+                                },
+                                {
+                                    "key": "query",
+                                    "value": "{{searchQuery}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Send Message",
                     "request": {
                         "method": "POST",
@@ -1844,10 +2214,42 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"status\": \"PROCESSED\"\n}"
+                            "raw": "{\n  \"status\": \"COMPLETED\",\n  \"description\": \"AI-generated summary of this channel's content style and topics.\",\n  \"failedStage\": null,\n  \"failureReason\": null,\n  \"retryable\": null,\n  \"attemptsMade\": 1\n}"
                         }
                     },
-                    "response": []
+                    "response": [
+                        {
+                            "name": "COMPLETED — saves aiGeneratedDescription to ChatbotConfig",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [],
+                            "body": ""
+                        },
+                        {
+                            "name": "FAILED example",
+                            "status": "OK",
+                            "code": 200,
+                            "header": [],
+                            "body": "",
+                            "_postman_previewlanguage": "text",
+                            "originalRequest": {
+                                "method": "PATCH",
+                                "header": [
+                                    { "key": "Content-Type", "value": "application/json" },
+                                    { "key": "X-Internal-Token", "value": "{{X_INTERNAL_TOKEN}}" }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"status\": \"FAILED\",\n  \"failedStage\": \"TRANSCRIPT_EXTRACTION\",\n  \"failureReason\": \"YouTube transcript unavailable\",\n  \"retryable\": true,\n  \"attemptsMade\": 1\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/internal/update-video-status/{{videoId}}",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["internal", "update-video-status", "{{videoId}}"]
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "Test WebSocket",
@@ -2021,6 +2423,10 @@
             "value": ""
         },
         {
+            "key": "searchQuery",
+            "value": "hello"
+        },
+        {
             "key": "categoryId",
             "value": ""
         },
@@ -2032,6 +2438,11 @@
             "key": "influencer_token",
             "value": "",
             "type": "string"
+        },
+        {
+            "key": "analyticsGeneratedAt",
+            "value": "",
+            "description": "Captured from POST /analytics generatedAt — used for /report?generatedAt=... and /content-gaps?generatedAt=..."
         }
     ]
 }

@@ -51,6 +51,16 @@ public class ChatSessionController {
         ));
     }
 
+    @GetMapping("/search")
+    @Operation(description = "Full-text search chat session messages for a specific chatbot. Query must be at least 2 characters. Limited to 20 searches per user per minute.")
+    public ResponseEntity<ChatSessionSearchResponseDTO> searchSessions(
+            @RequestHeader("Authorization") String token,
+            @RequestParam UUID chatbotId,
+            @RequestParam String query
+    ) {
+        return ResponseEntity.ok(chatSessionService.searchSessions(token, chatbotId, query));
+    }
+
     @PostMapping("/{sessionId}/messages")
     @Operation(description = "Send message to specific chat session")
     public ResponseEntity<SendMessageResponseDTO> sendMessage(

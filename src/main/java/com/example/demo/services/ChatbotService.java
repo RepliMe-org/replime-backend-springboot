@@ -4,13 +4,18 @@ import com.example.demo.configs.JwtService;
 import com.example.demo.dtos.*;
 import com.example.demo.entities.*;
 import com.example.demo.entities.utils.ChatbotStatus;
+import com.example.demo.entities.utils.MessageClassType;
+import com.example.demo.entities.utils.Role;
 import com.example.demo.entities.utils.VerificationStatus;
 import com.example.demo.entities.utils.SourceType;
 import com.example.demo.exceptions.*;
+import com.example.demo.repos.AnalyticsReportRepo;
 import com.example.demo.repos.ChatbotCategoryRepo;
 import com.example.demo.repos.ChatbotRepo;
+import com.example.demo.repos.ChatSessionRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
-import com.example.demo.repos.VideoRepository;
+import com.example.demo.repos.MessageClassRepo;
+import com.example.demo.repos.UserRepo;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +40,18 @@ public class ChatbotService {
 
     @Autowired
     private InfluencerVerificationRepo influencerVerificationRepo;
+
+    @Autowired
+    private AnalyticsReportRepo analyticsReportRepo;
+
+    @Autowired
+    private ChatSessionRepo chatSessionRepo;
+
+    @Autowired
+    private MessageClassRepo messageClassRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     @Autowired
     private MessageClassService messageClassService;
@@ -209,6 +226,58 @@ public class ChatbotService {
         chatbot.setPublic(isPublic);
         chatbotRepo.save(chatbot);
         return ResponseEntity.ok("Chatbot visibility updated successfully");
+    }
+
+    @Transactional
+    public ResponseEntity<String> deleteChatbotForAdmin(UUID id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body("Chatbot id is required");
+        }
+
+        Chatbot chatbot = chatbotRepo.findById(id).orElse(null);
+        if (chatbot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User influencer = chatbot.getInfluencer();
+
+        videoService.deleteIndexedChunksForChatbot(chatbot);
+
+        analyticsReportRepo.deleteAll(analyticsReportRepo.findByChatbotId(id));
+        analyticsReportRepo.flush();
+
+        chatSessionRepo.deleteAll(chatSessionRepo.findByChatbotId(id));
+        chatSessionRepo.flush();
+
+        List<MessageClass> assignedMessageClasses =
+            messageClassRepo.findByChatbotsContaining(chatbot);
+        chatbot.getMessageClasses().clear();
+        assignedMessageClasses.forEach(messageClass ->
+            messageClass.getChatbots().remove(chatbot)
+        );
+        messageClassRepo.saveAll(assignedMessageClasses);
+        chatbotRepo.saveAndFlush(chatbot);
+
+        List<MessageClass> customMessageClassesToDelete = assignedMessageClasses
+            .stream()
+            .filter(messageClass -> messageClass.getType() == MessageClassType.CUSTOM)
+            .filter(messageClass -> messageClass.getChatbots().isEmpty())
+            .toList();
+        messageClassRepo.deleteAll(customMessageClassesToDelete);
+        messageClassRepo.flush();
+
+        if (influencer != null) {
+            influencerVerificationRepo.deleteAll(
+                influencerVerificationRepo.findAllByUser(influencer)
+            );
+            influencer.setRole(Role.USER);
+            userRepo.save(influencer);
+        }
+
+        chatbotRepo.delete(chatbot);
+        return ResponseEntity.ok(
+            "Chatbot and related data deleted successfully; influencer demoted to user"
+        );
     }
 
     public ResponseEntity<ChatbotStatus> getChatbotStatus(String token) {

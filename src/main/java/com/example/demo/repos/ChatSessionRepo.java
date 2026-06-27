@@ -17,6 +17,8 @@ public interface ChatSessionRepo extends JpaRepository<ChatSession, Long> {
 
     long countByUserIdAndStatusNot(Long userId, ChatSessionStatus status);
 
+    List<ChatSession> findByChatbotId(UUID chatbotId);
+
     @Query("""
     SELECT s
     FROM ChatSession s

@@ -23,6 +23,13 @@ public class BotQueryResponseDTO {
     @Nullable
     private String sessionTitle;
 
+    @Nullable
+    private String intent;
+
+    @JsonProperty("message_id")
+    @Nullable
+    private Long messageId;
+
     @Data
     @Builder
     @NoArgsConstructor
