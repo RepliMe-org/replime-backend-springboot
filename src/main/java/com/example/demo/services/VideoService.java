@@ -156,6 +156,32 @@ public class VideoService {
         videoRepository.delete(video);
     }
 
+    public void deleteIndexedChunksForChatbot(Chatbot chatbot) {
+        List<Video> videos = new ArrayList<>();
+        for (TrainingSource trainingSource : chatbot.getTrainingSources()) {
+            videos.addAll(videoRepository.findByTrainingSource(trainingSource));
+        }
+
+        for (Video video : videos) {
+            if (video.getYoutubeVideoId() == null) {
+                continue;
+            }
+
+            DeleteVideoRequestDTO deleteVideoRequestDTO = DeleteVideoRequestDTO.builder()
+                    .youtube_video_id(video.getYoutubeVideoId())
+                    .chatbot_id(chatbot.getId().toString())
+                    .build();
+
+            try {
+                Map<String, Object> response =
+                        fastApiService.deleteVideoChunks(video.getId().toString(), deleteVideoRequestDTO);
+                System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
+            } catch (Exception e) {
+                throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
     @Transactional
     public VideoResponseDTO retryVideo(Long videoId, Chatbot chatbot) {
         Video video = videoRepository.findById(videoId)

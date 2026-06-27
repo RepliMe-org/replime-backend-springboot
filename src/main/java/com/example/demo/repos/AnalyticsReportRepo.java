@@ -16,6 +16,8 @@ public interface AnalyticsReportRepo extends JpaRepository<AnalyticsReport, Long
 
     Optional<AnalyticsReport> findFirstByChatbotIdOrderByGeneratedAtDesc(UUID chatbotId);
 
+    List<AnalyticsReport> findByChatbotId(UUID chatbotId);
+
     Optional<AnalyticsReport> findByChatbotIdAndGeneratedAt(UUID chatbotId, LocalDateTime generatedAt);
 
     @Query("SELECT r.generatedAt, r.contentGapCount FROM AnalyticsReport r WHERE r.chatbot.id = :chatbotId ORDER BY r.generatedAt DESC")

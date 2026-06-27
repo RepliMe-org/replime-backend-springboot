@@ -35,4 +35,10 @@ public class AdminChatbotController {
     ) {
         return chatbotService.updateChatbotVisibility(id, isPublic);
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(description = "Delete a chatbot with all related data and demote its influencer to a normal user")
+    public ResponseEntity<String> deleteChatbot(@PathVariable UUID id) {
+        return chatbotService.deleteChatbotForAdmin(id);
+    }
 }
