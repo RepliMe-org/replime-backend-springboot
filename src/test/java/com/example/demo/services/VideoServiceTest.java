@@ -65,7 +65,7 @@ class VideoServiceTest {
                 .sourceValue("https://youtube.com/watch?v=abc")
                 .build();
         when(youtubeClientService.extractVideoId(request.getSourceValue())).thenReturn("abc");
-        when(videoRepository.existsByYoutubeVideoId("abc")).thenReturn(true);
+        when(videoRepository.existsByYoutubeVideoIdAndSyncStatusNot("abc", SyncStatus.DELETED)).thenReturn(true);
 
         TrainingSourceException exception = assertThrows(
                 TrainingSourceException.class,
@@ -103,7 +103,7 @@ class VideoServiceTest {
     void retryVideoThrowsWhenVideoMissing() {
         VideoRepository videoRepository = mock(VideoRepository.class);
         VideoService service = service(videoRepository, mock(YoutubeClientService.class));
-        when(videoRepository.findById(99L)).thenReturn(Optional.empty());
+        when(videoRepository.findByIdAndSyncStatusNot(99L, SyncStatus.DELETED)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
@@ -118,7 +118,7 @@ class VideoServiceTest {
         VideoService service = service(videoRepository, mock(YoutubeClientService.class));
         Chatbot chatbot = Chatbot.builder().id(UUID.randomUUID()).build();
         Video video = video(7L, chatbot, SyncStatus.PROCESSING);
-        when(videoRepository.findById(7L)).thenReturn(Optional.of(video));
+        when(videoRepository.findByIdAndSyncStatusNot(7L, SyncStatus.DELETED)).thenReturn(Optional.of(video));
 
         TrainingSourceException exception = assertThrows(
                 TrainingSourceException.class,
@@ -142,7 +142,7 @@ class VideoServiceTest {
         Video video = video(7L, chatbot, SyncStatus.FAILED);
         video.setFailureReason("network");
         video.setRetryCount(2);
-        when(videoRepository.findById(7L)).thenReturn(Optional.of(video));
+        when(videoRepository.findByIdAndSyncStatusNot(7L, SyncStatus.DELETED)).thenReturn(Optional.of(video));
         when(videoRepository.save(video)).thenReturn(video);
 
         VideoResponseDTO response = service.retryVideo(7L, chatbot);
@@ -162,7 +162,7 @@ class VideoServiceTest {
     void getThumbnailByYoutubeVideoIdReturnsThumbnail() {
         VideoRepository videoRepository = mock(VideoRepository.class);
         VideoService service = service(videoRepository, mock(YoutubeClientService.class));
-        when(videoRepository.findByYoutubeVideoId("abc"))
+        when(videoRepository.findByYoutubeVideoIdAndSyncStatusNot("abc", SyncStatus.DELETED))
                 .thenReturn(Optional.of(Video.builder().thumbnailUrl("thumb.jpg").build()));
 
         assertEquals("thumb.jpg", service.getThumbnailByYoutubeVideoId("abc"));
@@ -178,7 +178,7 @@ class VideoServiceTest {
         Chatbot chatbot = Chatbot.builder().id(chatbotId).build();
         Video video = video(7L, chatbot, SyncStatus.COMPLETED);
         video.setYoutubeVideoId("yt-123");
-        when(videoRepository.findByYoutubeVideoId("yt-123")).thenReturn(Optional.of(video));
+        when(videoRepository.findByYoutubeVideoIdAndSyncStatusNot("yt-123", SyncStatus.DELETED)).thenReturn(Optional.of(video));
         when(fastApiService.deleteVideoChunks(any(DeleteVideoRequestDTO.class)))
                 .thenReturn(java.util.Map.of("deleted_chunks", 4));
 
@@ -188,7 +188,8 @@ class VideoServiceTest {
         verify(fastApiService).deleteVideoChunks(captor.capture());
         assertEquals("yt-123", captor.getValue().getYoutubeVideoId());
         assertEquals(chatbotId.toString(), captor.getValue().getChatbotId());
-        verify(videoRepository).delete(video);
+        assertEquals(SyncStatus.DELETED, video.getSyncStatus());
+        verify(videoRepository).save(video);
     }
 
     private static Video video(Long id, Chatbot chatbot, SyncStatus status) {

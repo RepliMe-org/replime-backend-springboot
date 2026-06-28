@@ -76,7 +76,7 @@ public class VideoService {
                 if (videoId == null) {
                     throw new TrainingSourceException("INVALID_URL", "Could not extract video ID from URL", HttpStatus.BAD_REQUEST);
                 }
-                if (videoRepository.existsByYoutubeVideoId(videoId)) {
+                if (videoRepository.existsByYoutubeVideoIdAndSyncStatusNot(videoId, SyncStatus.DELETED)) {
                     throw new TrainingSourceException("ALREADY_INGESTED", "This video is already in your knowledge base", HttpStatus.CONFLICT);
                 }
                 Video video = youtubeClientService.getVideoDetailsForEntity(videoId);
@@ -100,7 +100,7 @@ public class VideoService {
         List<Video> successfullySavedVideos = new ArrayList<>();
         for (Video video : videosToSave) {
             if (video.getYoutubeVideoId() != null &&
-                    !videoRepository.existsByYoutubeVideoId(video.getYoutubeVideoId())) {
+                    !videoRepository.existsByYoutubeVideoIdAndSyncStatusNot(video.getYoutubeVideoId(), SyncStatus.DELETED)) {
                 video.setTrainingSource(trainingSource);
                 video = videoRepository.save(video);
                 successfullySavedVideos.add(video);
@@ -132,7 +132,7 @@ public class VideoService {
 
     @Transactional
     public void deleteVideoFromChatbot(String youtubeVideoId, Chatbot chatbot) {
-        Video video = videoRepository.findByYoutubeVideoId(youtubeVideoId)
+        Video video = videoRepository.findByYoutubeVideoIdAndSyncStatusNot(youtubeVideoId, SyncStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + youtubeVideoId));
 
         Chatbot videoChatbot = video.getTrainingSource().getChatbot();
@@ -151,13 +151,14 @@ public class VideoService {
             throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        videoRepository.delete(video);
+        video.setSyncStatus(SyncStatus.DELETED);
+        videoRepository.save(video);
     }
 
     public void deleteIndexedChunksForChatbot(Chatbot chatbot) {
         List<Video> videos = new ArrayList<>();
         for (TrainingSource trainingSource : chatbot.getTrainingSources()) {
-            videos.addAll(videoRepository.findByTrainingSource(trainingSource));
+            videos.addAll(videoRepository.findByTrainingSourceAndSyncStatusNot(trainingSource, SyncStatus.DELETED));
         }
 
         for (Video video : videos) {
@@ -186,7 +187,7 @@ public class VideoService {
 
     @Transactional
     public VideoResponseDTO retryVideo(Long videoId, Chatbot chatbot) {
-        Video video = videoRepository.findById(videoId)
+        Video video = videoRepository.findByIdAndSyncStatusNot(videoId, SyncStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
 
         if (!video.getTrainingSource().getChatbot().getId().equals(chatbot.getId())) {
@@ -241,7 +242,7 @@ public class VideoService {
     }
 
     public void updateVideoStatus(String youtubeVideoId, UpdateVideoStatusRequestDTO request) {
-        Video video = videoRepository.findByYoutubeVideoId(youtubeVideoId)
+        Video video = videoRepository.findByYoutubeVideoIdAndSyncStatusNot(youtubeVideoId, SyncStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("video not found with id: " + youtubeVideoId));
         System.out.println(video);
         try {
@@ -376,7 +377,7 @@ public class VideoService {
 
         for (Video video : allVideos) {
             if (video.getYoutubeVideoId() != null &&
-                    !videoRepository.existsByYoutubeVideoId(video.getYoutubeVideoId())) {
+                    !videoRepository.existsByYoutubeVideoIdAndSyncStatusNot(video.getYoutubeVideoId(), SyncStatus.DELETED)) {
                 video.setTrainingSource(trainingSource);
                 video = videoRepository.save(video);
                 successfullySavedVideos.add(video);
@@ -389,14 +390,14 @@ public class VideoService {
         List<TrainingSource> chatbotTrainingSources  = chatbot.getTrainingSources();
         List<Video> allVideosOfChatbot = new ArrayList<>();
         for (TrainingSource trainingSource : chatbotTrainingSources) {
-            List<Video> videosOfSource = videoRepository.findByTrainingSource(trainingSource);
+            List<Video> videosOfSource = videoRepository.findByTrainingSourceAndSyncStatusNot(trainingSource, SyncStatus.DELETED);
             allVideosOfChatbot.addAll(videosOfSource);
         }
         return mapToVideoResponseDTO(allVideosOfChatbot);
     }
 
     public String getThumbnailByYoutubeVideoId(String videoId) {
-        Video video = videoRepository.findByYoutubeVideoId(videoId)
+        Video video = videoRepository.findByYoutubeVideoIdAndSyncStatusNot(videoId, SyncStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + videoId));
         return video.getThumbnailUrl();
     }

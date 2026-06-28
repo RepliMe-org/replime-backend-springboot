@@ -19,6 +19,7 @@ import com.example.demo.entities.Video;
 import com.example.demo.entities.utils.ChatSessionStatus;
 import com.example.demo.entities.utils.MessageIntent;
 import com.example.demo.entities.utils.MessageSender;
+import com.example.demo.entities.utils.SyncStatus;
 import com.example.demo.entities.MessageClass;
 import com.example.demo.exceptions.AuthenticationException;
 import com.example.demo.exceptions.InvalidSourceException;
@@ -319,7 +320,7 @@ public class ChatSessionService {
         if (sources == null) return new ArrayList<>();
         List<MessageSource> result = new ArrayList<>();
         for (BotQueryResponseDTO.SourceDTO s : sources) {
-            videoRepository.findByYoutubeVideoId(s.getVideoId()).ifPresent(video ->
+            videoRepository.findByYoutubeVideoIdAndSyncStatusNot(s.getVideoId(), SyncStatus.DELETED).ifPresent(video ->
                     result.add(MessageSource.builder()
                             .message(botMessage)
                             .video(video)

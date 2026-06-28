@@ -4,5 +4,6 @@ public enum SyncStatus {
     PROCESSING,
     COMPLETED,
     FAILED,
-    DEAD
+    DEAD,
+    DELETED
 }

@@ -2,6 +2,7 @@ package com.example.demo.repos;
 
 import com.example.demo.entities.TrainingSource;
 import com.example.demo.entities.Video;
+import com.example.demo.entities.utils.SyncStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -10,15 +11,18 @@ import java.util.Optional;
 
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
-    boolean existsByYoutubeVideoId(String youtubeVideoId);
+    boolean existsByYoutubeVideoIdAndSyncStatusNot(String youtubeVideoId, SyncStatus syncStatus);
 
-    List<Video> findByTrainingSource(TrainingSource trainingSource);
+    List<Video> findByTrainingSourceAndSyncStatusNot(TrainingSource trainingSource, SyncStatus syncStatus);
 
-    Optional<Video> findByYoutubeVideoId(String youtubeVideoId);
+    Optional<Video> findByYoutubeVideoIdAndSyncStatusNot(String youtubeVideoId, SyncStatus syncStatus);
+
+    Optional<Video> findByIdAndSyncStatusNot(Long id, SyncStatus syncStatus);
 
     @Query(value = """
     SELECT * FROM videos
     WHERE sync_status = 'FAILED'
+      AND sync_status <> 'DELETED'
       AND retry_count < max_retries
       AND (
             last_retry_at IS NULL

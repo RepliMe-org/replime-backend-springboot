@@ -62,7 +62,7 @@ public class Video {
     }
 
     public boolean isPermanentlyFailed() {
-        return syncStatus == SyncStatus.DEAD;
+        return syncStatus == SyncStatus.DEAD || syncStatus == SyncStatus.DELETED;
     }
 
     //exponential backoff strategy for retrying failed videos first 1min, sec: 4min, third: 9min
