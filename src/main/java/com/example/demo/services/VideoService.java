@@ -147,7 +147,7 @@ public class VideoService {
 
         try {
             Map<String, Object> response =
-                    fastApiService.deleteVideoChunks(video.getId().toString(), deleteVideoRequestDTO);
+                    fastApiService.deleteVideoChunks(deleteVideoRequestDTO);
             System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
         } catch (Exception e) {
             throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
@@ -174,7 +174,7 @@ public class VideoService {
 
             try {
                 Map<String, Object> response =
-                        fastApiService.deleteVideoChunks(video.getId().toString(), deleteVideoRequestDTO);
+                        fastApiService.deleteVideoChunks(deleteVideoRequestDTO);
                 System.out.println("FastAPI Deleted chunks: " + response.get("deleted_chunks"));
             } catch (Exception e) {
                 throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);

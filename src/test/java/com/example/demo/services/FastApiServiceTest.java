@@ -81,17 +81,17 @@ class FastApiServiceTest {
                 .build();
         Map<String, Object> response = Map.of("deleted", true);
         when(webClient.method(HttpMethod.DELETE)).thenReturn(uriSpec);
-        when(uriSpec.uri("/delete/video", "video-1")).thenReturn(bodySpec);
+        when(uriSpec.uri("/delete/video")).thenReturn(bodySpec);
         when(bodySpec.header("X-INTERNAL-TOKEN", INTERNAL_TOKEN)).thenReturn(bodySpec);
         when(bodySpec.bodyValue(request)).thenReturn(headersSpec);
         when(headersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(response));
 
-        Map<String, Object> result = service.deleteVideoChunks("video-1", request);
+        Map<String, Object> result = service.deleteVideoChunks(request);
 
         assertSame(response, result);
         verify(webClient).method(HttpMethod.DELETE);
-        verify(uriSpec).uri("/delete/video", "video-1");
+        verify(uriSpec).uri("/delete/video");
         verify(bodySpec).header("X-INTERNAL-TOKEN", INTERNAL_TOKEN);
         verify(bodySpec).bodyValue(request);
         verify(responseSpec).bodyToMono(Map.class);

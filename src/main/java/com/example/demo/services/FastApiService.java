@@ -1,15 +1,14 @@
 package com.example.demo.services;
 
 import com.example.demo.dtos.DeleteVideoRequestDTO;
+import com.example.demo.dtos.internal.AnalyticsProcessRequestDTO;
+import com.example.demo.dtos.internal.AnalyticsProcessResponseDTO;
+import com.example.demo.dtos.internal.BotQueryRequestDTO;
+import com.example.demo.dtos.internal.BotQueryResponseDTO;
+import com.example.demo.dtos.internal.VideoIndexRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.example.demo.dtos.internal.VideoIndexRequestDTO;
-import com.example.demo.dtos.internal.BotQueryRequestDTO;
-import com.example.demo.dtos.internal.BotQueryResponseDTO;
-import com.example.demo.dtos.internal.AnalyticsProcessRequestDTO;
-import com.example.demo.dtos.internal.AnalyticsProcessResponseDTO;
 
 import java.util.Map;
 
@@ -31,9 +30,9 @@ public class FastApiService {
                 .block();
     }
 
-    public Map<String, Object> deleteVideoChunks(String videoId, DeleteVideoRequestDTO deleteVideoRequestDTO) {
+    public Map<String, Object> deleteVideoChunks(DeleteVideoRequestDTO deleteVideoRequestDTO) {
         return webClient.method(org.springframework.http.HttpMethod.DELETE)
-                .uri("/delete/video", videoId)
+                .uri("/delete/video")
                 .header("X-INTERNAL-TOKEN", X_TOKEN)
                 .bodyValue(deleteVideoRequestDTO)
                 .retrieve()
