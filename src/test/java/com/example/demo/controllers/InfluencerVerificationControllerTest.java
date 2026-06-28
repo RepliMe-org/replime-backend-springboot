@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+// Coverage criteria: direct controller unit coverage for verification request/confirm endpoints,
+// verifying request values are delegated and response wrappers/bodies are preserved.
 class InfluencerVerificationControllerTest {
 
     @Test

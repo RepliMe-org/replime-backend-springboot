@@ -100,6 +100,36 @@ http://localhost:8080/api/v1
 
 ---
 
+## Running Tests
+
+Run all unit test files:
+
+```bash
+mvn "-Dtest=*Test,!DemoApplicationTests" test
+```
+
+Run one specific test class:
+
+```bash
+mvn "-Dtest=FastApiServiceTest" test
+```
+
+Generate the JaCoCo coverage report:
+
+```bash
+mvn "-Dtest=*Test,!DemoApplicationTests" test jacoco:report
+```
+
+Open the generated coverage report:
+
+```text
+target/site/jacoco/index.html
+```
+
+`DemoApplicationTests` is excluded from the unit-test command because it starts the full Spring application context and needs external services such as RabbitMQ.
+
+---
+
 ## 📘 API Documentation (Swagger)
 
 Interactive API documentation is available via OpenAPI.

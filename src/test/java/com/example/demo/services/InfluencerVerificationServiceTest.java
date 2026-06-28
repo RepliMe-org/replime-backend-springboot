@@ -29,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// Coverage criteria: service unit coverage for influencer verification request/confirm flows,
+// verifying duplicate/pending/verified/missing-channel branches, token refresh, promotion, and chatbot creation.
 class InfluencerVerificationServiceTest {
 
     private static final String TOKEN = "Bearer token";

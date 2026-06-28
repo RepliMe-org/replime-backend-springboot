@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+// Coverage criteria: service unit coverage for signup/login/admin creation success and failure paths,
+// verifying auth failures, duplicate checks, saved user attributes, token generation, and encoded passwords.
 class AuthServiceTest {
 
     @Test
