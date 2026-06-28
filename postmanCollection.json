@@ -342,6 +342,30 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "Delete Chatbot (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/chatbots/{{chatbotId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "chatbots",
+                                "{{chatbotId}}"
+                            ]
+                        }
+                    },
+                    "response": []
                 }
             ]
         },
@@ -2250,6 +2274,39 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "Update AI Description",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Internal-Token",
+                                "value": "{{X_INTERNAL_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/internal/chatbots/{{chatbotId}}/ai-description",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "internal",
+                                "chatbots",
+                                "{{chatbotId}}",
+                                "ai-description"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"description\": \"AI-generated summary of this chatbot's content style, topics, and personality.\"\n}"
+                        }
+                    },
+                    "response": []
                 },
                 {
                     "name": "Test WebSocket",
