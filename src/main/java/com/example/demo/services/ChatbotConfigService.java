@@ -9,15 +9,18 @@ import com.example.demo.entities.ChatbotConfig;
 import com.example.demo.entities.utils.ChatbotStatus;
 import com.example.demo.entities.User;
 import com.example.demo.entities.utils.VerificationStatus;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ChatbotConfigService {
@@ -128,6 +131,20 @@ public class ChatbotConfigService {
 
         config = chatbotConfigRepo.save(config);
         return ResponseEntity.ok(mapToChatbotConfigResponseDTO(config, user));
+    }
+
+    @Transactional
+    public void updateAiGeneratedDescription(UUID chatbotId, String description) {
+        Chatbot chatbot = chatbotRepo.findById(chatbotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatbot not found with id: " + chatbotId));
+
+        ChatbotConfig config = chatbot.getConfig();
+        if (config == null) {
+            throw new ResourceNotFoundException("Chatbot config not found for chatbot id: " + chatbotId);
+        }
+
+        config.setAiGeneratedDescription(description);
+        chatbotConfigRepo.save(config);
     }
 
     private ChatbotConfigResponseDTO mapToChatbotConfigResponseDTO(ChatbotConfig config, User user) {

@@ -14,6 +14,7 @@ import com.example.demo.entities.utils.Role;
 import com.example.demo.entities.utils.Tone;
 import com.example.demo.entities.utils.Verbosity;
 import com.example.demo.entities.utils.VerificationStatus;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repos.ChatbotConfigRepo;
 import com.example.demo.repos.ChatbotRepo;
 import com.example.demo.repos.InfluencerVerificationRepo;
@@ -23,12 +24,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -207,6 +210,49 @@ class ChatbotConfigServiceTest {
         assertNull(config.getTone());
         assertNull(config.getFormality());
         assertEquals("avatar.jpg", response.getBody().getAvatarUrl());
+    }
+
+    @Test
+    void updateAiGeneratedDescriptionUpdatesConfig() {
+        ChatbotConfigRepo configRepo = mock(ChatbotConfigRepo.class);
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        ChatbotConfigService service = service(
+                configRepo,
+                mock(JwtService.class),
+                mock(ChatbotService.class),
+                chatbotRepo,
+                mock(InfluencerVerificationRepo.class));
+        UUID chatbotId = UUID.randomUUID();
+        ChatbotConfig config = ChatbotConfig.builder()
+                .name("Creator")
+                .description("User description")
+                .greetingMessage("Hi")
+                .talkLikeMe(true)
+                .build();
+        Chatbot chatbot = Chatbot.builder().id(chatbotId).config(config).build();
+        when(chatbotRepo.findById(chatbotId)).thenReturn(Optional.of(chatbot));
+        when(configRepo.save(config)).thenReturn(config);
+
+        service.updateAiGeneratedDescription(chatbotId, "Generated description");
+
+        assertEquals("Generated description", config.getAiGeneratedDescription());
+        verify(configRepo).save(config);
+    }
+
+    @Test
+    void updateAiGeneratedDescriptionThrowsWhenChatbotMissing() {
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        ChatbotConfigService service = service(
+                mock(ChatbotConfigRepo.class),
+                mock(JwtService.class),
+                mock(ChatbotService.class),
+                chatbotRepo,
+                mock(InfluencerVerificationRepo.class));
+        UUID chatbotId = UUID.randomUUID();
+        when(chatbotRepo.findById(chatbotId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> service.updateAiGeneratedDescription(chatbotId, "Generated description"));
     }
 
     private static ChatbotConfigRequestDTO configRequest(boolean fetchChannel) {

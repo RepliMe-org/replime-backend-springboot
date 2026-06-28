@@ -76,8 +76,8 @@ class FastApiServiceTest {
         WebClient.RequestHeadersSpec headersSpec = mock(WebClient.RequestHeadersSpec.class);
         WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
         DeleteVideoRequestDTO request = DeleteVideoRequestDTO.builder()
-                .chatbot_id("chatbot-1")
-                .youtube_video_id("video-1")
+                .chatbotId("chatbot-1")
+                .youtubeVideoId("video-1")
                 .build();
         Map<String, Object> response = Map.of("deleted", true);
         when(webClient.method(HttpMethod.DELETE)).thenReturn(uriSpec);

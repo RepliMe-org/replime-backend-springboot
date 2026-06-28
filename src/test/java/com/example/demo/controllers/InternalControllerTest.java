@@ -1,7 +1,9 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dtos.internal.UpdateAiDescriptionRequestDTO;
 import com.example.demo.dtos.internal.UpdateVideoStatusRequestDTO;
 import com.example.demo.dtos.utils.MessageDto;
+import com.example.demo.services.ChatbotConfigService;
 import com.example.demo.services.MessageService;
 import com.example.demo.services.VideoService;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,6 +49,23 @@ class InternalControllerTest {
 
         assertEquals("/topic/test", messagingTemplate.destination.get());
         assertEquals("HELLO", messagingTemplate.payload.get());
+    }
+
+    @Test
+    void updateAiDescriptionPassesChatbotIdAndDescription() throws Exception {
+        InternalController controller = new InternalController();
+        TestChatbotConfigService chatbotConfigService = new TestChatbotConfigService();
+        injectField(controller, "chatbotConfigService", chatbotConfigService);
+        UUID chatbotId = UUID.randomUUID();
+        UpdateAiDescriptionRequestDTO request = new UpdateAiDescriptionRequestDTO();
+        request.setDescription("Generated creator profile");
+
+        ResponseEntity<String> response = controller.updateAiDescription(chatbotId, request);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("AI description updated successfully", response.getBody());
+        assertEquals(chatbotId, chatbotConfigService.chatbotId.get());
+        assertEquals("Generated creator profile", chatbotConfigService.description.get());
     }
 
     @Test
@@ -91,6 +111,17 @@ class InternalControllerTest {
             this.messageId.set(messageId);
             this.messageClassId.set(messageClassId);
             return response;
+        }
+    }
+
+    private static class TestChatbotConfigService extends ChatbotConfigService {
+        private final AtomicReference<UUID> chatbotId = new AtomicReference<>();
+        private final AtomicReference<String> description = new AtomicReference<>();
+
+        @Override
+        public void updateAiGeneratedDescription(UUID chatbotId, String description) {
+            this.chatbotId.set(chatbotId);
+            this.description.set(description);
         }
     }
 

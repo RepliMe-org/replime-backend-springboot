@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.DeleteVideoRequestDTO;
 import com.example.demo.dtos.TrainingSourceRequestDTO;
 import com.example.demo.dtos.VideoResponseDTO;
 import com.example.demo.entities.Chatbot;
@@ -16,6 +17,7 @@ import com.example.demo.repos.TrainingSourceRepository;
 import com.example.demo.repos.VideoRepository;
 import com.example.demo.services.rabbitMQService.VideoIndexPublisher;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -163,6 +166,29 @@ class VideoServiceTest {
                 .thenReturn(Optional.of(Video.builder().thumbnailUrl("thumb.jpg").build()));
 
         assertEquals("thumb.jpg", service.getThumbnailByYoutubeVideoId("abc"));
+    }
+
+    @Test
+    void deleteVideoFromChatbotSendsOwningChatbotIdToFastApi() {
+        VideoRepository videoRepository = mock(VideoRepository.class);
+        FastApiService fastApiService = mock(FastApiService.class);
+        VideoService service = service(videoRepository, mock(YoutubeClientService.class));
+        ReflectionTestUtils.setField(service, "fastApiService", fastApiService);
+        UUID chatbotId = UUID.randomUUID();
+        Chatbot chatbot = Chatbot.builder().id(chatbotId).build();
+        Video video = video(7L, chatbot, SyncStatus.COMPLETED);
+        video.setYoutubeVideoId("yt-123");
+        when(videoRepository.findByYoutubeVideoId("yt-123")).thenReturn(Optional.of(video));
+        when(fastApiService.deleteVideoChunks(any(DeleteVideoRequestDTO.class)))
+                .thenReturn(java.util.Map.of("deleted_chunks", 4));
+
+        service.deleteVideoFromChatbot("yt-123", Chatbot.builder().id(chatbotId).build());
+
+        ArgumentCaptor<DeleteVideoRequestDTO> captor = ArgumentCaptor.forClass(DeleteVideoRequestDTO.class);
+        verify(fastApiService).deleteVideoChunks(captor.capture());
+        assertEquals("yt-123", captor.getValue().getYoutubeVideoId());
+        assertEquals(chatbotId.toString(), captor.getValue().getChatbotId());
+        verify(videoRepository).delete(video);
     }
 
     private static Video video(Long id, Chatbot chatbot, SyncStatus status) {

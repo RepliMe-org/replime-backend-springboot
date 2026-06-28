@@ -135,15 +135,13 @@ public class VideoService {
         Video video = videoRepository.findByYoutubeVideoId(youtubeVideoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + youtubeVideoId));
 
-        if (!video.getTrainingSource().getChatbot().getId().equals(chatbot.getId())) {
+        Chatbot videoChatbot = video.getTrainingSource().getChatbot();
+        if (!videoChatbot.getId().equals(chatbot.getId())) {
             throw new TrainingSourceException("FORBIDDEN", "This video does not belong to your chatbot",
                     org.springframework.http.HttpStatus.FORBIDDEN);
         }
 
-        DeleteVideoRequestDTO deleteVideoRequestDTO = DeleteVideoRequestDTO.builder()
-                .youtube_video_id(youtubeVideoId)
-                .chatbot_id(chatbot.getId().toString())
-                .build();
+        DeleteVideoRequestDTO deleteVideoRequestDTO = buildDeleteVideoRequest(video);
 
         try {
             Map<String, Object> response =
@@ -167,10 +165,7 @@ public class VideoService {
                 continue;
             }
 
-            DeleteVideoRequestDTO deleteVideoRequestDTO = DeleteVideoRequestDTO.builder()
-                    .youtube_video_id(video.getYoutubeVideoId())
-                    .chatbot_id(chatbot.getId().toString())
-                    .build();
+            DeleteVideoRequestDTO deleteVideoRequestDTO = buildDeleteVideoRequest(video);
 
             try {
                 Map<String, Object> response =
@@ -180,6 +175,13 @@ public class VideoService {
                 throw new TrainingSourceException("AI_SERVICE_ERROR", "Failed to delete video chunks from AI service: " + e.getMessage(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+    }
+
+    private DeleteVideoRequestDTO buildDeleteVideoRequest(Video video) {
+        return DeleteVideoRequestDTO.builder()
+                .youtubeVideoId(video.getYoutubeVideoId())
+                .chatbotId(video.getTrainingSource().getChatbot().getId().toString())
+                .build();
     }
 
     @Transactional
