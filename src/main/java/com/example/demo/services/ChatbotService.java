@@ -73,10 +73,33 @@ public class ChatbotService {
     }
 
     public ResponseEntity<List<PublicChatbotResponseDTO>> getPublicChatbots() {
-        List<Chatbot> chatbots = chatbotRepo.findAllByIsPublicTrue();
+        List<Chatbot> chatbots = chatbotRepo.findAllByIsPublicTrueWithDetails();
+
+        // Batch-fetch verifications for all influencers in one query instead of
+        // one influencerVerificationRepo.findByUser(...) call per chatbot (N+1 fix).
+        List<User> influencers = chatbots
+            .stream()
+            .map(Chatbot::getInfluencer)
+            .filter(java.util.Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
+        java.util.Map<Long, InfluencerVerification> verificationsByInfluencerId = influencerVerificationRepo
+            .findAllByUserIn(influencers)
+            .stream()
+            .collect(Collectors.toMap(
+                v -> v.getUser().getId(),
+                v -> v,
+                (existing, duplicate) -> existing
+            ));
+
         List<PublicChatbotResponseDTO> browseDTOs = chatbots
             .stream()
-            .map(this::mapToPublicChatbotResponseDTO)
+            .map(chatbot -> mapToPublicChatbotResponseDTO(
+                chatbot,
+                chatbot.getInfluencer() != null
+                    ? verificationsByInfluencerId.get(chatbot.getInfluencer().getId())
+                    : null
+            ))
             .collect(Collectors.toList());
         return ResponseEntity.ok(browseDTOs);
     }
@@ -94,6 +117,13 @@ public class ChatbotService {
         Chatbot chatbot
     ) {
         InfluencerVerification influencerVerification = influencerVerificationRepo.findByUser(chatbot.getInfluencer());
+        return mapToPublicChatbotResponseDTO(chatbot, influencerVerification);
+    }
+
+    private PublicChatbotResponseDTO mapToPublicChatbotResponseDTO(
+        Chatbot chatbot,
+        InfluencerVerification influencerVerification
+    ) {
         return PublicChatbotResponseDTO.builder()
             .id(chatbot.getId())
             .influencerUsername(chatbot.getInfluencer().getUsername())

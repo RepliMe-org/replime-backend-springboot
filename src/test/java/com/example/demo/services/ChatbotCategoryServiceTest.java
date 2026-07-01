@@ -74,7 +74,7 @@ class ChatbotCategoryServiceTest {
         ChatbotCategoryService service = service(categoryRepo, mock(MessageClassService.class), chatbotRepo);
         ChatbotCategory support = ChatbotCategory.builder().id(1L).name("Support").build();
         when(categoryRepo.findByIsDeletedFalse()).thenReturn(List.of(support));
-        when(chatbotRepo.countByCategoryId(1L)).thenReturn(4L);
+        when(chatbotRepo.countChatbotsGroupedByCategory()).thenReturn(List.<Object[]>of(new Object[]{1L, 4L}));
 
         List<ChatbotCategoryResponseDTO> categories = service.getAllCategories();
 

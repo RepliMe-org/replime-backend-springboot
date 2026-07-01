@@ -71,11 +71,12 @@ class ChatbotServiceTest {
         ChatbotService service = service(chatbotRepo, verificationRepo);
         User influencer = User.builder().id(1L).email("creator@example.com").build();
         Chatbot chatbot = chatbot(influencer);
-        when(chatbotRepo.findAllByIsPublicTrue()).thenReturn(List.of(chatbot));
-        when(verificationRepo.findByUser(influencer)).thenReturn(InfluencerVerification.builder()
+        when(chatbotRepo.findAllByIsPublicTrueWithDetails()).thenReturn(List.of(chatbot));
+        when(verificationRepo.findAllByUserIn(List.of(influencer))).thenReturn(List.of(InfluencerVerification.builder()
+                .user(influencer)
                 .avatarUrl("avatar.jpg")
                 .handle("@creator")
-                .build());
+                .build()));
 
         ResponseEntity<List<PublicChatbotResponseDTO>> response = service.getPublicChatbots();
 

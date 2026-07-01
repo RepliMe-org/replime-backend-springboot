@@ -21,4 +21,8 @@ public interface InfluencerVerificationRepo extends JpaRepository<InfluencerVeri
     InfluencerVerification findByChannelId(String channelId);
 
     InfluencerVerification findByUser(User influencer);
+
+    // Batched lookup for a list of influencers (avoids one query per chatbot
+    // when mapping a list, e.g. the public chatbot listing).
+    List<InfluencerVerification> findAllByUserIn(List<User> users);
 }

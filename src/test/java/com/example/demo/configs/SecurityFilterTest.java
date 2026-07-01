@@ -88,6 +88,25 @@ class SecurityFilterTest {
     }
 
     @Test
+    void jwtAuthFilterSwallowsMalformedTokenExceptionAndContinuesChain() throws ServletException, IOException {
+        JwtService jwtService = mock(JwtService.class);
+        UserDetailsService userDetailsService = mock(UserDetailsService.class);
+        JwtAuthFilter filter = new JwtAuthFilter(jwtService, userDetailsService);
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/users");
+        request.addHeader("Authorization", "Bearer TOKEN_NOT_FOUND");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        when(jwtService.extractUsername("TOKEN_NOT_FOUND"))
+                .thenThrow(new io.jsonwebtoken.MalformedJwtException(
+                        "JWT strings must contain exactly 2 period characters. Found: 0"));
+
+        filter.doFilterInternal(request, response, chain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     void internalTokenFilterRejectsInternalEndpointWithoutExpectedToken() throws ServletException, IOException {
         InternalTokenFilter filter = new InternalTokenFilter();
         ReflectionTestUtils.setField(filter, "expectedInternalToken", "secret");

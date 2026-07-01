@@ -43,12 +43,19 @@ public class ChatbotCategoryService {
 
     public List<ChatbotCategoryResponseDTO> getAllCategories() {
         List<ChatbotCategory> chatbotCategories = chatbotCategoryRepo.findByIsDeletedFalse();
+
+        // Single grouped query instead of one countByCategoryId(...) call per category (N+1 fix).
+        java.util.Map<Long, Long> countsByCategoryId = new java.util.HashMap<>();
+        for (Object[] row : chatbotRepo.countChatbotsGroupedByCategory()) {
+            countsByCategoryId.put((Long) row[0], (Long) row[1]);
+        }
+
         List<ChatbotCategoryResponseDTO> chatbotCategoryDTOs = new ArrayList<>();
         for (ChatbotCategory category : chatbotCategories) {
             ChatbotCategoryResponseDTO categoryDTO = ChatbotCategoryResponseDTO.builder()
                     .id(category.getId())
                     .name(category.getName())
-                    .chatbotCount(Math.toIntExact(chatbotRepo.countByCategoryId(category.getId())))
+                    .chatbotCount(Math.toIntExact(countsByCategoryId.getOrDefault(category.getId(), 0L)))
                     .build();
             chatbotCategoryDTOs.add(categoryDTO);
         }
