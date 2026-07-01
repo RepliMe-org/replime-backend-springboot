@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +64,21 @@ class MessageClassServiceTest {
         assertEquals("Pricing", response.getPickedClasses().get(0).getName());
         assertEquals("Refunds", response.getAvailableClasses().get(0).getName());
         assertEquals("Custom", response.getCustomClasses().get(0).getName());
+    }
+
+    @Test
+    void getInfluencerClassificationContextHandlesMissingCategory() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        MessageClassService service = service(repo, mock(ChatbotRepo.class), mock(MessageService.class));
+        Chatbot chatbot = Chatbot.builder().build();
+        when(repo.findByChatbotsContainingAndType(chatbot, MessageClassType.CUSTOM)).thenReturn(List.of());
+
+        InfluencerMessageClassesDTO response = service.getInfluencerClassificationContext(chatbot);
+
+        assertEquals(null, response.getCategory());
+        assertTrue(response.getPickedClasses().isEmpty());
+        assertTrue(response.getAvailableClasses().isEmpty());
+        assertTrue(response.getCustomClasses().isEmpty());
     }
 
     @Test
@@ -137,6 +153,114 @@ class MessageClassServiceTest {
     }
 
     @Test
+    void removeCustomMessageClassDeletesWhenNoMessagesReferenceIt() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        MessageService messageService = mock(MessageService.class);
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        MessageClassService service = service(repo, chatbotRepo, messageService);
+        Chatbot chatbot = Chatbot.builder().messageClasses(new HashSet<>()).build();
+        MessageClass messageClass = MessageClass.builder().id(1L).type(MessageClassType.CUSTOM).build();
+        chatbot.getMessageClasses().add(messageClass);
+        when(repo.findById(1L)).thenReturn(Optional.of(messageClass));
+        when(messageService.existsByMessageClassId(1L)).thenReturn(false);
+
+        service.removeMessageClassFromChatbot(1L, chatbot);
+
+        assertFalse(chatbot.getMessageClasses().contains(messageClass));
+        verify(repo).delete(messageClass);
+        verify(repo, never()).save(messageClass);
+        verify(chatbotRepo).save(chatbot);
+    }
+
+    @Test
+    void createCustomMessageClassesForChatbotPersistsCustomClassesAndSavesChatbot() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        MessageClassService service = service(repo, chatbotRepo, mock(MessageService.class));
+        ChatbotCategory category = ChatbotCategory.builder().id(1L).build();
+        Chatbot chatbot = Chatbot.builder().category(category).messageClasses(new HashSet<>()).build();
+        when(repo.save(org.mockito.ArgumentMatchers.any(MessageClass.class))).thenAnswer(invocation -> {
+            MessageClass messageClass = invocation.getArgument(0);
+            messageClass.setId(7L);
+            return messageClass;
+        });
+
+        service.createCustomMessageClassesForChatbot(chatbot, List.of("Custom"));
+
+        assertEquals(1, chatbot.getMessageClasses().size());
+        MessageClass saved = chatbot.getMessageClasses().iterator().next();
+        assertEquals("Custom", saved.getName());
+        assertEquals(MessageClassType.CUSTOM, saved.getType());
+        assertEquals(category, saved.getCategory());
+        assertTrue(saved.getChatbots().contains(chatbot));
+        verify(chatbotRepo).save(chatbot);
+    }
+
+    @Test
+    void deleteMessageClassFromCategoryDeactivatesWhenMessagesReferenceIt() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        MessageService messageService = mock(MessageService.class);
+        MessageClassService service = service(repo, mock(ChatbotRepo.class), messageService);
+        MessageClass messageClass = MessageClass.builder().id(1L).isActive(true).build();
+        when(repo.findById(1L)).thenReturn(Optional.of(messageClass));
+        when(messageService.existsByMessageClassId(1L)).thenReturn(true);
+
+        service.deleteMessageClassFromCategory(1L);
+
+        assertFalse(messageClass.isActive());
+        verify(repo).save(messageClass);
+    }
+
+    @Test
+    void deleteMessageClassFromCategoryUnlinksAndDeletesUnusedClass() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        MessageService messageService = mock(MessageService.class);
+        MessageClassService service = service(repo, chatbotRepo, messageService);
+        Chatbot chatbot = Chatbot.builder().messageClasses(new HashSet<>()).build();
+        MessageClass messageClass = MessageClass.builder()
+                .id(1L)
+                .chatbots(new HashSet<>(List.of(chatbot)))
+                .build();
+        chatbot.getMessageClasses().add(messageClass);
+        when(repo.findById(1L)).thenReturn(Optional.of(messageClass));
+        when(messageService.existsByMessageClassId(1L)).thenReturn(false);
+
+        service.deleteMessageClassFromCategory(1L);
+
+        assertFalse(chatbot.getMessageClasses().contains(messageClass));
+        assertTrue(messageClass.getChatbots().isEmpty());
+        verify(chatbotRepo).save(chatbot);
+        verify(repo).delete(messageClass);
+    }
+
+    @Test
+    void deleteAllMessageClassesByCategoryHandlesReferencedAndUnusedClasses() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        ChatbotRepo chatbotRepo = mock(ChatbotRepo.class);
+        MessageService messageService = mock(MessageService.class);
+        MessageClassService service = service(repo, chatbotRepo, messageService);
+        Chatbot chatbot = Chatbot.builder().messageClasses(new HashSet<>()).build();
+        MessageClass referenced = MessageClass.builder().id(1L).isActive(true).build();
+        MessageClass unused = MessageClass.builder()
+                .id(2L)
+                .chatbots(new HashSet<>(List.of(chatbot)))
+                .build();
+        chatbot.getMessageClasses().add(unused);
+        when(repo.findByCategoryId(10L)).thenReturn(List.of(referenced, unused));
+        when(messageService.existsByMessageClassId(1L)).thenReturn(true);
+        when(messageService.existsByMessageClassId(2L)).thenReturn(false);
+
+        service.deleteAllMessageClassesByCategory(10L);
+
+        assertFalse(referenced.isActive());
+        assertFalse(chatbot.getMessageClasses().contains(unused));
+        verify(repo).save(referenced);
+        verify(chatbotRepo).save(chatbot);
+        verify(repo).delete(unused);
+    }
+
+    @Test
     void getMessageClassByIdThrowsWhenMissing() {
         MessageClassRepo repo = mock(MessageClassRepo.class);
         MessageClassService service = service(repo, mock(ChatbotRepo.class), mock(MessageService.class));
@@ -158,6 +282,18 @@ class MessageClassServiceTest {
         when(repo.findById(5L)).thenReturn(Optional.of(MessageClass.builder().category(category).build()));
 
         assertTrue(service.isMessageClassIdValidForChatbot(5L, chatbot));
+    }
+
+    @Test
+    void isMessageClassIdValidForChatbotReturnsFalseForDifferentCategoryInstance() {
+        MessageClassRepo repo = mock(MessageClassRepo.class);
+        MessageClassService service = service(repo, mock(ChatbotRepo.class), mock(MessageService.class));
+        Chatbot chatbot = Chatbot.builder().category(ChatbotCategory.builder().id(1L).build()).build();
+        when(repo.findById(5L)).thenReturn(Optional.of(MessageClass.builder()
+                .category(ChatbotCategory.builder().id(1L).build())
+                .build()));
+
+        assertFalse(service.isMessageClassIdValidForChatbot(5L, chatbot));
     }
 
     private static MessageClassService service(
