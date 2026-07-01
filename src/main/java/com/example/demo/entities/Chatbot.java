@@ -49,6 +49,7 @@ public class Chatbot {
     )
     private Set<MessageClass> messageClasses = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "chatbot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TrainingSource> trainingSources = new ArrayList<>();
 }
